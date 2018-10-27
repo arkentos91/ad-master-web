@@ -1,0 +1,597 @@
+<%-- 
+    Document   : terminaloriedit
+    Created on : Apr 29, 2016, 11:34:10 AM
+    Author     : jayana_i
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="/struts-tags" prefix="s" %>
+<%@taglib  uri="/struts-jquery-tags" prefix="sj"%>
+<%@taglib prefix="sjg" uri="/struts-jquery-grid-tags"%>
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+
+        <%@include file="/stylelinks.jspf" %>
+
+        <script type="text/javascript">
+
+
+            function editformatter(cellvalue, options, rowObject) {
+                a = $("#addButton").is(':disabled');
+                u = $("#updateButton").is(':disabled');
+                return "<a href='#' title='Edit' onClick='javascript:editTerminalInit(&#34;" + cellvalue + "&#34;)'><img class='ui-icon ui-icon-pencil' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+            function resetformatter(cellvalue, options, rowObject) {
+
+                var chk2 = rowObject.status;
+                var chk1 = rowObject.terminalcategory;
+
+                if (chk2 == "ACT" && chk1 == "Mobile") {
+
+                    return "<a href='#/' title='Reset Status' onClick='javascript:resetTerminalInit(&#34;" + cellvalue + "&#34;&#44;&#34;" + rowObject.merchantOri + "&#34;)'><img class='ui-icon  ui-icon-locked' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+                } else {
+
+                    return "--";
+                }
+
+            }
+            function resetTerminalInit(keyval, merchantOri) {
+                $('#divmsg').empty();
+                $("#resetdialog").data('keyval', keyval).data('merchantOri', merchantOri).dialog('open');
+                $("#resetdialog").html('Are you sure you want to reset terminal : ' + keyval + ' ?');
+                return false;
+            }
+            function resetTerminal(keyval, merchantOri) {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/resetTerminal.action',
+                    data: {id: keyval, merchantOri: merchantOri},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        $("#resetsuccdialog").dialog('open');
+                        $("#resetsuccdialog").html(data.message);
+
+                        $("#gridtable").jqGrid('setGridParam', {postData: {search: false}});
+                        jQuery("#gridtable").trigger("reloadGrid");
+                    },
+                    error: function (data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            function deleteformatter(cellvalue, options, rowObject) {
+                return "<a href='#/' title='Delete' onClick='javascript:deleteTerminalInit(&#34;" + cellvalue + "&#34;&#44;&#34;" + rowObject.merchantOri + "&#34;)'><img class='ui-icon ui-icon-trash' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+
+            function editTerminalInit(keyval) {
+                $("#updatedialog").data('id', keyval).dialog('open');
+            }
+
+            $.subscribe('openviewtasktopage', function (event, data) {
+
+                var $led = $("#updatedialog");
+
+                $led.html("Loading..");
+                $led.load("detailTerminal.action?id=" + $led.data('id'));
+                editTerminal($led.data('id'));
+            });
+
+            function deleteTerminalInit(keyval, merchantOri) {
+                $('#divmsg').empty();
+                $("#deletedialog").data('keyval', keyval).data('merchantOri', merchantOri).dialog('open');
+                $("#deletedialog").html('Are you sure you want to delete Terminal : ' + keyval + ' ?');
+                return false;
+            }
+
+            function deleteTerminal(keyval, merchantOri) {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/deleteTerminal.action',
+                    data: {id: keyval, merchantOri: merchantOri},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        $("#deletesuccdialog").dialog('open');
+                        $("#deletesuccdialog").html(data.message);
+                        $("#gridtable").jqGrid('setGridParam', {postData: {search: false}});
+                        jQuery("#gridtable").trigger("reloadGrid");
+                    },
+                    error: function (data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            function resetAllData() {
+                a = $("#addButton").is(':disabled');
+                u = $("#updateButton").is(':disabled');
+
+                if (a == true && u == true) {
+                    editTerminal(null);
+                } else if (a == true && u == false) {
+                    var productcode = $('#idsearch').val();
+                    $('#idsearch').attr('readOnly', true);
+                    editTerminal(productcode);
+                } else if (a == false && u == true) {
+                    editTerminal(null);
+                }
+            }
+
+            function resetAfterAdd() {
+
+                $('#id').val("");
+                $('#terminalname').val("");
+                $('#acquirerRiskprofile').val("");
+                $('#merchantOri').val("");
+                $('#currency').val("");
+                $('#terminalcategory').val("");
+                $('#mccOri').val("");
+                $('#serialno').val("");
+                $('#manufacturer').val("");
+                $('#model').val("");
+                $('#mobile').val("");
+                $('#dateinstalled').val("");
+
+            }
+
+            function resetFieldData() {
+
+                Ttoleftall();
+                resetAfterAdd();
+                $("#gridtable").jqGrid('setGridParam', {postData: {search: false}});
+                jQuery("#gridtable").trigger("reloadGrid");
+            }
+            function Ttoleftall() {
+                $("#newBoxadd option").each(function () {
+
+                    $("#currentBoxadd").append($('<option>', {
+                        value: $(this).val(),
+                        text: $(this).text()
+                    }));
+                    $(this).remove();
+                });
+            }
+
+            function readURL(input) {
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        $('#imgib').attr('src', e.target.result);
+                        $('#conXLibsearch').attr('src', e.target.result);
+                    }
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+
+            function readURL2(input) {
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                    }
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+
+            function cancelTerminalAllData() {
+
+                editTerminal(null);
+                onstart();
+            }
+
+            function onstart() {
+                $('#imgib').attr('src', '${pageContext.request.contextPath}/resouces/images/cardproduct/defaultImage.png');
+            }
+
+            function resetSearchData() {
+                $('#idsearch').val("");
+                $('#terminalnamesearch').val("");
+                $('#acquirerRiskprofilesearch').val("");
+                $('#statussearch').val("");
+                $('#merchantOrisearch').val("");
+                $('#currencysearch').val("");
+                $('#mobilesearch').val("");
+                $('#terminalcategorysearch').val("");
+
+                $('#mccOrisearch').val("");
+                $('#serialnosearch').val("");
+                $('#manufacturersearch').val("");
+                $('#modelsearch').val("");
+                $('#dateinstalledsearch').val("");
+
+
+                $("#gridtable").jqGrid('setGridParam', {postData: {
+                        s_id: '',
+                        s_terminalname: '',
+                        s_acquirerRiskprofile: '',
+                        s_status: '',
+                        s_merchantOri: '',
+                        s_currency: '',
+                        s_mccOri: '',
+                        s_mobile: '',
+                        s_terminalcategory: '',
+                        s_serialno: '',
+                        s_manufacturer: '',
+                        s_model: '',
+                        s_dateinstalled: '',
+                        search: false
+                    }});
+                $("#gridtable").jqGrid('setGridParam', {page: 1});
+                jQuery("#gridtable").trigger("reloadGrid");
+            }
+
+            function searchTerminal() {
+                var id = $('#idsearch').val();
+                var terminalname = $('#terminalnamesearch').val();
+                var acquirerRiskprofile = $('#acquirerRiskprofilesearch').val();
+                var status = $('#statussearch').val();
+                var merchantOri = $('#merchantOrisearch').val();
+                var currency = $('#currencysearch').val();
+                var mccOri = $('#mccOrisearch').val();
+                var serialno = $('#serialnosearch').val();
+                var manufacturer = $('#manufacturersearch').val();
+                var model = $('#modelsearch').val();
+                var dateinstalled = $('#dateinstalledsearch').val();
+                var mobile = $('#mobilesearch').val();
+                var terminalcategory = $('#terminalcategorysearch').val();
+
+                $("#gridtable").jqGrid('setGridParam', {
+                    postData: {
+                        s_id: id,
+                        s_terminalname: terminalname,
+                        s_acquirerRiskprofile: acquirerRiskprofile,
+                        s_status: status,
+                        s_merchantOri: merchantOri,
+                        s_currency: currency,
+                        s_mobile: mobile,
+                        s_terminalcategory: terminalcategory,
+                        s_mccOri: mccOri,
+                        s_serialno: serialno,
+                        s_manufacturer: manufacturer,
+                        s_model: model,
+                        s_dateinstalled: dateinstalled,
+                        search: true
+
+                    }
+                });
+                $("#gridtable").jqGrid('setGridParam', {page: 1});
+                jQuery("#gridtable").trigger("reloadGrid");
+            }
+
+            $.subscribe('anyerrors', function (event, data) {
+                window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+            });
+
+        </script>
+
+    </head>
+
+    <body style="" onload="onstart()">
+        <jsp:include page="/header.jsp"/>
+        <div class="main-container">
+            <jsp:include page="/leftmenu.jsp"/>
+            <div class="main-content">
+                <div class="container" style="min-height: 760px;">
+                    <!-- start: PAGE NAVIGATION BAR -->
+                    <jsp:include page="/navbar.jsp"/>
+                    <!-- end: NAVIGATION BAR -->
+                    <div class="row">
+                        <div id="content1">
+
+                            <s:div id="divmsg">
+                                <s:actionerror theme="jquery"/>
+                                <s:actionmessage theme="jquery"/>
+                            </s:div>
+
+                            <s:set id="vadd" var="vadd"><s:property value="vadd" default="true"/></s:set>
+                            <s:set var="vupdatebutt"><s:property value="vupdatebutt" default="true"/></s:set>
+                            <s:set var="vupdatelink"><s:property value="vupdatelink" default="true"/></s:set>
+                            <s:set var="vdelete"><s:property value="vdelete" default="true"/></s:set>
+                            <s:set var="vsearch"><s:property value="vsearch" default="true"/></s:set>
+                            <s:set var="vreset"><s:property value="vreset" default="true"/></s:set>
+                                <div id="formstyle">
+                                <s:form cssClass="form" id="pageadd" method="post" action="Terminal" theme="simple" >
+                                    <div class="row row_1"> 
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <label>Terminal ID </label>
+                                                <s:textfield name="idsearch" id="idsearch" maxLength="8" onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^0-9]/g,''))" cssClass="form-control"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <label>Merchant ID</label>
+                                                <s:select cssClass="form-control" id="merchantOrisearch" list="%{midList}" 
+                                                          headerValue="-- Select Merchant ID --"  headerKey=""
+                                                          accesskey="" name="merchantOrisearch" listKey="mid" listValue="mid"  />
+                                            </div>
+                                        </div>    
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <label>Terminal Name</label>
+                                                <s:textfield  name="terminalnamesearch" id="terminalnamesearch" maxLength="8" cssClass="form-control" />
+                                            </div>
+                                        </div>        
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <label>Serial Number</label>
+                                                <s:textfield  name="serialnosearch" id="serialnosearch" maxLength="50" tooltip="Display Name should contains [CARD]" cssClass="form-control"/>
+                                            </div>
+                                        </div>
+
+
+                                    </div>     
+
+                                    <div class="row row_1"> 
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <label>Manufacturer</label>
+                                                <s:textfield name="manufacturersearch" id="manufacturersearch" maxLength="50" onkeyup="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))" cssClass="form-control"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <label>Model</label>
+                                                <s:textfield  name="modelsearch" id="modelsearch" maxLength="50" cssClass="form-control" />
+                                            </div>
+                                        </div>        
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <label>Status</label>
+                                                <!s:select cssClass="form-control" id="statussearch" list="%{statusList}" 
+                                                    headerValue="-- Select Status--"  headerKey=""  
+                                                    accesskey=""   name="statussearch" listKey="statuscode" listValue="description"  />  
+
+                                                <s:select cssClass="form-control" id="statussearch" name="statussearch" list="%{terstatusList}" accesskey="" headerValue="-- Select Status--"  headerKey=""  listKey="key" listValue="value"/>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <label>Installed Date</label>
+                                                <sj:datepicker cssClass="form-control" id="dateinstalledsearch" name="dateinstalledsearch" readonly="true" maxDate="d" changeYear="true"
+                                                               accesskey=""   buttonImageOnly="true" displayFormat="yy-mm-dd" yearRange="2000:2200" />
+
+                                            </div>
+                                        </div>   
+
+                                        <div class="col-sm-3">
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="row row_1"> 
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <label>Risk Profile</label>
+                                                <s:select cssClass="form-control" id="acquirerRiskprofilesearch" list="%{acquirerriskprofileList}" 
+                                                          headerValue="-- Select Risk Profile--"  headerKey=""
+                                                          accesskey="" name="acquirerRiskprofilesearch" listKey="profilecode" listValue="description"  />
+                                            </div>
+                                        </div>  
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <label>Mobile</label>
+                                                <s:textfield  name="mobilesearch" id="mobilesearch" maxLength="20" cssClass="form-control" onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^0-9]/g,''))"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <label>Terminal Category</label>
+                                                <s:select cssClass="form-control" id="terminalcategorysearch" name="terminalcategorysearch" list="%{terminalcategoryList}" 
+                                                          accesskey="" headerValue="-- Select Terminal Category--"  headerKey=""  listKey="key" listValue="value"/>  
+                                            </div>
+                                        </div>    
+                                    </div>
+
+                                    <div class="row row_1 form-inline">        
+                                        <div class="col-sm-4">
+                                            <div class="form-group">    
+                                                <sj:submit 
+                                                    button="true"
+                                                    value="Search" 
+                                                    href="#"
+                                                    onClick="searchTerminal()"  
+                                                    targets="divmsg"
+                                                    id="searchbut"
+                                                    disabled="#vsearch" 
+                                                    cssClass="form-control btn_normal"
+                                                    cssStyle="border-radius: 12px;background-color:#969595;color:white;"
+
+                                                    />
+
+                                            </div>                                        
+                                            <div class="form-group">                                                   
+                                                <sj:submit 
+                                                    button="true" 
+                                                    value="Reset" 
+                                                    name="reset" 
+                                                    onClick="resetSearchData()"
+                                                    cssClass="form-control btn_normal"
+                                                    cssStyle="border-radius: 12px;"
+                                                    /> 
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-5"></div>
+                                        <div class="col-sm-3 text-right">
+                                            <div class="form-group">
+                                                <s:hidden id="oldvalue" name="oldvalue" ></s:hidden>
+                                                <s:url var="addurl" action="ViewPopupTerminal"/>
+                                                <s:url var="updateurl" action="updateTerminal"/>
+                                                <!sj:submit 
+                                                    openDialog="remoteadddialog"
+                                                    button="true" 
+                                                    href="%{addurl}" 
+                                                    value="Add New Terminal" 
+                                                    targets="remoteadddialog" 
+                                                    id="addButton"  
+                                                    disabled="#vadd" 
+                                                    hidden="true"
+                                                    cssClass="form-control btn_normal"
+                                                    cssStyle="border-radius: 12px;background-color:#969595;color:white;"
+                                                    />
+                                            </div>    
+                                        </div>
+                                    </div>
+                                </s:form>
+                            </div>
+
+                            <!-- Start delete confirm dialog box -->
+                            <sj:dialog 
+                                id="deletedialog" 
+                                buttons="{ 
+                                'OK':function() { deleteTerminal($(this).data('keyval'),$(this).data('merchantOri'));$( this ).dialog( 'close' ); },
+                                'Cancel':function() { $( this ).dialog( 'close' );} 
+                                }" 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Delete Terminal"                            
+                                />
+                            <!-- Start add confirm dialog box -->
+
+                            <!--start newly changed-->
+                            <sj:dialog 
+                                id="adddialog" 
+                                buttons="{ 
+                                'OK':function() { addTerminal($(this).data('keyval'));$( this ).dialog( 'close' ); },
+                                'Cancel':function() { $( this ).dialog( 'close' );} 
+                                }" 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Add Terminal"                            
+                                />
+                            <sj:dialog 
+                                id="resetdialog" 
+                                buttons="{ 
+                                'OK':function() { resetTerminal($(this).data('keyval'),$(this).data('merchantOri'));$( this ).dialog( 'close' ); },
+                                'Cancel':function() { $( this ).dialog( 'close' );} 
+                                }" 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Reset Terminal"                            
+                                />
+                            <!-- Start delete process dialog box -->
+                            <sj:dialog 
+                                id="deletesuccdialog" 
+                                buttons="{
+                                'OK':function() { $( this ).dialog( 'close' );}
+                                }"  
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Deleting Process." 
+                                />
+
+                            <sj:dialog 
+                                id="resetsuccdialog" 
+                                buttons="{
+                                'OK':function() { $( this ).dialog( 'close' );}
+                                }"  
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Reseting Process." 
+                                />
+                            <!-- Start delete error dialog box -->
+                            <sj:dialog 
+                                id="deleteerrordialog" 
+                                buttons="{
+                                'OK':function() { $( this ).dialog( 'close' );}                                    
+                                }" 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Delete error."
+                                />
+                            <sj:dialog                                     
+                                id="updatedialog"                                 
+                                autoOpen="false" 
+                                modal="true" 
+                                position="center"
+                                title="Update Terminal "
+                                onOpenTopics="openviewtasktopage" 
+                                loadingText="Loading .."
+                                width="900"
+                                height="490"
+                                dialogClass= "dialogclass"
+                                />
+                            <sj:dialog                                     
+                                id="remoteadddialog"                                 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Add Terminal"                            
+                                loadingText="Loading .."                            
+                                position="center"                            
+                                width="900"
+                                height="490"
+                                dialogClass= "dialogclass"
+                                />
+
+                            <div id="tablediv">
+                                <s:url var="listurl" action="listTerminal"/>
+                                <s:set var="pcaption">${CURRENTPAGE}</s:set>
+
+                                <sjg:grid
+                                    id="gridtable"
+                                    caption="%{pcaption}"
+                                    dataType="json"
+                                    href="%{listurl}"
+                                    pager="true"
+                                    gridModel="gridModel"
+                                    rowList="10,15,20"
+                                    rowNum="10"
+                                    autowidth="true"
+                                    rownumbers="true"
+                                    onCompleteTopics="completetopics"
+                                    rowTotal="false"
+                                    shrinkToFit="false"
+                                    viewrecords="true"
+                                    onErrorTopics="anyerrors"
+                                    >
+
+                                    <sjg:gridColumn name="id" index="CP.id" title="Edit" width="40" align="center" sortable="false" formatter="editformatter" hidden="#vupdatelink" frozen="true"/>
+                                    <sjg:gridColumn name="id" index="CP.id" title="Delete" width="40" align="center" sortable="false" formatter="deleteformatter" hidden="#vdelete" frozen="true"/>  
+                                    <sjg:gridColumn name="id" index="CP.id" title="Reset Status" width="80" align="center" sortable="false" formatter="resetformatter" hidden="#vreset" frozen="true"/>
+                                    <sjg:gridColumn name="id" index="CP.TERMINALID" title="Terminal ID"  sortable="true" frozen="true"/>
+                                    <sjg:gridColumn name="merchantOri" index="CP.MID" title="Merchant ID"  sortable="true"/>
+                                    <sjg:gridColumn name="terminalname" index="CP.TERMINALNAME" title="Terminal Name"  sortable="true"/>
+                                    <sjg:gridColumn name="serialno" index="CP.SERIALNO" title="Serial Number"  sortable="true"/>
+                                    <sjg:gridColumn name="manufacturer" index="CP.MANUFACTURER" title="Manufacturer"  sortable="true"/>
+                                    <sjg:gridColumn name="model" index="CP.MODEL" title="Model"  sortable="true"/>
+
+                                    <sjg:gridColumn name="currencyDes" index="CP.CURRENCYCODE" title="Currency"  sortable="true"/>
+                                    <sjg:gridColumn name="dateinstalled" index="CP.DATEINSTALLED" title="Installed Date"  sortable="true"/>
+                                    <sjg:gridColumn name="mccOriDes" index="CP.MCC" title="Merchant Category Code"  sortable="true"/>
+                                    <sjg:gridColumn name="acquirerRiskprofileDes" index="CP.RISKPROFILE" title="Risk Profile"  sortable="true"/>
+                                    <sjg:gridColumn name="statusDes" index="CP.STATUS" title="Status"  sortable="true"/>
+                                    <sjg:gridColumn name="mobile" index="CP.MOBILE" title="Mobile"  sortable="true"/>
+                                    <sjg:gridColumn name="terminalcategory" index="CP.TERMINAL_CATEGORY" title="Terminal Category"  sortable="true"/> 
+                                    <sjg:gridColumn name="createdtime" index="CP.CREATEDTIME" title="Created Time"  sortable="true"/>                                 
+                                </sjg:grid> 
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+
+                    <!-- end: PAGE CONTENT-->
+                </div>
+            </div>
+            <!-- end: PAGE -->
+        </div>
+        <!-- end: MAIN CONTAINER -->
+        <!-- start: FOOTER -->
+        <jsp:include page="/footer.jsp"/>
+        <!-- end: FOOTER -->
+
+
+
+        <!-- end: BODY -->
+    </body>
+</html>
+

@@ -1,0 +1,77 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.arkentos.action.login;
+
+import com.arkentos.util.varlist.CommonVarList;
+import java.io.File;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+/**
+ *
+ * @author jayana_i
+ */
+public class XMLReader {
+
+    String xmlFileName;
+
+    /**
+     * Constructor
+     *
+     * @param xmlFile
+     */
+    public XMLReader(String xmlFile) {
+        xmlFileName = xmlFile;
+    }
+
+    /**
+     * <p>
+     * Read the database configurations from the DBConfig.XML
+     * </p>
+     *
+     * @param element
+     * @throws Exception
+     */
+    public void getDBConfig() throws Exception {
+
+        try {
+            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+            Document doc = docBuilder.parse(new File(xmlFileName));
+
+            doc.getDocumentElement().normalize();
+            NodeList listOfSPRMs = doc.getElementsByTagName("remort");
+
+            Node firstSPRMNode = listOfSPRMs.item(0);
+
+            if (firstSPRMNode.getNodeType() == Node.ELEMENT_NODE) {
+
+                Element firstSPRAMElement = (Element) firstSPRMNode;
+
+                // Get connection user name
+                NodeList username_no = firstSPRAMElement.getElementsByTagName("ldapurl");
+                Element username_el = (Element) username_no.item(0);
+                NodeList username_list = username_el.getChildNodes();
+                CommonVarList.LDAP_URL = ((Node) username_list.item(0)).getNodeValue().trim();
+
+                NodeList password_no = firstSPRAMElement.getElementsByTagName("ldappass");
+                Element password_el = (Element) password_no.item(0);
+                NodeList password_list = password_el.getChildNodes();
+                CommonVarList.LDAP_CREDENTIALS = ((Node) password_list.item(0)).getNodeValue().trim();
+            }
+
+        } catch (Exception e) {
+
+            throw e;
+        }
+    }
+
+}

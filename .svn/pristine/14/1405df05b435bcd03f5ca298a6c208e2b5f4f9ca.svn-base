@@ -1,0 +1,445 @@
+<%-- 
+    Document   : txncurrency
+    Created on : Apr 1, 2016, 9:09:47 AM
+    Author     : jayana_i
+--%>
+
+<%@page import="com.epic.bmlalipay.util.varlist.CommonVarList"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="/struts-tags" prefix="s" %>
+<%@taglib  uri="/struts-jquery-tags" prefix="sj"%>
+<%@taglib prefix="sjg" uri="/struts-jquery-grid-tags"%>
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+
+        <%@include file="/stylelinks.jspf" %>
+
+        <script type="text/javascript">
+            
+            window.onload = function (){
+                $("#tid").css("color", "black");
+            }
+
+            function editformatter( cellvalue, options, rowObject) {
+                a = $("#addButton").is(':disabled');
+                u = $("#updateButton").is(':disabled');
+                return "<a href='#' title='Edit' onClick='javascript:editTxnCurrency(&#34;" + cellvalue + "&#34;&#44;&#34;" + rowObject.mid + "&#34;&#44;&#34;" + rowObject.currencycode + "&#34;&#44;&#34;" + rowObject.txntype + "&#34;)'><img class='ui-icon ui-icon-pencil' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+
+            function deleteformatter(cellvalue, options, rowObject) {
+                return "<a href='#/' title='Delete' onClick='javascript:deleteTxnCurrencyInit(&#34;" + cellvalue + "&#34;)'><img class='ui-icon ui-icon-trash' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+
+
+//            function resetAllData() {
+//                a = $("#addButton").is(':disabled');
+//                u = $("#updateButton").is(':disabled');
+//                //                alert("add status " + a  +" and updated stauts " + u);
+//
+//                if (u == true) {
+//                    editTxnCurrency(null);
+//                    //                    $('#pageCode').val("");
+//                    //                    $('#pageCode').attr('readOnly', false);
+//                    //                    $('#description').val("");
+//                    //                    $('#sortKey').val("");
+//                    //                    $('#status').val('<!s:property value="defaultStatus" />');
+//                    //                    $('#status').prop('disabled', true);
+//                    //                    $('#url').val("");
+//                    //                    $('#divmsg').text("");
+//                    //                    $('#addButton').button("disable");
+//                    //                    $('#updateButton').button("disable");
+//                } else{
+//                    var tid = $('#tid').val();
+////                    $('#tid').attr('readOnly', true);
+//                    editTxnCurrency(tid);
+//            }
+//        }
+
+            function resett() {
+                
+                var cellvalue = $('#tid').val();
+                return "<a href='#' title='Edit' onClick='javascript:editTxnCurrency(&#34;" + cellvalue + "&#34;)'><img class='ui-icon ui-icon-pencil' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            
+            }
+
+
+            function editTxnCurrency(keyval, mid, currencycode,txntype) {
+                
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/findTxnCurrency.action',
+                    data: {tid: keyval,
+                mid: mid,
+                            currencycode: currencycode,
+                            txntype: txntype,
+                            txntypedes:txntype
+                    },
+                    dataType: "json",
+                    type: "POST",
+                    success: function(data) {
+                        $('#divmsg').empty();
+                        
+                        
+                        var msg = data.message;
+                        if (msg) {
+                            $('#mid').val("");
+                            $('#tid').val("");
+                            $('#currencycode').val("");
+                            $('#txntype').val("");
+                            $('#txntypedes').val("");
+                            
+                            $('#divmsg').text("");
+                            $('#updateButton').button("disable");
+                    
+                            var startStatus = <s:property value="vadd" />;
+                            if(startStatus){
+                                $('#addButton').button("disable");
+                            }else{
+                                $('#addButton').button("enable");
+                            }               
+                        }
+                        else {
+                            
+                            $('#mid').val(data.mid);
+                            $('#tid').val(data.tid);
+//                            $('#tid').attr('readOnly', true);
+                            $('#currencycode').attr('readOnly', true);
+                            $('#txntypedes').attr('readOnly', true);
+//                            $("#tid").css("color", "#858585");
+                            $("#currencycode").css("color", "#858585");
+                            $("#txntypedes").css("color", "#858585");
+                            $('#currencycode').val(data.currencycode);
+                            $('#txntype').val(data.txntype);
+                            $('#txntypedes').val(data.txntypedes);
+                            $('#oldvalue').val(data.oldvalue);                            
+                            $('#addButton').button("disable");
+                            $('#updateButton').button("enable");
+                        }
+                    },
+                    error: function(data) {
+                        //                        $("#deleteerrordialog").html("Error occurred while processing.").dialog('open');
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            function deleteTxnCurrencyInit(keyval) {
+                $('#divmsg').empty();
+
+                $("#deletedialog").data('keyval', keyval).dialog('open');
+                $("#deletedialog").html('Are you sure you want to delete mserver currencycode ' + keyval + ' ?');
+                return false;
+            }
+
+            
+                
+
+
+            function deleteTxnCurrency(keyval) {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/deleteTxnCurrency.action',
+                    data: {tid: keyval},
+                    dataType: "json",
+                    type: "POST",
+                    success: function(data) {
+                        $("#deletesuccdialog").dialog('open');
+                        $("#deletesuccdialog").html(data.message);
+                        resetFieldData();
+                        //                        jQuery("#gridtable").trigger("reloadGrid");                      
+                    },
+                    error: function(data) {
+//                        $("#deleteerrordialog").dialog('open');
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+                
+                cancelPageAllData();
+            }
+ 
+            function resetAllData() {
+                a = $("#addButton").is(':disabled');
+                u = $("#updateButton").is(':disabled');          
+
+                if (a == true && u == true) {
+                    editTxnCurrency(null);
+                        
+                } else if (a == true && u == false) {
+                    var tid = $('#tid').val();
+                    var mid = $('#mid').val();
+                    
+                    editTxnCurrency(tid,mid);
+                    
+                } else if (a == false && u == true) {
+                    editTxnCurrency(null);  
+                    
+                }else{
+                    var tid = $('#tid').val();
+                    var mid = $('#mid').val();
+                    var currencycode = $('#currencycode').val();
+                    var txntype = $('#txntype').val();
+                    var txntypedes = $('#txntypedes').val();
+                    editTxnCurrency(tid,mid,currencycode,txntype);
+                    
+                }
+            }
+
+            function resetFieldData() {
+                
+                a =  $("#addButton").is(':disabled');
+                u =  $("#updateButton").is(':disabled');
+                
+                var startStatus = '<s:property value="vadd" />';
+                $('#tid').val("");
+                $('#tid').attr('readOnly', false);
+                $("#tid").css("color", "black");
+                
+                $('#mid').val("");
+                $('#mid').attr('readOnly', false);
+                $("#mid").css("color", "black");
+                
+                
+                $('#currencycode').val("");
+                $('#txntypedes').val("");
+                 $('#txntype').val("");
+                if (a == true && u == true) {
+                    //                   alert("call 1st");
+                    $('#addButton').button("disable");
+                    $('#updateButton').button("disable");
+                } else if (a == true && u == false && startStatus == 'false') {
+                    $('#addButton').button("enable");
+                    $('#updateButton').button("disable");
+                } else if (a == true && u == false && startStatus == 'true') {
+                    $('#addButton').button("disable");
+                    $('#updateButton').button("disable");
+                } else if (a == false && u == true) {
+                    $('#addButton').button("enable");
+                    $('#updateButton').button("disable");
+                }
+                jQuery("#gridtable").trigger("reloadGrid");
+            }
+            
+            function cancelPageAllData(){ 
+                editTxnCurrency(null);         
+            }
+        </script>
+
+
+
+    </head>
+
+    <body style="">
+        <jsp:include page="/header.jsp"/>
+
+        <div class="main-container">
+
+
+            <jsp:include page="/leftmenu.jsp"/>
+
+            <div class="main-content">
+
+                <div class="container" style="min-height: 760px;">
+
+
+                    <!-- start: PAGE NAVIGATION BAR -->
+                    <jsp:include page="/navbar.jsp"/>
+                    <!-- end: NAVIGATION BAR -->
+
+                    <div class="row">
+
+
+                        <div id="content1">
+
+
+                            <s:div id="divmsg">
+
+                                <s:actionerror theme="jquery"/>
+                                <s:actionmessage theme="jquery"/>
+                            </s:div>
+
+                            <s:set id="vadd" var="vadd"><s:property value="vadd" default="true"/></s:set>
+                            <s:set var="vupdatebutt"><s:property value="vupdatebutt" default="true"/></s:set>
+                            <s:set var="vupdatelink"><s:property value="vupdatelink" default="true"/></s:set>
+                            <s:set var="vdelete"><s:property value="vdelete" default="true"/></s:set>
+
+                                <div id="formstyle">
+                                <s:form id="pageadd" method="post" action="Page" theme="simple" >
+
+
+                                    <table border="0"  cellpadding="5">
+
+                                        <tbody>
+                                            <tr>
+                                            <td>Currency <span style="color: red">*</span></td>
+                                                <td>
+                                                    <s:textfield name="currencycode" id="currencycode" maxLength="5" onkeyup="$(this).val($(this).val().replace(/[^0-9a-zA-Z]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^0-9a-zA-Z]/g,''))"/>
+                                                </td>
+                                            </tr> 
+                                            <tr>
+                                            <td>Transaction Type <span style="color: red">*</span></td>
+                                            <td><s:hidden id="txntype" name="txntype" ></s:hidden>
+                                                    <s:textfield name="txntypedes" id="txntypedes" maxLength="50"  />
+                                            </td>
+<!--                                                <td>
+                                                    <%--<s:hidden id="txntypedes" name="txntypedes" ></s:hidden>--%>
+                                                    <%--<s:select  id="txntype" list="%{txntypeList}"--%>  
+                                                                headerValue="--Transaction Type--" headerKey="" 
+                                                                name="txntype" listKey="typecode" listValue="description"  
+                                                                cssStyle="width: 153px" onchange="enableInputs()" disabled="true"/>
+                                                </td>-->
+                                                
+                                                <!--<td>Default Status <span style="color: red">*</span></td>-->
+<!--                                                <td><!s:select  id="typecode" list="%{typedesList}"  headerValue="--Select Status--" headerKey="" name="typecode" listKey="typecode" listValue="description"  cssStyle="width: 153px"/>
+                                                </td>-->
+                    
+                                            </tr> 
+                                            <tr>
+                                                <td>TID <span style="color: red">*</span></td>
+                                                <td><s:textfield name="tid" id="tid" maxLength="8" onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))" />
+                                                </td>
+                                            </tr>
+                                                
+                                            <tr>
+                                                <td>MID <span style="color: red">*</span></td>
+                                                <td><s:textfield name="mid" id="mid" maxLength="15" onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="mandatoryfield">Mandatory fields are marked with *</span></td>
+                                                <td><s:hidden id="oldvalue" name="oldvalue" ></s:hidden>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td> <s:url var="addurl" action="addTxnCurrency"/>
+                                                    <s:url var="updateurl" action="updateTxnCurrency"/></td>
+                                                <td>
+
+                                                    <%--<sj:submit button="true" href="%{addurl}" value="Add" targets="divmsg" id="addButton"  disabled="#vadd"/>--%>
+
+                                                    <sj:submit button="true" href="%{updateurl}" value="Update" targets="divmsg"   disabled="#vupdatebutt" id="updateButton"/>
+
+                                                    <sj:submit button="true" value="Reset" name="reset" onClick="resetAllData()"  />
+                                                    <%--<sj:submit button="true" value="Reset" name="reset" onclick="resett()"  />--%>
+                                                    
+                                                    <sj:submit button="true" value="Cancel" name="cancel" onClick="cancelPageAllData()"  />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </s:form>
+                            </div>
+
+                            <!-- Start delete confirm dialog box -->
+                            <sj:dialog 
+                                id="deletedialog" 
+                                buttons="{ 
+                                'OK':function() { deleteTxnCurrency($(this).data('keyval'));$( this ).dialog( 'close' ); },
+                                'Cancel':function() { $( this ).dialog( 'close' );} 
+                                }" 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Delete Page"                            
+                                />
+                              <!-- Start add confirm dialog box -->
+                              
+                              <!--start newly changed-->
+                            <sj:dialog 
+                                id="adddialog" 
+                                buttons="{ 
+                                'OK':function() { addTxnCurrency($(this).data('keyval'));$( this ).dialog( 'close' ); },
+                                'Cancel':function() { $( this ).dialog( 'close' );} 
+                                }" 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Add Page"                            
+                                />
+                               <!-- Start add process dialog box -->
+                            <sj:dialog 
+                                id="addsuccdialog" 
+                                buttons="{
+                                'OK':function() { $( this ).dialog( 'close' );}
+                                }"  
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Adding Process." 
+                                />
+                            <!--end newly changed-->
+                            
+                            <!-- Start delete process dialog box -->
+                            <sj:dialog 
+                                id="deletesuccdialog" 
+                                buttons="{
+                                'OK':function() { $( this ).dialog( 'close' );}
+                                }"  
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Deleting Process." 
+                                />
+                            <!-- Start delete error dialog box -->
+                            <sj:dialog 
+                                id="deleteerrordialog" 
+                                buttons="{
+                                'OK':function() { $( this ).dialog( 'close' );}                                    
+                                }" 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Delete error."
+                                />
+
+                            <div id="tablediv">
+                                <s:url var="listurl" action="listTxnCurrency"/>
+                                <sjg:grid
+                                    id="gridtable"
+                                    caption="Transaction Currency Management"
+                                    dataType="json"
+                                    href="%{listurl}"
+                                    pager="true"
+                                    gridModel="gridModel"
+                                    rowList="10,15,20"
+                                    rowNum="10"
+                                    autowidth="true"                                    
+                                    rownumbers="true"
+                                    onCompleteTopics="completetopics"
+                                    rowTotal="false"
+                                    viewrecords="true"
+                                    >
+                                    <sjg:gridColumn name="tid" index="u.tid" title="TID"  sortable="true"/>
+                                    <sjg:gridColumn name="mid" index="u.mid" title="MID"  sortable="true"/>
+                                    <sjg:gridColumn name="currencycode" index="id.currencycode" title="Currency"  sortable="true"/>                                   
+                                    <sjg:gridColumn name="txntypedes" index="id.txntypedes" title="Transaction Type"  sortable="true"/>                                   
+                                    <sjg:gridColumn name="tid" index="u.tid" title="Edit" width="25" align="center" formatter="editformatter" hidden="#vupdatelink"/>
+                                    <%--<sjg:gridColumn name="currency" index="u.currency" title="Currency" sortable="true"/> <sjg:gridColumn name="tid" index="u.tid" title="Delete" width="40" align="center" formatter="deleteformatter" hidden="#vdelete"/>--%>  
+                                </sjg:grid> 
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+
+                    <!-- end: PAGE CONTENT-->
+                </div>
+            </div>
+            <!-- end: PAGE -->
+        </div>
+        <!-- end: MAIN CONTAINER -->
+        <!-- start: FOOTER -->
+        <jsp:include page="/footer.jsp"/>
+        <!-- end: FOOTER -->
+
+
+
+        <!-- end: BODY -->
+    </body>
+</html>

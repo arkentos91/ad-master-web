@@ -1,0 +1,288 @@
+<%-- 
+    Document   : uritypes
+    Created on : Jun 9, 2017, 12:48:11 PM
+    Author     : shavindi_s
+--%>
+
+<%@page import="com.epic.bmlalipay.util.varlist.CommonVarList"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="/struts-tags" prefix="s" %>
+<%@taglib  uri="/struts-jquery-tags" prefix="sj"%>
+<%@taglib prefix="sjg" uri="/struts-jquery-grid-tags"%>
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+
+        <%@include file="/stylelinks.jspf" %>
+
+        <script type="text/javascript">
+            function editformatter(cellvalue, options, rowObject) {
+                return "<a href='#' title='Edit' onClick='javascript:editUriType(&#34;" + cellvalue + "&#34;)'><img class='ui-icon ui-icon-pencil' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+
+            function deleteformatter(cellvalue, options, rowObject) {
+                return "<a href='#/' title='Delete' onClick='javascript:deleteUriTypeInit(&#34;" + cellvalue + "&#34;)'><img class='ui-icon ui-icon-trash' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+
+            function editUriType(keyval) {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/FindUriTypes.action',
+                    data: {code: keyval},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        $('#divmsg').empty();
+                        var msg = data.message;
+                        if (msg) {
+                            $('#code').val("");
+                            $('#code').attr('readOnly', false);
+                            $('#name').val("");
+                            $('#divmsg').text("");
+                            $('#updateButton').button("disable");
+
+                            var startStatus = <s:property value="vadd" />;
+                            if (startStatus) {
+                                $('#addButton').button("disable");
+                            } else {
+                                $('#addButton').button("enable");
+                            }
+                        }
+                        else {
+                            $('#oldvalue').val(data.oldvalue);
+                            $('#code').val(data.code);
+                            $('#code').attr('readOnly', true);
+                            $('#name').val(data.name);
+
+                            $('#addButton').button("disable");
+                            $('#updateButton').button("enable");
+                        }
+                    },
+                    error: function (data) {
+                        //                        $("#deleteerrordialog").html("Error occurred while processing.").dialog('open');
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+            function deleteUriTypeInit(keyval) {
+                $('#divmsg').empty();
+                $("#deletedialog").data('keyval', keyval).dialog('open');
+                $("#deletedialog").html('Are you sure you want to delete URI type ' + keyval + ' ?');
+                return false;
+            }
+
+            function deleteUriType(keyval) {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/DeleteUriTypes.action',
+                    data: {code: keyval},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        if (data.success == 1) {
+                            $("#deletesuccdialog").dialog('open');
+                            $("#deletesuccdialog").html(data.message);
+                            resetFieldData();
+                        } else {
+                            $("#deleteerrordialog").dialog('open');
+                            $("#deleteerrordialog").html(data.message);
+                        }
+                    },
+                    error: function (data) {
+//                        $("#deleteerrordialog").dialog('open');
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+            function resetAllData() {
+
+                a = $("#addButton").is(':disabled');
+                u = $("#updateButton").is(':disabled');
+
+                if (a == true && u == true) {
+                    editUriType(null);
+                } else if (a == true && u == false) {
+                    var code = $('#code').val();
+                    editUriType(code);
+                } else if (a == false && u == true) {
+                    editUriType(null);
+                }
+
+                jQuery("#gridtable").trigger("reloadGrid");
+
+            }
+
+            function resetFieldData() {
+
+                var startStatus = <s:property value="vadd" />;
+                if (startStatus) {
+                    $('#addButton').button("disable");
+                } else {
+                    $('#addButton').button("enable");
+                }
+                $('#updateButton').button("disable");
+                $('#code').attr('readOnly', false);
+                $('#code').val("");
+                $('#name').val("");
+                jQuery("#gridtable").trigger("reloadGrid");
+            }
+
+            function cancelAllData() {
+                editUriType(null);
+            }
+
+        </script>
+
+    </head>
+
+    <body style="">
+        <jsp:include page="/header.jsp"/>
+
+        <div class="main-container">
+
+
+            <jsp:include page="/leftmenu.jsp"/>
+
+            <div class="main-content">
+                <div class="container" style="min-height: 760px;">
+
+                    <!-- start: PAGE NAVIGATION BAR -->
+                    <jsp:include page="/navbar.jsp"/>
+                    <!-- end: NAVIGATION BAR -->
+                    <div class="row">
+                        <div id="content1">
+                            <s:div id="divmsg">
+                                <s:actionerror theme="jquery"/>
+                                <s:actionmessage theme="jquery"/>
+                            </s:div>
+
+                            <s:set id="vadd" var="vadd"><s:property value="vadd" default="true"/></s:set>
+                            <s:set var="vupdatebutt"><s:property value="vupdatebutt" default="true"/></s:set>
+                            <s:set var="vupdatelink"><s:property value="vupdatelink" default="true"/></s:set>
+                            <s:set var="vdelete"><s:property value="vdelete" default="true"/></s:set>
+
+                                <div id="formstyle">
+                                <s:form id="taskadd" method="post" action="Section" theme="simple" >
+                                    <s:hidden name="oldvalue" id="oldvalue" />
+
+                                    <div class="row row_1">
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red">*</span><label>Code</label>
+                                                <s:textfield name="code" id="code" maxLength="10" cssClass="form-control"  />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red">*</span><label>Name</label>
+                                                <s:textfield  name="name" id="name" maxLength="50" cssClass="form-control" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row row_1 form-inline">
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <s:url var="addurl" action="AddUriTypes"/>
+                                                <s:url var="updateurl" action="UpdateUriTypes"/>
+
+
+                                                <sj:submit button="true" href="%{addurl}" value="Add" targets="divmsg" id="addButton"  disabled="#vadd"  cssClass="form-control btn_normal"
+                                                           cssStyle="border-radius: 12px;background-color:#969595;color:white;"/>
+                                            </div>
+                                            <div class="form-group">
+                                                <sj:submit button="true" href="%{updateurl}" value="Update" targets="divmsg"   disabled="#vupdatebutt" id="updateButton"  cssClass="form-control btn_normal"
+                                                           cssStyle="border-radius: 12px;background-color:#969595;color:white;"/>
+                                            </div>
+                                            <div class="form-group">
+                                                <sj:submit button="true" value="Reset" name="reset" onClick="resetAllData()"   cssClass="form-control btn_normal"
+                                                           cssStyle="border-radius: 12px;"/>
+                                            </div>
+                                            <div class="form-group">
+                                                <sj:submit button="true" value="Cancel" name="cancel" onClick="cancelAllData()"  cssClass="form-control btn_normal"
+                                                           cssStyle="border-radius: 12px;" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </s:form>
+                            </div>
+
+
+                            <!-- Start delete confirm dialog box -->
+                            <sj:dialog 
+                                id="deletedialog" 
+                                buttons="{ 
+                                'OK':function() { deleteUriType($(this).data('keyval'));$( this ).dialog( 'close' ); },
+                                'Cancel':function() { $( this ).dialog( 'close' );} 
+                                }" 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Delete URI Type"                            
+                                />
+                            <!-- Start delete process dialog box -->
+                            <sj:dialog 
+                                id="deletesuccdialog" 
+                                buttons="{
+                                'OK':function() { $( this ).dialog( 'close' );}
+                                }"  
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Deleting Process." 
+                                />
+                            <!-- Start delete error dialog box -->
+                            <sj:dialog 
+                                id="deleteerrordialog" 
+                                buttons="{
+                                'OK':function() { $( this ).dialog( 'close' );}                                    
+                                }" 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Delete error."
+                                />
+
+                            <div id="tablediv">
+                                <s:url var="listurl" action="ListUriTypes"/>
+                                <sjg:grid
+                                    id="gridtable"
+                                    caption="URI Types"
+                                    dataType="json"
+                                    href="%{listurl}"
+                                    pager="true"
+                                    gridModel="gridModel"
+                                    rowList="10,15,20"
+                                    rowNum="10"
+                                    autowidth="true"
+                                    rownumbers="true"
+                                    onCompleteTopics="completetopics"
+                                    rowTotal="false"
+                                    viewrecords="true"
+                                    >
+                                    <sjg:gridColumn name="code" index="u.code" title="Edit" width="25" align="center" formatter="editformatter" hidden="#vupdatelink" sortable="false"/>
+                                    <sjg:gridColumn name="code" index="u.code" title="Delete" width="25" align="center" formatter="deleteformatter" hidden="#vdelete" sortable="false"/>  
+                                    <sjg:gridColumn name="code" index="u.code" title="URI Code"  sortable="true"/>
+                                    <sjg:gridColumn name="name" index="u.name" title="Name"  sortable="true"/>
+                                </sjg:grid> 
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+
+                    <!-- end: PAGE CONTENT-->
+                </div>
+            </div>
+            <!-- end: PAGE -->
+        </div>
+        <!-- end: MAIN CONTAINER -->
+        <!-- start: FOOTER -->
+        <jsp:include page="/footer.jsp"/>
+        <!-- end: FOOTER -->
+
+
+
+        <!-- end: BODY -->
+    </body>
+</html>

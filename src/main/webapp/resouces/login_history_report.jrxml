@@ -1,0 +1,562 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="customerReport" pageWidth="842" pageHeight="595" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="782" leftMargin="30" rightMargin="30" topMargin="20" bottomMargin="20" uuid="2395a014-2610-4efd-a0e5-d9dc92c95b20">
+	<property name="ireport.scriptlethandling" value="2"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<style name="alternateStyle">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 1]]></conditionExpression>
+			<style backcolor="#FFCCCC"/>
+		</conditionalStyle>
+	</style>
+	<parameter name="bankaddressheader" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{bankaddressheader}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="bankmail" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{bankmail}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="banktel" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{banktel}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="bankaddress" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{bankaddress}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="printeddate" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{printeddate}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="xcoordinate" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{xcoordinate}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="pushid" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{pushid}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="imageurl" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{imageurl}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="loggedtime" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{loggedtime}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="sessionkey" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{sessionkey}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="status" class="java.lang.String">
+		<defaultValueExpression><![CDATA[$P{status}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="walletid" class="java.lang.String">
+		<defaultValueExpression><![CDATA[$P{walletid}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="ycoordinate" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{ycoordinate}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fromdate" class="java.lang.String">
+		<defaultValueExpression><![CDATA[$P{fromdate}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="todate" class="java.lang.String">
+		<defaultValueExpression><![CDATA[$P{todate}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SQL_tdate" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{todate}+" 23:59:59"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="sql_walletid" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{walletid} == "--" ? "1=1" : "TR.WALLETID LIKE '%" + $P{walletid} + "%'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="sql_xcoor" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{xcoordinate} == "--" ? "1=1" : "TR.X_COORDINATE LIKE '%" + $P{xcoordinate} + "%'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="sql_ycoor" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{ycoordinate} == "--" ? "1=1" : "TR.Y_COORDINATE LIKE '%" + $P{ycoordinate} + "%'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="sql_status" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{status} == "--" ? "1=1" : "TR.STATUS = '" + $P{status} + "'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="mobilenumber" class="java.lang.String">
+		<defaultValueExpression><![CDATA[$P{mobilenumber}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="customerid" class="java.lang.String">
+		<defaultValueExpression><![CDATA[$P{customerid}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="sql_customerid" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{customerid} == "--" ? "1=1" : "TR.CUSTOMERID LIKE '%" + $P{customerid} + "%'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="sql_mobilenumber" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{mobilenumber} == "--" ? "1=1" : "TR.MOBILENUMBER LIKE '%" + $P{mobilenumber} + "%'"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+     TR.HISTORYID HISTORYID,
+     TR.CUSTOMERID CUSTOMERID,
+     TR.MOBILENUMBER MOBILENUMBER,
+     TR.WALLETID WALLETID,
+     TR.PUSHID PUSHID,
+     TR.SESSIONKEY SESSIONKEY,
+     S.DESCRIPTION STATUS,
+     IIF(TR.X_COORDINATE IS NULL or TR.X_COORDINATE = '', '--', TR.X_COORDINATE) AS XCOORDINATE,
+     IIF(TR.Y_COORDINATE IS NULL or TR.Y_COORDINATE = '', '--', TR.Y_COORDINATE) AS YCOORDINATE,
+     TR.LOGGEDTIME LOGGEDTIME
+
+FROM
+     "loginhistory" TR
+
+LEFT OUTER JOIN
+     "status" S
+     ON
+     TR."STATUS" = S."STATUSCODE"
+
+WHERE
+	$P!{sql_customerid} and
+      $P!{sql_walletid} and
+	$P!{sql_mobilenumber} and
+
+     $P!{sql_status} and
+
+     TR.STATUS IN (SELECT STATUSCODE FROM STATUS) and
+     TR.LOGGEDTIME between IIF($P{fromdate} = '--', TR.LOGGEDTIME, $P{fromdate} ) and
+IIF($P{todate} = '--', TR.LOGGEDTIME, $P{SQL_tdate})]]>
+	</queryString>
+	<field name="HISTORYID" class="java.lang.Integer"/>
+	<field name="CUSTOMERID" class="java.lang.String"/>
+	<field name="MOBILENUMBER" class="java.lang.String"/>
+	<field name="WALLETID" class="java.lang.String"/>
+	<field name="PUSHID" class="java.lang.String"/>
+	<field name="SESSIONKEY" class="java.lang.String"/>
+	<field name="STATUS" class="java.lang.String"/>
+	<field name="XCOORDINATE" class="java.lang.String"/>
+	<field name="YCOORDINATE" class="java.lang.String"/>
+	<field name="LOGGEDTIME" class="java.sql.Timestamp"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="160" splitType="Stretch">
+			<rectangle>
+				<reportElement uuid="e892dcf7-33df-4670-966a-4b91348c30c3" key="rectangle-1" mode="Opaque" x="103" y="2" width="679" height="61" forecolor="#FF0000" backcolor="#DE353D"/>
+				<graphicElement>
+					<pen lineWidth="0.0"/>
+				</graphicElement>
+			</rectangle>
+			<staticText>
+				<reportElement uuid="7e8d1ae3-019c-4912-860d-55bbcb16b5db" key="staticText-2" x="1" y="2" width="779" height="26" forecolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font size="18" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Bank of Maldives Plc
+]]></text>
+			</staticText>
+			<textField isBlankWhenNull="false">
+				<reportElement uuid="a06ab545-6474-4ca8-ab44-86472769f639" key="textField-1" x="1" y="29" width="779" height="12" forecolor="#FFFFFF"/>
+				<textElement textAlignment="Center">
+					<font size="8" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{bankaddressheader}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="8d4a9819-f01e-4f59-8d5f-4ca89701a6f8" key="line-1" x="0" y="68" width="783" height="1" forecolor="#DE353D"/>
+			</line>
+			<staticText>
+				<reportElement uuid="270c3ed2-0ba7-449e-be6b-bb25e40320c6" key="staticText-3" x="1" y="72" width="781" height="21" backcolor="#FFFF99"/>
+				<textElement verticalAlignment="Top">
+					<font size="10" isBold="true" isUnderline="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Login History Search Parameters]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="3d4c71b5-0e85-4130-99a7-8bf22b2cbcad" key="staticText-4" stretchType="RelativeToBandHeight" mode="Transparent" x="22" y="113" width="87" height="17" backcolor="#FFFFFF"/>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Wallet ID]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="47538286-fbc7-4325-8ab1-ad14c20d8b66" key="staticText-7" stretchType="RelativeToBandHeight" mode="Transparent" x="22" y="132" width="87" height="17" backcolor="#FFFFFF"/>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Customer ID]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="cc958861-1a70-46f3-b014-ac4391592220" key="staticText-8" stretchType="RelativeToBandHeight" x="299" y="113" width="86" height="17"/>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Status]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="2dfa0537-9ef7-4eab-a728-dbb76fbc3eff" key="staticText-6" stretchType="RelativeToBandHeight" x="22" y="94" width="87" height="17"/>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[From Date]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement uuid="0ae738cb-245d-41db-9f1d-dcaeec7032cf" key="rectangle-4" mode="Transparent" x="578" y="70" width="198" height="86" forecolor="#3333FF" backcolor="#C7E0FE"/>
+				<graphicElement>
+					<pen lineWidth="0.0" lineStyle="Solid"/>
+				</graphicElement>
+			</rectangle>
+			<staticText>
+				<reportElement uuid="824e15ee-d7c0-4cb4-8dbc-8196eeffd463" key="staticText-19" stretchType="RelativeToBandHeight" x="582" y="93" width="61" height="17"/>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Total Record Count    ]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" evaluationTime="Report" isBlankWhenNull="false">
+				<reportElement uuid="54b21d5e-7349-485f-aa2a-1985145a3af1" key="textField" stretchType="RelativeToBandHeight" x="655" y="93" width="104" height="17"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="de3483d2-73c5-4abd-b99a-0de500d9638c" key="staticText-20" stretchType="RelativeToBandHeight" x="584" y="120" width="61" height="17"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Generated on  ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="d603c120-91b0-4c5c-8113-cd41be7b2bdf" key="staticText-1" x="1" y="43" width="779" height="17" forecolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Login History Summary Report]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="7f14e22b-b69e-4136-84a2-2d16563ae5be" x="655" y="120" width="120" height="17"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{printeddate}]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement uuid="7e5d1fa8-6025-4b37-872f-1c2bd58532f8" x="23" y="2" width="80" height="61"/>
+				<imageExpression><![CDATA[$P{imageurl}]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement uuid="eaae5888-2896-4a0c-8399-7706542d4116" key="staticText-4" stretchType="RelativeToBandHeight" mode="Transparent" x="111" y="113" width="8" height="16" backcolor="#FFFFFF"/>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="5332292f-98a5-40e0-a329-55c5671c772f" key="staticText-4" stretchType="RelativeToBandHeight" mode="Transparent" x="111" y="132" width="8" height="16" backcolor="#FFFFFF"/>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="902c0f84-cf5c-4126-af1f-e4a5d283fad9" key="staticText-4" stretchType="RelativeToBandHeight" mode="Transparent" x="387" y="113" width="8" height="17" backcolor="#FFFFFF"/>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="fcc6ea15-74b0-4ae1-9eef-2f419aa805ff" key="staticText-4" stretchType="RelativeToBandHeight" mode="Transparent" x="110" y="94" width="8" height="17" backcolor="#FFFFFF"/>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="7a8abdb0-338f-445b-a1f9-d4577f19bf5d" key="staticText-4" stretchType="RelativeToBandHeight" mode="Transparent" x="646" y="93" width="8" height="17" backcolor="#FFFFFF"/>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="2c6e8e4e-4873-49b9-8455-7f74d7b604c4" key="staticText-4" stretchType="RelativeToBandHeight" mode="Transparent" x="646" y="120" width="8" height="17" backcolor="#FFFFFF"/>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="6b591fd7-7fd0-40e0-bcbe-8affdf958484" x="398" y="113" width="161" height="15"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{status} == "--" ? "-ALL-" : $P{status}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="33e71949-fbb3-4c71-bcff-b142cead96b3" x="122" y="113" width="161" height="15"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{walletid} == "--" ? "-ALL-" : $P{walletid}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="1b2c0e1a-7d97-4ffe-8afd-2fb359da1646" x="123" y="132" width="162" height="15"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{customerid} == "--" ? "-ALL-" : $P{customerid}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="a0355dcf-4b3c-47db-b3ff-9796272782ce" x="122" y="94" width="141" height="16"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{fromdate} == "--" ? "-ALL-" :$P{fromdate}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="d0e7bb4d-c7df-4ab9-b403-2c782d5d99a8" key="staticText-4" stretchType="RelativeToBandHeight" mode="Transparent" x="387" y="94" width="8" height="17" backcolor="#FFFFFF"/>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="dce0a229-a38e-4163-a7da-0d5371cc4a37" x="398" y="94" width="161" height="15"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{todate} == "--" ? "-ALL-" :$P{todate}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="6286a431-7290-4bee-bc84-39ae41dbcaba" key="staticText-6" stretchType="RelativeToBandHeight" x="299" y="94" width="86" height="17"/>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[To Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="0271119f-1a37-4a0c-b37c-7714d7e8aaf5" key="staticText-8" stretchType="RelativeToBandHeight" x="299" y="131" width="87" height="17"/>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Mobile Number]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="85da8d5d-3fbe-4ffe-a9a7-330d53f26eeb" key="staticText-4" stretchType="RelativeToBandHeight" mode="Transparent" x="387" y="131" width="8" height="17" backcolor="#FFFFFF"/>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="e2c1db5a-d84e-4d24-a70f-5433093518b4" x="399" y="131" width="161" height="15"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{mobilenumber} == "--" ? "-ALL-" : $P{mobilenumber}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="19" splitType="Stretch">
+			<rectangle>
+				<reportElement uuid="a1e1f6e7-376e-48d8-a5c0-6f1fde143445" key="rectangle-9" x="0" y="-1" width="70" height="17" forecolor="#FFFFFF" backcolor="#DE353D"/>
+			</rectangle>
+			<staticText>
+				<reportElement uuid="9ea1c55c-c43c-4420-906e-6ddd19dab978" key="staticText-17" x="14" y="2" width="42" height="14" forecolor="#FFFFFF"/>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[History ID]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement uuid="31fc89c7-64df-4911-83f7-9227ec7f4907" key="rectangle-10" x="669" y="-1" width="114" height="17" forecolor="#FFFFFF" backcolor="#DE353D"/>
+			</rectangle>
+			<staticText>
+				<reportElement uuid="47776228-5515-4b45-91c3-6c182023d7bf" key="staticText-18" x="687" y="2" width="58" height="14" forecolor="#FFFFFF"/>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Logged Time]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement uuid="12ccf30c-1dce-4e8f-bb1a-ae679e0ff672" key="rectangle-2" x="70" y="-1" width="103" height="17" forecolor="#FFFFFF" backcolor="#DE353D"/>
+			</rectangle>
+			<rectangle>
+				<reportElement uuid="047f3344-8bc9-4220-b020-5db6f6e19d8d" key="rectangle-4" x="508" y="-1" width="76" height="17" forecolor="#FFFFFF" backcolor="#DE353D"/>
+			</rectangle>
+			<staticText>
+				<reportElement uuid="6dc10b0c-3705-43ff-bc86-de07a011aa0d" key="staticText-12" x="520" y="2" width="61" height="14" forecolor="#FFFFFF"/>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[X Coordinate]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement uuid="8e9ec654-591c-4eb7-9de8-398aed00006f" key="rectangle-7" x="584" y="-1" width="85" height="17" forecolor="#FFFFFF" backcolor="#DE353D"/>
+			</rectangle>
+			<rectangle>
+				<reportElement uuid="d12fcb0d-b759-46e3-8f59-0e3633ed483b" key="rectangle-7" x="284" y="-1" width="103" height="17" forecolor="#FFFFFF" backcolor="#DE353D"/>
+			</rectangle>
+			<staticText>
+				<reportElement uuid="6b143c81-1430-46df-bf07-abf42badef86" key="staticText-18" x="603" y="2" width="57" height="14" forecolor="#FFFFFF"/>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Y Coordinate ]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement uuid="6c764eb3-a061-42aa-b85d-463190ea8fb4" key="rectangle-2" x="173" y="-1" width="111" height="17" forecolor="#FFFFFF" backcolor="#DE353D"/>
+			</rectangle>
+			<staticText>
+				<reportElement uuid="562f8c64-0b81-4be3-b6d8-7b52c703f13b" key="staticText-10" x="103" y="2" width="50" height="14" forecolor="#FFFFFF"/>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Wallet ID]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="3b3237fd-eff9-4037-888a-787c2fbfd714" key="staticText-10" x="313" y="2" width="50" height="14" forecolor="#FFFFFF"/>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Customer ID]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement uuid="95cffee8-6a20-4620-b949-d66823326832" key="rectangle-4" x="387" y="-1" width="121" height="17" forecolor="#FFFFFF" backcolor="#DE353D"/>
+			</rectangle>
+			<staticText>
+				<reportElement uuid="7ec7a88d-6be8-4dc9-80de-8ede5706a92f" key="staticText-18" x="218" y="2" width="58" height="14" forecolor="#FFFFFF"/>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Status]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="0518c89c-93b0-439d-9eb3-5b82249845fd" key="staticText-12" x="422" y="2" width="61" height="14" forecolor="#FFFFFF"/>
+				<textElement>
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Mobile Number]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="18" splitType="Prevent">
+			<staticText>
+				<reportElement uuid="a14f06b8-1b2a-4868-b0f1-2d78136cfde4" style="alternateStyle" stretchType="RelativeToTallestObject" mode="Opaque" x="1" y="0" width="781" height="18"/>
+				<box>
+					<bottomPen lineWidth="0.5" lineStyle="Dashed" lineColor="#FF0000"/>
+				</box>
+				<textElement/>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="f622ea6f-46e7-4c46-ad9f-1c43b9bbdcdd" x="1" y="0" width="69" height="18"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{HISTORYID}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="63b70aab-456b-4613-8f81-4508f7849ede" x="669" y="0" width="114" height="18"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{LOGGEDTIME}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="183d237e-3217-44ef-8395-3467b6ed6d7d" x="584" y="0" width="85" height="18"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{YCOORDINATE} == null ? "--" : $F{YCOORDINATE}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="5e47997b-5a14-4cde-98e3-8323cc359ea3" stretchType="RelativeToTallestObject" x="508" y="0" width="76" height="18"/>
+				<box topPadding="2" bottomPadding="2"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{XCOORDINATE} == null  ? "--" : $F{XCOORDINATE}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="7417ccbf-db52-4f17-bdd9-00abcd8e55ce" x="70" y="0" width="103" height="18"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{WALLETID} == null ? "--" : $F{WALLETID}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="e07bc40c-05f8-43ae-9f0c-b0c874ceca74" x="387" y="0" width="121" height="18"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{MOBILENUMBER} == null ? "--" : $F{MOBILENUMBER}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="78845188-543d-4aa8-bbd6-0d20eef83529" x="173" y="0" width="112" height="18"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{STATUS} == null  ? "--" :$F{STATUS}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="b5921624-5aa1-45a4-8d56-cb89a0c9b51a" x="285" y="0" width="102" height="18"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{CUSTOMERID} == null  ? "--" :$F{CUSTOMERID}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="1" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="49" splitType="Stretch">
+			<textField isBlankWhenNull="false">
+				<reportElement uuid="7880c4f1-467c-4cc3-ba29-31de8cf233ef" key="textField" x="340" y="11" width="100" height="18"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="6a5714fe-d4a1-48c2-9426-dd445d7be201" key="staticText-21" x="10" y="35" width="60" height="12"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[Head Office        :-]]></text>
+			</staticText>
+			<textField isBlankWhenNull="false">
+				<reportElement uuid="b897f3ce-02a2-4d5a-85bb-cae038c7611e" key="textField-2" x="70" y="35" width="234" height="12"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{bankaddress}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="cbd55d17-8983-46b5-a505-170f6bfcd343" key="staticText-23" x="363" y="35" width="40" height="12"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[E-mail        :-]]></text>
+			</staticText>
+			<textField isBlankWhenNull="false">
+				<reportElement uuid="9b47a5e6-fb59-453d-9a04-131a8215d5ed" key="textField-3" x="406" y="35" width="114" height="12"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{bankmail}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="31d9c58e-07ef-4313-9acd-4df105519361" key="staticText-22" x="685" y="35" width="30" height="12"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[Tel        :-]]></text>
+			</staticText>
+			<textField isBlankWhenNull="false">
+				<reportElement uuid="cb71e9d4-19d8-4910-96e1-f7c291a4913b" key="textField-4" x="718" y="35" width="60" height="12"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{banktel}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="c4c78c20-254f-4ed3-b220-ad24bed8adbd" key="line-2" x="0" y="32" width="783" height="1" forecolor="#DE353D"/>
+			</line>
+			<line>
+				<reportElement uuid="703f638f-d0ea-42f0-89e1-a44641cf49e1" key="line-2" x="0" y="45" width="783" height="1" forecolor="#DE353D"/>
+			</line>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="1" splitType="Stretch"/>
+	</summary>
+</jasperReport>

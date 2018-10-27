@@ -1,0 +1,25 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.util.varlist;
+
+/**
+ *
+ * @author jayana_i
+ */
+public class SectionVarList {
+
+    public static final String DEFAULT_SECTION = "DFSC";
+    public static final String USERMANAGEMENT = "UMSC";
+    public static final String SYSTEMCONFIGMANAGEMENT = "SCSC";
+    public static final String SYSTEM_CONFIG = "SCSE";
+    public static final String SMS_MANAGEMENT = "SMSC";
+    public static final String CUSTOMER_ACCOUNT_MANAGEMENT = "CUMG";
+    public static final String REPORT_EXPLORER = "RESC";
+    public static final String CUSTOMER_MANAGEMENT = "BMCM";
+    public static final String LOG_MANAGEMENT = "LGVI";
+    public static final String OTP_CONFIGURATION = "OCSC";
+    public static final String HOME_SEND_MANAGEMENT = "HOME";
+     public static final String ACQUIERERMANAGEMENT = "ACQU";
+}

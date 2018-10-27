@@ -1,0 +1,815 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.action.controlpanel.acquirer;
+
+/**
+ *
+ * @author jayana_i
+ */
+import com.epic.bmlalipay.bean.controlpanel.acquirer.TerminalORIBean;
+import com.epic.bmlalipay.bean.controlpanel.acquirer.TerminalORICatBean;
+import com.epic.bmlalipay.bean.controlpanel.acquirer.TerminalORIInputBean;
+import com.epic.bmlalipay.bean.controlpanel.acquirer.TerminalORIStatusBean;
+import com.epic.bmlalipay.dao.common.CommonDAO;
+import com.epic.bmlalipay.dao.controlpanel.usermanagement.SystemAuditDAO;
+import com.epic.bmlalipay.dao.controlpanel.acquirer.TerminalDAO;
+import com.epic.bmlalipay.util.common.AccessControlService;
+import com.epic.bmlalipay.util.common.Common;
+import static com.epic.bmlalipay.util.common.Common.checkEmptyorNullString;
+
+import com.epic.bmlalipay.util.common.Validation;
+import com.epic.bmlalipay.util.mapping.Systemaudit;
+import com.epic.bmlalipay.util.mapping.Task;
+import com.epic.bmlalipay.util.mapping.TerminalOri;
+import com.epic.bmlalipay.util.mapping.Transactiontype;
+import com.epic.bmlalipay.util.varlist.CommonVarList;
+import com.epic.bmlalipay.util.varlist.MessageVarList;
+import com.epic.bmlalipay.util.varlist.OracleMessage;
+import com.epic.bmlalipay.util.varlist.PageVarList;
+import com.epic.bmlalipay.util.varlist.SectionVarList;
+import com.epic.bmlalipay.util.varlist.SessionVarlist;
+import com.epic.bmlalipay.util.varlist.TaskVarList;
+import static com.opensymphony.xwork2.Action.SUCCESS;
+import com.opensymphony.xwork2.ActionSupport;
+import com.opensymphony.xwork2.ModelDriven;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import org.apache.struts2.ServletActionContext;
+
+public class TerminalAction extends ActionSupport implements ModelDriven<Object>, AccessControlService {
+
+    TerminalORIInputBean inputBean = new TerminalORIInputBean();
+
+    public Object getModel() {
+        return inputBean;
+    }
+
+    @Override
+    public String execute() {
+        System.out.println("called TerminalAction : execute");
+        return SUCCESS;
+    }
+
+    public boolean checkAccess(String method, String userRole) {
+        boolean status = false;
+        String page = PageVarList.TERMINAL_ORI_PAGE;
+        String task = null;
+        if ("View".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("List".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("add".equals(method)) {
+            task = TaskVarList.ADD_TASK;
+        } else if ("delete".equals(method)) {
+            task = TaskVarList.DELETE_TASK;
+        } else if ("find".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("update".equals(method)) {
+            task = TaskVarList.UPDATE_TASK;
+        } else if ("activate".equals(method)) {
+            task = TaskVarList.UPDATE_TASK;
+        } else if ("ViewPopup".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("detail".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("Assign".equals(method)) {
+            task = TaskVarList.ASSIGN_TASK;
+        } else if ("Assignadd".equals(method)) {
+            task = TaskVarList.ASSIGN_TASK;
+        } else if ("reset".equals(method)) {
+            task = TaskVarList.TERMINAL_RESET_TASK;
+        } else if ("checkTID".equals(method)) {
+            task = TaskVarList.ASSIGN_TASK;
+        }
+        if ("execute".equals(method)) {
+            status = true;
+        } else {
+            HttpServletRequest request = ServletActionContext.getRequest();
+            status = new Common().checkMethodAccess(task, page, userRole, request);
+        }
+        return status;
+    }
+
+    private List<TerminalORICatBean> getTerminalCategoryList() {
+        List<TerminalORICatBean> userLevel = new ArrayList<TerminalORICatBean>();
+
+        TerminalORICatBean terminalORICatBean = new TerminalORICatBean();
+        terminalORICatBean.setKey("MOB");
+        terminalORICatBean.setValue("Mobile");
+        userLevel.add(terminalORICatBean);
+        terminalORICatBean = new TerminalORICatBean();
+        terminalORICatBean.setKey("POS");
+        terminalORICatBean.setValue("POS");
+        userLevel.add(terminalORICatBean);
+
+        return userLevel;
+    }
+
+    private List<TerminalORIStatusBean> getStatusList() {
+        List<TerminalORIStatusBean> userLevel = new ArrayList<TerminalORIStatusBean>();
+        TerminalORIStatusBean terminalORIStatusBean = new TerminalORIStatusBean();
+        terminalORIStatusBean.setKey("ACT");
+        terminalORIStatusBean.setValue("Active");
+        userLevel.add(terminalORIStatusBean);
+        terminalORIStatusBean = new TerminalORIStatusBean();
+        terminalORIStatusBean.setKey("DEACT");
+        terminalORIStatusBean.setValue("Inactive");
+        userLevel.add(terminalORIStatusBean);
+        terminalORIStatusBean = new TerminalORIStatusBean();
+        terminalORIStatusBean.setKey("CINI");
+        terminalORIStatusBean.setValue("Initial");
+        userLevel.add(terminalORIStatusBean);
+
+        return userLevel;
+    }
+
+    private List<TerminalORIStatusBean> getInitialStatusList() {
+        List<TerminalORIStatusBean> userLevel = new ArrayList<TerminalORIStatusBean>();
+        TerminalORIStatusBean terminalORIStatusBean = new TerminalORIStatusBean();
+        terminalORIStatusBean.setKey("CINI");
+        terminalORIStatusBean.setValue("Initial");
+        userLevel.add(terminalORIStatusBean);
+
+        return userLevel;
+    }
+
+    private List<TerminalORIStatusBean> getCommonStatusList() {
+        List<TerminalORIStatusBean> userLevel = new ArrayList<TerminalORIStatusBean>();
+        TerminalORIStatusBean terminalORIStatusBean = new TerminalORIStatusBean();
+        terminalORIStatusBean.setKey("ACT");
+        terminalORIStatusBean.setValue("Active");
+        userLevel.add(terminalORIStatusBean);
+        terminalORIStatusBean = new TerminalORIStatusBean();
+        terminalORIStatusBean.setKey("DEACT");
+        terminalORIStatusBean.setValue("Inactive");
+        userLevel.add(terminalORIStatusBean);
+
+        return userLevel;
+    }
+
+    public String View() {
+        System.out.println("called TerminalAction :view");
+        String result = "view";
+        try {
+            if (this.applyUserPrivileges()) {
+
+                CommonDAO dao = new CommonDAO();
+                inputBean.setStatusList(dao.getDefultStatusList(CommonVarList.STATUS_CATEGORY_GENERAL));
+
+                inputBean.setCurrencyList(dao.getCurrencyList());
+                inputBean.setMccListView(dao.getMccList());
+                inputBean.setMidListView(dao.getMidList());
+                inputBean.setAcquirerriskprofileList(dao.getAcquirerRiskprofileListALL(CommonVarList.ACQUIRER_RISKPROFILE_TYPE_TERMINAL));
+                inputBean.setMccList(dao.getMccList());
+                inputBean.setMidList(dao.getMidList());
+
+                inputBean.setTerminalcategoryList(this.getTerminalCategoryList());
+                inputBean.setTerstatusList(this.getStatusList());
+
+            } else {
+                result = "loginpage";
+            }
+
+            HttpSession session = ServletActionContext.getRequest().getSession(false);
+            if (session.getAttribute(SessionVarlist.MIN_PASSWORD_CHANGE_PERIOD) != null && session.getAttribute(SessionVarlist.ONLY_SHOW_ONTIME) != null) {
+                if ((Integer) session.getAttribute(SessionVarlist.ONLY_SHOW_ONTIME) == 0) {
+                    session.setAttribute(SessionVarlist.ONLY_SHOW_ONTIME, 1);
+                    addActionError((String) session.getAttribute(SessionVarlist.MIN_PASSWORD_CHANGE_PERIOD));
+                }
+            }
+
+        } catch (Exception ex) {
+            addActionError("Terminal management " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(TerminalAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public String ViewPopup() {
+        String result = "viewpopup";
+        System.out.println("called TerminalAction : ViewPopup");
+        HttpSession session = ServletActionContext.getRequest().getSession(false);
+        try {
+            if (this.applyUserPrivileges()) {
+                CommonDAO dao = new CommonDAO();
+                TerminalDAO terdao = new TerminalDAO();
+                inputBean.setDefaultStatus(CommonVarList.STATUS_ACTIVE);
+                inputBean.setCurrencyList(dao.getCurrencyList());
+                inputBean.setMccList(dao.getActiveMccList(CommonVarList.STATUS_ACTIVE));
+                inputBean.setAcquirerriskprofileList(dao.getAcqRiskprofileListByProfileType(CommonVarList.STATUS_ACTIVE, CommonVarList.ACQUIRER_RISKPROFILE_TYPE_TERMINAL));
+                inputBean.setMccList(dao.getMccList());
+                inputBean.setMidList(terdao.getAddMerchantList(CommonVarList.STATUS_ACTIVE));
+                inputBean.setTerminalcategoryList(this.getTerminalCategoryList());
+                inputBean.setTerstatusList(this.getStatusList());
+                inputBean.setStatus("CINI");
+
+                List<Transactiontype> terminalList;
+                terminalList = dao.getTxnTypeActCodeList();
+
+                for (Iterator<Transactiontype> it = terminalList.iterator(); it.hasNext();) {
+
+                    Transactiontype sec = it.next();
+                    inputBean.getCurrentList().put(sec.getTypecode(), sec.getDescription());
+                }
+
+                session.setAttribute(SessionVarlist.TERMINAL_ORI, null);
+            } else {
+                result = "loginpage";
+            }
+
+            if (session.getAttribute(SessionVarlist.MIN_PASSWORD_CHANGE_PERIOD) != null && session.getAttribute(SessionVarlist.ONLY_SHOW_ONTIME) != null) {
+                if ((Integer) session.getAttribute(SessionVarlist.ONLY_SHOW_ONTIME) == 0) {
+                    session.setAttribute(SessionVarlist.ONLY_SHOW_ONTIME, 1);
+                    addActionError((String) session.getAttribute(SessionVarlist.MIN_PASSWORD_CHANGE_PERIOD));
+                }
+            }
+
+        } catch (Exception e) {
+            addActionError("Terminal management " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(TerminalAction.class.getName()).log(Level.SEVERE, null, e);
+        }
+        return result;
+    }
+
+    public String detail() {
+        System.out.println("called TerminalAction: detail");
+        TerminalOri terminalori = null;
+        HttpSession session = ServletActionContext.getRequest().getSession(false);
+        try {
+            if (inputBean.getId() != null && !inputBean.getId().isEmpty()) {
+                inputBean.setMerchantOri( inputBean.getMerchantOri());
+                TerminalDAO terdao = new TerminalDAO();
+                CommonDAO dao = new CommonDAO();
+
+                inputBean.setStatusList(dao.getDefultStatusList(CommonVarList.STATUS_CATEGORY_GENERAL));
+
+                inputBean.setAcquirerriskprofileList(dao.getAcquirerRiskprofileListALL(CommonVarList.ACQUIRER_RISKPROFILE_TYPE_TERMINAL));
+                inputBean.setMccList(dao.getMccList());
+                inputBean.setMidList(dao.getMidList());
+                
+                inputBean.setTerminalcategoryList(this.getTerminalCategoryList());
+                inputBean.setCurrencyList(dao.getCurrencyList());
+                terminalori = terdao.findPageById(inputBean.getId());
+                inputBean.setMidList(terdao.getUpdateMerchantList(CommonVarList.STATUS_ACTIVE, terminalori.getMerchantOri().getMid()));
+                inputBean.setId(terminalori.getTerminalid());
+                inputBean.setTerminalname(terminalori.getTerminalname());
+                inputBean.setSerialno(terminalori.getSerialno());
+                inputBean.setManufacturer(terminalori.getManufacturer());
+                inputBean.setModel(terminalori.getModel());
+                try {
+                    inputBean.setMerchantOri(terminalori.getMerchantOri().getMid());
+                } catch (NullPointerException npe) {
+                    inputBean.setMerchantOri("");
+                }
+                try {
+                   inputBean.setS_merchantOri(terminalori.getMerchantOri().getMid());
+                } catch (NullPointerException npe) {
+                    inputBean.setS_merchantOri("");
+                }
+                
+
+                inputBean.setStatus(terminalori.getStatus().getStatuscode());
+                inputBean.setMobile(terminalori.getMobile());
+
+                try {
+                    inputBean.setStatus(terminalori.getStatus().getStatuscode());
+                    if (inputBean.getStatus().equals("CINI")) {
+                        inputBean.setTerstatusList(this.getInitialStatusList());
+                    } else {
+                        inputBean.setTerstatusList(this.getCommonStatusList());
+                    }
+                } catch (Exception ee) {
+                    inputBean.setStatus("");
+                }
+                try {
+                    inputBean.setMccOri(terminalori.getMccOri().getMcccode());
+                } catch (Exception ee) {
+                    inputBean.setMccOri("");
+
+                }
+
+                try {
+                    inputBean.setDateinstalled(terminalori.getDateinstalled().toString().substring(0, 10));
+                } catch (Exception ee) {
+                    inputBean.setDateinstalled("");
+
+                }
+
+                try {
+                    inputBean.setTerminalcategory(terminalori.getTerminalCategory());
+                    if (inputBean.getTerminalcategory().equals("CINI")) {
+
+                        inputBean.setVspanshow(false);
+                    } else {
+                        inputBean.setVspanshow(true);
+
+                    }
+                } catch (Exception ee) {
+                    inputBean.setTerminalcategory("");
+                }
+
+                try {
+                    inputBean.setAcquirerRiskprofile(terminalori.getAcquirerRiskprofile().getProfilecode());
+
+                } catch (Exception ee) {
+                    inputBean.setAcquirerRiskprofile("");
+
+                }
+
+                try {
+                    inputBean.setCurrency(terminalori.getCurrency().getCurrencycode());
+                } catch (Exception ee) {
+                    inputBean.setCurrency("");
+
+                }
+
+                
+                terdao.findTxnByMidTid(inputBean);
+            } else {
+                inputBean.setMessage("Empty ID.");
+            }
+        } catch (Exception ex) {
+            inputBean.setMessage("Terminal management " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(TerminalAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return "detail";
+
+    }
+
+    public String Assign() {
+        System.out.println("called TerminalAction : Assign");
+        String result = "message";
+        String message = null;
+        HttpSession session = ServletActionContext.getRequest().getSession(false);
+        inputBean.setId(inputBean.getId().replaceAll(",", "")); // avoid ", "
+
+        try {
+//            <----------------------Update-------------------------->
+            if (inputBean.getId() != null && !inputBean.getId().isEmpty()) {
+                inputBean.setMerchantOri(inputBean.getMerchantOri());
+                message = this.validateInputsForUpdate();
+                if (message.isEmpty()) {
+
+                    HttpServletRequest request = ServletActionContext.getRequest();
+                    TerminalDAO dao = new TerminalDAO();
+                    Systemaudit audit = Common.makeAudittrace(request, TaskVarList.UPDATE_TASK, PageVarList.TERMINAL_ORI_PAGE, SectionVarList.ACQUIERERMANAGEMENT, "Terminal ID " + inputBean.getId() + " updated", null, null, null);
+                    message = dao.updatePage(inputBean, audit);
+
+                }
+
+                HttpServletRequest request = ServletActionContext.getRequest();
+
+                TerminalDAO userRuleDao = new TerminalDAO();
+//                <------------------------Assign-Update----------------------->
+
+                if (message.isEmpty()) {
+
+                    String newV = inputBean.getId() + "|" + inputBean.getNewBox();
+                    String newB = inputBean.getNewBox().toString().replace("[", "").replace("]", "");
+                    if (newB.isEmpty()) {
+                        Systemaudit audit = Common.makeAudittrace(request,
+                                TaskVarList.ASSIGN_TASK, PageVarList.TERMINAL_ORI_PAGE,
+                                SectionVarList.ACQUIERERMANAGEMENT, "All transactions are assigned to terminal ID " + inputBean.getId(), null, inputBean.getOldvalue(), newV);
+                    } else {
+                        Systemaudit audit = Common.makeAudittrace(request,
+                                TaskVarList.ASSIGN_TASK, PageVarList.TERMINAL_ORI_PAGE,
+                                SectionVarList.ACQUIERERMANAGEMENT, inputBean.getNewBox() + " Transactions blocked to terminal ID " + inputBean.getId(), null, inputBean.getOldvalue(), newV);
+                    }
+                }
+
+                if (message.isEmpty()) {
+                    addActionMessage("Terminal " + MessageVarList.COMMON_SUCC_UPDATE);
+                } else {
+                    addActionError(message);
+                }
+            }
+        } catch (Exception ex) {
+            addActionError("Terminal management " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(TerminalAction.class.getName()).log(
+                    Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public String checkTID() {
+        String result = "messageCheck";
+        String message = null;
+        System.out.println("called TerminalAction : checkTID");
+        inputBean.setId(inputBean.getId().replaceAll(",", "").trim()); // avoid ", "
+        try {
+            TerminalDAO dao = new TerminalDAO();
+            message = this.validateCheckTID();
+            if (message.isEmpty()) {
+
+                if (!inputBean.getId().isEmpty() && !dao.isValidTID(inputBean.getId())) {
+                    message = MessageVarList.COMMON_NOT_AVAILABLE_TERMINAL;
+                }
+                if (message.isEmpty()) {
+                    message = MessageVarList.COMMON_AVAILABLE_TERMINAL;
+                    addActionMessage(message);
+                } else {
+                    addActionError(message);
+                }
+            } else {
+                addActionError(message);
+            }
+        } catch (Exception ex) {
+            addActionError("Terminal management " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(TerminalAction.class.getName()).log(
+                    Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public String Assignadd() {
+        System.out.println("called TerminalAction : Assignadd");
+        String result = "message";
+        String message = null;
+        inputBean.setId(inputBean.getId().replaceAll(",", "").trim()); // avoid ", "
+        inputBean.setStatus("CINI");
+
+        if (inputBean.getTerminalcategory().equals("POS")) {
+            inputBean.setStatus("ACT");
+        } else if ((inputBean.getTerminalcategory().equals("MOB"))) {
+            inputBean.setStatus("CINI");
+        } else {
+
+        }
+        try {
+//            <--------------------------- Insert-------------------------->
+            HttpServletRequest request = ServletActionContext.getRequest();
+            TerminalDAO dao = new TerminalDAO();
+            message = this.validateInputs();
+
+            if (message.isEmpty()) {
+                System.err.println(inputBean.getId());
+                Systemaudit audit = Common.makeAudittrace(request, TaskVarList.ADD_TASK, PageVarList.TERMINAL_ORI_PAGE, SectionVarList.ACQUIERERMANAGEMENT, "Terminal ID " + inputBean.getId() + " added", null, null, null);
+                inputBean.setMerchantOri( inputBean.getMerchantOri());
+                message = dao.insertPage(inputBean, audit);
+
+            }
+            TerminalDAO userRuleDao = new TerminalDAO();
+            if (message.isEmpty()) {
+//                <----------------------Assign Insert------------------------>
+                String newV = inputBean.getId() + "|" + inputBean.getNewBox();
+
+                Systemaudit audit = Common.makeAudittrace(request, TaskVarList.ASSIGN_TASK, PageVarList.TERMINAL_ORI_PAGE, SectionVarList.ACQUIERERMANAGEMENT, inputBean.getNewBox() + " Transactions blocked to terminal ID " + inputBean.getId(), null, inputBean.getOldvalue(), newV);
+                message = userRuleDao.assignSection(inputBean, audit);
+
+            }
+
+            if (message.isEmpty()) {
+                addActionMessage("Terminal " + MessageVarList.COMMON_SUCC_INSERT);
+            } else {
+                addActionError(message);
+            }
+
+        } catch (Exception ex) {
+            addActionError("Terminal management " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(TerminalAction.class.getName()).log(
+                    Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public String delete() {
+        System.out.println("called TerminalAction : Delete");
+        String message = null;
+        String retType = "delete";
+        try {
+            HttpServletRequest request = ServletActionContext.getRequest();
+            TerminalDAO dao = new TerminalDAO();
+            inputBean.setMerchantOri(inputBean.getMerchantOri());
+            Systemaudit audit = Common.makeAudittrace(request, TaskVarList.DELETE_TASK, PageVarList.TERMINAL_ORI_PAGE, SectionVarList.ACQUIERERMANAGEMENT, "Terminal ID " + inputBean.getId() + " deleted", null);
+
+            message = dao.deletePage(inputBean, audit);
+            if (message.isEmpty()) {
+                message = "Terminal " + MessageVarList.COMMON_SUCC_DELETE;
+            }
+            inputBean.setMessage(message);
+        } catch (Exception e) {
+            Logger.getLogger(TerminalAction.class.getName()).log(Level.SEVERE, null, e);
+            inputBean.setMessage(OracleMessage.getMessege(e.getMessage()));
+        }
+        return retType;
+    }
+
+    public String find() {
+        System.out.println("called TerminalAction: find");
+        TerminalOri terminalori = null;
+
+        try {
+            if (inputBean.getId() != null && !inputBean.getId().isEmpty()) {
+                inputBean.setMerchantOri( inputBean.getMerchantOri());
+                TerminalDAO terdao = new TerminalDAO();
+                terminalori = terdao.findPageById(inputBean.getId());
+
+                inputBean.setTerminalname(terminalori.getTerminalname());
+                inputBean.setSerialno(terminalori.getSerialno());
+                inputBean.setManufacturer(terminalori.getManufacturer());
+                inputBean.setModel(terminalori.getModel());
+                
+                try {
+                    inputBean.setMerchantOri(terminalori.getMerchantOri().getMid());
+                } catch (NullPointerException npe) {
+                    inputBean.setMerchantOri("");
+                }
+                
+
+                inputBean.setDateinstalled(terminalori.getDateinstalled().toString().substring(0, 10));
+                inputBean.setStatus(terminalori.getStatus().getStatuscode());
+                inputBean.setMobile(terminalori.getMobile());
+
+                try {
+                    inputBean.setDateinstalled(terminalori.getDateinstalled().toString());
+                } catch (NullPointerException npe) {
+                    inputBean.setDateinstalled("");
+                }
+
+                try {
+                    inputBean.setCurrency(terminalori.getCurrency().getCurrencycode());
+                } catch (NullPointerException npe) {
+                    inputBean.setCurrency("");
+                }
+                try {
+
+                    inputBean.setAcquirerRiskprofile(terminalori.getAcquirerRiskprofile().getProfilecode());
+                } catch (NullPointerException npe) {
+                    inputBean.setAcquirerRiskprofile("");
+                }
+                try {
+                    inputBean.setTerminalcategory(terminalori.getTerminalCategory());
+                } catch (NullPointerException npe) {
+                    inputBean.setTerminalcategory("");
+                }
+
+                terdao.findTxnByMidTid(inputBean);
+
+            } else {
+                inputBean.setMessage("Empty ID.");
+            }
+
+        } catch (Exception ex) {
+            inputBean.setMessage("Terminal management " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(TerminalAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return "find";
+
+    }
+
+    public String List() {
+        System.out.println("called TerminalAction: List");
+        try {
+
+            int rows = inputBean.getRows();
+            int page = inputBean.getPage();
+            int to = (rows * page);
+            int from = to - rows;
+            long records = 0;
+            String orderBy = "";
+
+            if (!inputBean.getSidx().isEmpty()) {
+                orderBy = " order by " + inputBean.getSidx() + " " + inputBean.getSord();
+            }
+
+            TerminalDAO dao = new TerminalDAO();
+            List<TerminalORIBean> dataList = dao.getSearchList(inputBean, to, from, orderBy);
+
+            if (inputBean.isSearch() && from == 0) {
+                HttpServletRequest request = ServletActionContext.getRequest();
+
+                
+                String searchParameters = "["
+                        + checkEmptyorNullString("Terminal ID", inputBean.getS_id())
+                        + checkEmptyorNullString("Merchant ID", inputBean.getS_merchantOri().trim())
+                        + checkEmptyorNullString("Terminal Name", inputBean.getS_terminalname())
+                        + checkEmptyorNullString("Serial Number", inputBean.getS_serialno())
+                        + checkEmptyorNullString("Manufacturer", inputBean.getS_manufacturer())
+                        + checkEmptyorNullString("Model", inputBean.getS_model())
+                        + checkEmptyorNullString("Status", inputBean.getS_status())
+                        + checkEmptyorNullString("Installed Date", inputBean.getS_dateinstalled())
+//                        + checkEmptyorNullString("Merchant Category Code", inputBean.getS_mccOri())
+                        + checkEmptyorNullString("Acquirer Risk Profile", inputBean.getS_acquirerRiskprofile())
+                        + checkEmptyorNullString("Mobile", inputBean.getS_mobile())
+                        + checkEmptyorNullString("Terminal Category", inputBean.getS_terminalcategory())
+                        + "]";
+
+//                Systemaudit audit = Common.makeAudittrace(request, TaskVarList.SEARCH_TASK, PageVarList.TERMINAL_ORI_PAGE, SectionVarList.ACQUIERERMANAGEMENT, "Terminal management search using " + searchParameters + " parameters ", null);
+                Systemaudit audit = Common.makeAudittrace(request, TaskVarList.SEARCH_TASK, PageVarList.TERMINAL_ORI_PAGE, SectionVarList.ACQUIERERMANAGEMENT, "Terminal management search using " + searchParameters + " parameters ", null, null, null);
+                SystemAuditDAO sysdao = new SystemAuditDAO();
+                sysdao.saveAudit(audit);
+            }
+
+            if (!dataList.isEmpty()) {
+                records = dataList.get(0).getFullcount();
+                inputBean.setRecords(records);
+                inputBean.setGridModel(dataList);
+                int total = (int) Math.ceil((double) records / (double) rows);
+                inputBean.setTotal(total);
+            } else {
+                inputBean.setRecords(0L);
+                inputBean.setTotal(0);
+            }
+
+        } catch (Exception e) {
+            Logger.getLogger(TerminalAction.class.getName()).log(Level.SEVERE, null, e);
+            addActionError(MessageVarList.COMMON_ERROR_PROCESS + " TerminalAction");
+        }
+        return "list";
+    }
+
+    private String validateCheckTID() {
+
+        String message = "";
+        if (inputBean.getId() == null || inputBean.getId().trim().isEmpty()) {
+            message = MessageVarList.TERMINAL_ORI_EMPTY_ID;
+        } else if (inputBean.getId().length() != 8) {
+            message = MessageVarList.TERMINAL_ORI_ID_LENGTH + "8";
+        }
+        return message;
+    }
+
+    private String validateInputs() throws Exception {
+        String message = "";
+        TerminalDAO dao = new TerminalDAO();
+        
+        if (inputBean.getId() == null || inputBean.getId().trim().isEmpty()) {
+            message = MessageVarList.TERMINAL_ORI_EMPTY_ID;
+        } else if (inputBean.getId().length() != 8) {
+            message = MessageVarList.TERMINAL_ORI_ID_LENGTH + "8";
+        } else if (inputBean.getMerchantOri() == null || inputBean.getMerchantOri().trim().isEmpty()) {
+            message = MessageVarList.TERMINAL_ORI_EMPTY_MID;
+        } else if (inputBean.getTerminalname() == null || inputBean.getTerminalname().trim().isEmpty()) {
+            message = MessageVarList.TERMINAL_ORI_EMPTY_TERMINAL_NAME;
+        } else if (inputBean.getSerialno() == null || inputBean.getSerialno().trim().isEmpty()) {
+            message = MessageVarList.TERMINAL_ORI_EMPTY_SERIALNO;
+        } else if (inputBean.getManufacturer() == null || inputBean.getManufacturer().trim().isEmpty()) {
+            message = MessageVarList.TERMINAL_ORI_EMPTY_MANUFACTURER;
+        } else if (inputBean.getModel() == null || inputBean.getModel().trim().isEmpty()) {
+            message = MessageVarList.TERMINAL_ORI_EMPTY_MODEL;
+        } else if (inputBean.getCurrency() == null || inputBean.getCurrency().trim().isEmpty()) {
+                    message = MessageVarList.TERMINAL_ORI_EMPTY_CURRENCY;
+                }
+        else if (inputBean.getDateinstalled() == null || inputBean.getDateinstalled().trim().isEmpty()) {
+            message = MessageVarList.TERMINAL_ORI_EMPTY_DATE_INSTALLED;
+//        } else if (inputBean.getMccOri() == null || inputBean.getMccOri().trim().isEmpty()) {
+//            message = MessageVarList.TERMINAL_ORI_EMPTY_MCC;
+//        } else if (inputBean.getAcquirerRiskprofile() == null || inputBean.getAcquirerRiskprofile().trim().isEmpty()) {
+//            message = MessageVarList.TERMINAL_ORI_EMPTY_RISKPROFILE;
+        } else if (inputBean.getStatus() == null || inputBean.getStatus().trim().isEmpty()) {
+            message = MessageVarList.TERMINAL_ORI_EMPTY_STATUS;
+        } else if (inputBean.getTerminalcategory() == null || inputBean.getTerminalcategory().trim().isEmpty()) {
+            message = MessageVarList.TERMINAL_ORI_EMPTY_TERMINAL_CATE;
+        } else if (inputBean.getTerminalcategory().equals("MOB")) {
+            if (inputBean.getMobile() == null || inputBean.getMobile().trim().isEmpty()) {
+                message = MessageVarList.TERMINAL_ORI_EMPTY_MOBILE;
+            } else if (!inputBean.getMobile().isEmpty() && !Validation.isNumeric(inputBean.getMobile())) {
+                message = MessageVarList.TERMINAL_ORI_INVALID_MOBILE;
+//            } else if (!inputBean.getMobile().isEmpty() && !Validation.validLocalPhoneno(inputBean.getMobile())) {
+//                message = MessageVarList.TERMINAL_ORI_INVALID_MOBILE;
+            }
+        } else if (!inputBean.getId().isEmpty() && !dao.isValidTID(inputBean.getId())) {
+            message = MessageVarList.COMMON_NOT_AVAILABLE_TERMINAL;
+        }
+        
+        
+
+        return message;
+    }
+
+    private String validateInputsForUpdate() throws Exception {
+        String message = "";
+        TerminalOri terminalori = null;
+        inputBean.setMerchantOri(inputBean.getMerchantOri());
+        TerminalDAO terdao = new TerminalDAO();
+//        terminalori = terdao.findPageById(inputBean.getId(), inputBean.getMerchantOri());
+        terminalori = terdao.findPageById(inputBean.getId());
+        inputBean.setTerminalcategory(terminalori.getTerminalCategory());
+
+        if (inputBean.getId() == null || inputBean.getId().trim().isEmpty()) {
+            message = MessageVarList.TERMINAL_ORI_EMPTY_ID;
+        }else if (inputBean.getMerchantOri()== null || inputBean.getMerchantOri().trim().isEmpty()) {
+            message = MessageVarList.TERMINAL_ORI_EMPTY_MID;
+        } 
+        else if (inputBean.getTerminalname() == null || inputBean.getTerminalname().trim().isEmpty()) {
+            message = MessageVarList.TERMINAL_ORI_EMPTY_TERMINAL_NAME;
+        } else if (inputBean.getSerialno() == null || inputBean.getSerialno().trim().isEmpty()) {
+            message = MessageVarList.TERMINAL_ORI_EMPTY_SERIALNO;
+        } else if (inputBean.getManufacturer() == null || inputBean.getManufacturer().trim().isEmpty()) {
+            message = MessageVarList.TERMINAL_ORI_EMPTY_MANUFACTURER;
+        } else if (inputBean.getModel() == null || inputBean.getModel().trim().isEmpty()) {
+            message = MessageVarList.TERMINAL_ORI_EMPTY_MODEL;
+        } //            else if (inputBean.getMerchantOri()== null || inputBean.getMerchantOri().trim().isEmpty()) {
+        //            message = MessageVarList.TERMINAL_ORI_EMPTY_MID;
+        //        } 
+        else if (inputBean.getCurrency() == null || inputBean.getCurrency().trim().isEmpty()) {
+            message = MessageVarList.TERMINAL_ORI_EMPTY_CURRENCY;
+        }
+        else if (inputBean.getDateinstalled() == null || inputBean.getDateinstalled().trim().isEmpty()) {
+            message = MessageVarList.TERMINAL_ORI_EMPTY_DATE_INSTALLED;
+//        } else if (inputBean.getMccOri() == null || inputBean.getMccOri().trim().isEmpty()) {
+//            message = MessageVarList.TERMINAL_ORI_EMPTY_MCC;
+//        } else if (inputBean.getAcquirerRiskprofile() == null || inputBean.getAcquirerRiskprofile().trim().isEmpty()) {
+//            message = MessageVarList.TERMINAL_ORI_EMPTY_RISKPROFILE;
+        } else if (inputBean.getStatus() == null || inputBean.getStatus().trim().isEmpty()) {
+            message = MessageVarList.TERMINAL_ORI_EMPTY_STATUS;
+        } else if (inputBean.getStatus().equals("CINI") && terminalori.getStatus().getStatuscode().equals("ACT")) {
+            message = MessageVarList.TERMINAL_ORI_ACT_DEACT_TO_INITIAL;
+        } else if (inputBean.getStatus().equals("CINI") && terminalori.getStatus().getStatuscode().equals("DEACT")) {
+            message = MessageVarList.TERMINAL_ORI_ACT_DEACT_TO_INITIAL;
+        } else if (terminalori.getStatus().getStatuscode().equals("CINI") && !inputBean.getStatus().equals("CINI")) {
+            message = MessageVarList.TERMINAL_ORI_INITIAL_OTHER;
+        } else if (inputBean.getTerminalcategory() == null || inputBean.getTerminalcategory().trim().isEmpty()) {
+            message = MessageVarList.TERMINAL_ORI_EMPTY_TERMINAL_CATE;
+        } else if (inputBean.getTerminalcategory().equals("MOB")) {
+            if (inputBean.getMobile() == null || inputBean.getMobile().trim().isEmpty()) {
+                message = MessageVarList.TERMINAL_ORI_EMPTY_MOBILE;
+            } else if (!inputBean.getMobile().isEmpty() && !Validation.isNumeric(inputBean.getMobile())) {
+                message = MessageVarList.TERMINAL_ORI_INVALID_MOBILE;
+//            } else if (!inputBean.getMobile().isEmpty() && !Validation.validLocalPhoneno(inputBean.getMobile())) {
+//                message = MessageVarList.TERMINAL_ORI_INVALID_MOBILE;
+            }
+        }
+
+        return message;
+    }
+
+    private boolean applyUserPrivileges() {
+        HttpServletRequest request = ServletActionContext.getRequest();
+        List<Task> tasklist = new Common().getUserTaskListByPage(PageVarList.TERMINAL_ORI_PAGE, request);
+
+        inputBean.setVadd(true);
+        inputBean.setVdelete(true);
+        inputBean.setVupdatelink(true);
+        inputBean.setVsearch(true);
+        inputBean.setVspanshow(true);
+        inputBean.setVreset(true);
+
+        if (tasklist != null && tasklist.size() > 0) {
+            for (Task task : tasklist) {
+                if (task.getTaskcode().toString().equalsIgnoreCase(TaskVarList.ADD_TASK)) {
+                    inputBean.setVadd(false);
+                    inputBean.setVspanshow(false);
+                } else if (task.getTaskcode().toString().equalsIgnoreCase(TaskVarList.DELETE_TASK)) {
+                    inputBean.setVdelete(false);
+                } else if (task.getTaskcode().toString().equalsIgnoreCase(TaskVarList.UPDATE_TASK)) {
+                    inputBean.setVupdatelink(false);
+                    inputBean.setVspanshow(false);
+                } else if (task.getTaskcode().toString().equalsIgnoreCase(TaskVarList.SEARCH_TASK)) {
+                    inputBean.setVsearch(false);
+                } else if (task.getTaskcode().toString().equalsIgnoreCase(TaskVarList.TERMINAL_RESET_TASK)) {
+                    inputBean.setVreset(false);
+                }
+            }
+        }
+        inputBean.setVupdatebutt(true);
+
+        return true;
+    }
+
+ 
+    public String reset() {
+        System.out.println("called TerminalAction : reset");
+        String retType = "reset";
+        String message = "";
+
+        try {
+
+            HttpServletRequest request = ServletActionContext.getRequest();
+            TerminalDAO dao = new TerminalDAO();
+
+            HttpSession session = ServletActionContext.getRequest().getSession(false);
+
+            if (inputBean.getId() != null && !inputBean.getId().isEmpty()) {
+
+                Systemaudit audit = Common.makeAudittrace(request, TaskVarList.TERMINAL_RESET_TASK, PageVarList.TERMINAL_ORI_PAGE, SectionVarList.ACQUIERERMANAGEMENT, "Terminal ID " + inputBean.getId() + " Reset", null, null, null);
+                message = dao.resetTerminal(inputBean, audit);
+
+                if (message.isEmpty()) {
+                    inputBean.setMessage("Terminal reset successfully");
+                } else {
+                    inputBean.setMessage(message);
+                }
+
+            }
+
+        } catch (Exception ex) {
+            addActionError("Terminal management " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(TerminalAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return retType;
+    }
+
+}

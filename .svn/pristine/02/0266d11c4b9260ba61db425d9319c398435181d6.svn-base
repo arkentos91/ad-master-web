@@ -1,0 +1,283 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.bean.controlpanel.acquirer;
+
+/**
+ *
+ * @author samith_k
+ */
+public class MerchantMgtDataBean {
+
+   private String merchantcode;
+    private String merchantCustomer;
+    private String description;
+    private String status;
+    private String latitude;
+    private String longitude;
+    private String address;
+    private String username;
+    private String riskprofile;
+    private String mobile;
+    private String contact1;
+    private String contact2;
+    private String email1;
+    private String email2;
+    private String accounttype;
+    private String accountnumber;
+    private String paymenttype;
+    private String bankname;
+    private String branchcode;
+    private String branch;
+    private String legalname;
+    private String resetattempt;
+    private String promotion;
+    private String commision;
+    private String topupacc;
+    private String posacc;
+    private String createdtime;
+    private String mcc;
+
+    public String getAccounttype() {
+        return accounttype;
+    }
+
+    public void setAccounttype(String accounttype) {
+        this.accounttype = accounttype;
+    }
+
+    public String getAccountnumber() {
+        return accountnumber;
+    }
+
+    public void setAccountnumber(String accountnumber) {
+        this.accountnumber = accountnumber;
+    }
+
+    public String getPaymenttype() {
+        return paymenttype;
+    }
+
+    public void setPaymenttype(String paymenttype) {
+        this.paymenttype = paymenttype;
+    }
+
+    public String getBankname() {
+        return bankname;
+    }
+
+    public void setBankname(String bankname) {
+        this.bankname = bankname;
+    }
+
+    public String getBranchcode() {
+        return branchcode;
+    }
+
+    public void setBranchcode(String branchcode) {
+        this.branchcode = branchcode;
+    }
+
+    public String getBranch() {
+        return branch;
+    }
+
+    public void setBranch(String branch) {
+        this.branch = branch;
+    }
+
+
+    public String getEmail1() {
+        return email1;
+    }
+
+    public void setEmail1(String email1) {
+        this.email1 = email1;
+    }
+
+    public String getEmail2() {
+        return email2;
+    }
+
+    public void setEmail2(String email2) {
+        this.email2 = email2;
+    }
+
+    
+    
+
+ 
+    public String getResetattempt() {
+        return resetattempt;
+    }
+
+    public void setResetattempt(String resetattempt) {
+        this.resetattempt = resetattempt;
+    }
+
+    public String getContact1() {
+        return contact1;
+    }
+
+    public void setContact1(String contact1) {
+        this.contact1 = contact1;
+    }
+
+    public String getContact2() {
+        return contact2;
+    }
+
+    public void setContact2(String contact2) {
+        this.contact2 = contact2;
+    }
+
+    public String getLegalname() {
+        return legalname;
+    }
+
+    public void setLegalname(String legalname) {
+        this.legalname = legalname;
+    }
+
+    public String getTopupacc() {
+        return topupacc;
+    }
+
+    public void setTopupacc(String topupacc) {
+        this.topupacc = topupacc;
+    }
+
+    public String getPosacc() {
+        return posacc;
+    }
+
+    public void setPosacc(String posacc) {
+        this.posacc = posacc;
+    }
+
+    public String getCreatedtime() {
+        return createdtime;
+    }
+
+    public void setCreatedtime(String createdtime) {
+        this.createdtime = createdtime;
+    }
+
+    public String getPromotion() {
+        return promotion;
+    }
+
+    public void setPromotion(String promotion) {
+        this.promotion = promotion;
+    }
+
+    public String getCommision() {
+        return commision;
+    }
+
+    public void setCommision(String commision) {
+        this.commision = commision;
+    }
+
+    private long fullCount;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getMerchantcode() {
+        return merchantcode;
+    }
+
+    public void setMerchantcode(String merchantcode) {
+        this.merchantcode = merchantcode;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public long getFullCount() {
+        return fullCount;
+    }
+
+    public void setFullCount(long fullCount) {
+        this.fullCount = fullCount;
+    }
+
+    public String getRiskprofile() {
+        return riskprofile;
+    }
+
+    public void setRiskprofile(String riskprofile) {
+        this.riskprofile = riskprofile;
+    }
+
+    public String getMerchantCustomer() {
+        return merchantCustomer;
+    }
+
+    public void setMerchantCustomer(String merchantCustomer) {
+        this.merchantCustomer = merchantCustomer;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
+
+    public String getMcc() {
+        return mcc;
+    }
+
+    public void setMcc(String mcc) {
+        this.mcc = mcc;
+    }
+
+
+}

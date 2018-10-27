@@ -1,0 +1,1308 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.dao.controlpanel.acquirer;
+
+/**
+ *
+ * @author jayana_i
+ */
+import com.epic.bmlalipay.bean.controlpanel.acquirer.TerminalORIBean;
+import com.epic.bmlalipay.bean.controlpanel.acquirer.TerminalORIInputBean;
+import com.epic.bmlalipay.dao.common.CommonDAO;
+import com.epic.bmlalipay.util.common.HibernateInit;
+import com.epic.bmlalipay.util.mapping.AcquirerRiskprofile;
+import com.epic.bmlalipay.util.mapping.AcquirerRiskprofileCurrency;
+import com.epic.bmlalipay.util.mapping.Currency;
+import com.epic.bmlalipay.util.mapping.MccOri;
+import com.epic.bmlalipay.util.mapping.MerchantOri;
+import com.epic.bmlalipay.util.mapping.Status;
+import com.epic.bmlalipay.util.mapping.Systemaudit;
+import com.epic.bmlalipay.util.mapping.TerminalOri;
+import com.epic.bmlalipay.util.mapping.TerminalOriTransaction;
+import com.epic.bmlalipay.util.mapping.TerminalOriTransactionId;
+import com.epic.bmlalipay.util.mapping.Transactiontype;
+import com.epic.bmlalipay.util.varlist.CommonVarList;
+import com.epic.bmlalipay.util.varlist.MessageVarList;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
+public class TerminalDAO {
+
+   public List<TerminalORIBean> getSearchList(TerminalORIInputBean inputBean, int max, int first, String orderBy) throws Exception {
+
+        List<TerminalORIBean> dataList = new ArrayList<TerminalORIBean>();
+        Session session = null;
+        try {
+
+            if (orderBy.equals("") || orderBy == null) {
+                orderBy = " order by cp.CREATEDTIME desc ";
+            }
+
+            String where = this.makeWhereClause(inputBean);
+            Integer count = new Integer(0);
+
+            session = HibernateInit.sessionFactory.openSession();
+
+            String sqlCount = "select count(cp.TERMINALID) from TERMINAL_ORI cp where " + where;
+            Query queryCount = session.createSQLQuery(sqlCount);
+
+            List countList = queryCount.list();
+            count = (Integer) countList.get(0);
+
+            if (count.longValue() > 0) {
+                String DATA_LIST_SQL = " SELECT * from ( "
+                        + "select CP.TERMINALID, " //0
+                        + "CP.TERMINALNAME, " //1
+                        + "CP.SERIALNO, " //2
+                        + "CP.MANUFACTURER, " //3
+                        + "CP.MODEL," //4
+                        + "CP.LASTUPDATEDUSER," //5
+                        + "CP.LASTUPDATEDTIME," //6
+                        + "CP.CREATEDTIME," //7
+                        + "CP.MID," //8
+                        + "CP.CURRENCYCODE," //9
+                        + "CP.DATEINSTALLED," //10
+                        + "CP.MCC," //11
+                        + "CP.RISKPROFILE," //12      
+                        + "CP.STATUS," //13
+                        + "CP.TERMINAL_CATEGORY," //14
+                        + "CP.MOBILE," //15
+                        //            + " rownum r " //16
+                        + " row_number() over (" + orderBy + ") as r "
+                        + " from TERMINAL_ORI CP where  ";
+
+                String sqlSearch = DATA_LIST_SQL + where + ") s where r > " + first + " and r<= " + max;
+                System.err.println(sqlSearch);
+                List<Object[]> chequeList = (List<Object[]>) session.createSQLQuery(sqlSearch).list();
+
+                for (Object[] cpBean : chequeList) {
+
+                    TerminalORIBean cardProductBean = new TerminalORIBean();
+
+                    try {
+                        cardProductBean.setId(cpBean[0].toString());
+                    } catch (NullPointerException npe) {
+                        cardProductBean.setId("--");
+                    }
+                    try {
+                        cardProductBean.setTerminalname(cpBean[1].toString());
+                    } catch (NullPointerException npe) {
+                        cardProductBean.setTerminalname("--");
+                    }
+                    try {
+                        cardProductBean.setSerialno(cpBean[2].toString());
+                    } catch (NullPointerException npe) {
+                        cardProductBean.setSerialno("--");
+                    }
+                    try {
+                        cardProductBean.setManufacturer(cpBean[3].toString());
+                    } catch (NullPointerException npe) {
+                        cardProductBean.setManufacturer("--");
+                    }
+                    try {
+                        cardProductBean.setModel(cpBean[4].toString());
+                    } catch (NullPointerException npe) {
+                        cardProductBean.setModel("--");
+                    }
+                    try {
+                        cardProductBean.setLastupdateduser(cpBean[5].toString());
+                    } catch (NullPointerException npe) {
+                        cardProductBean.setLastupdateduser("--");
+                    }
+                    try {
+                        cardProductBean.setLastupdatedtime(cpBean[6].toString());
+                    } catch (NullPointerException npe) {
+                        cardProductBean.setLastupdatedtime("--");
+                    }
+                    try {
+                        if (cpBean[7].toString() != null) {
+                            cardProductBean.setCreatedtime(cpBean[7].toString().substring(0, 19));
+                        } else {
+                            cardProductBean.setCreatedtime("--");
+                        }
+
+                    } catch (NullPointerException npe) {
+                        cardProductBean.setCreatedtime("--");
+                    }
+                    try {
+                        cardProductBean.setMerchantOri(cpBean[8].toString().trim());
+                        cardProductBean.setMerchantOriDes(findMIDDescription(cpBean[8].toString()));
+                    } catch (NullPointerException npe) {
+                        cardProductBean.setMerchantOri("--");
+                        cardProductBean.setMerchantOriDes("--");
+                    }
+                    try {
+                        cardProductBean.setCurrency(cpBean[9].toString());
+                        cardProductBean.setCurrencyDes(findCurrencyDescription(cpBean[9].toString()));
+                    } catch (NullPointerException npe) {
+                        cardProductBean.setCurrency("--");
+                        cardProductBean.setCurrencyDes("--");
+                    }
+                    try {
+                        cardProductBean.setDateinstalled(cpBean[10].toString().substring(0, 10));
+                    } catch (NullPointerException npe) {
+                        cardProductBean.setDateinstalled("--");
+                    } catch (Exception npe) {
+                        cardProductBean.setDateinstalled("--");
+                    }
+                    try {
+                        cardProductBean.setMccOri(cpBean[11].toString());
+                        cardProductBean.setMccOriDes(findMCCDescription(cpBean[11].toString()));
+                    } catch (NullPointerException npe) {
+                        cardProductBean.setMccOri("--");
+                        cardProductBean.setMccOriDes("--");
+                    }
+                    try {
+                        cardProductBean.setAcquirerRiskprofile(cpBean[12].toString());
+                        cardProductBean.setAcquirerRiskprofileDes(findRiskProfileDescription(cpBean[12].toString()));
+                    } catch (NullPointerException npe) {
+                        cardProductBean.setAcquirerRiskprofile("--");
+                        cardProductBean.setAcquirerRiskprofileDes("--");
+                    }
+                    try {
+                        cardProductBean.setStatus(cpBean[13].toString());
+                        cardProductBean.setStatusDes(this.findStatusDescription(cpBean[13].toString()));
+                    } catch (NullPointerException npe) {
+                        cardProductBean.setStatus("--");
+                        cardProductBean.setStatusDes("--");
+                    }
+                    try {
+                        cardProductBean.setTerminalcategory(getTerminalCateDes(cpBean[14].toString()));
+                    } catch (NullPointerException npe) {
+                        cardProductBean.setTerminalcategory("--");
+                    }
+                    try {
+                        cardProductBean.setMobile(cpBean[15].toString());
+                    } catch (NullPointerException npe) {
+                        cardProductBean.setMobile("--");
+                    }
+                    cardProductBean.setFullcount(count.longValue());
+
+                    dataList.add(cardProductBean);
+                }
+            }
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return dataList;
+    }
+
+    private String getTerminalCateDes(String key) {
+
+        HashMap<String, String> userLevel = new HashMap<String, String>();
+        userLevel.put("MOB", "Mobile");
+        userLevel.put("POS", "POS");
+
+        return userLevel.get(key);
+    }
+
+    public String insertPage(TerminalORIInputBean inputBean, Systemaudit audit) throws Exception {
+        Session session = null;
+        Transaction txn = null;
+        String message = "";
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            Date sysDate = CommonDAO.getSystemDate(session);
+
+            if ((TerminalOri) session.get(TerminalOri.class, inputBean.getId()) == null) {
+                txn = session.beginTransaction();
+
+                TerminalOri Page = new TerminalOri();
+
+                MerchantOri merchantori = (MerchantOri) session.get(MerchantOri.class, inputBean.getMerchantOri());
+                Page.setMerchantOri(merchantori);
+
+                Page.setTerminalid(inputBean.getId());
+                Page.setTerminalname(inputBean.getTerminalname().trim());
+                Page.setSerialno(inputBean.getSerialno().trim());
+                Page.setManufacturer(inputBean.getManufacturer().trim());
+                Page.setModel(inputBean.getModel().trim());
+
+                Page.setTerminalCategory(inputBean.getTerminalcategory().trim());
+                if (inputBean.getTerminalcategory().equals("MOB")) {
+                    Page.setMobile(inputBean.getMobile().trim());
+                } else {
+                    Page.setMobile("");
+                }
+                MerchantOri mid = (MerchantOri) session.get(MerchantOri.class, inputBean.getMerchantOri());
+                Page.setMerchantOri(mid);
+
+                merchantori = this.findMccByMid(inputBean.getMerchantOri(),session);
+
+                if (merchantori.getMccOri()!= null && !merchantori.getMccOri().toString().isEmpty()) {
+                    Page.setMccOri(merchantori.getMccOri());
+                }
+                if (inputBean.getAcquirerRiskprofile() != null && !inputBean.getAcquirerRiskprofile().isEmpty()) {
+
+                    AcquirerRiskprofile acquier = (AcquirerRiskprofile) session.get(AcquirerRiskprofile.class, inputBean.getAcquirerRiskprofile().trim());
+                    Page.setAcquirerRiskprofile(acquier);
+
+                } else {
+                    Page.setAcquirerRiskprofile(null);
+                }
+                Status st = (Status) session.get(Status.class, inputBean.getStatus().trim());
+                Page.setStatus(st);
+                
+                Currency curr =(Currency)session.get(Currency.class, inputBean.getCurrency());
+                Page.setCurrency(curr);
+
+                Page.setModel(inputBean.getModel().trim());
+
+                Page.setLastupdatedtime(sysDate);
+                Page.setCreatedtime(sysDate);
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                Date dateins = formatter.parse(inputBean.getDateinstalled());
+                Page.setDateinstalled(dateins);
+                Page.setLastupdateduser(audit.getLastupdateduser());
+
+                String newValue
+                        = Page.getTerminalid() + "|"
+                        + Page.getMerchantOri().getMid() + "|"
+                        + Page.getCurrency().getDescription() + "|"
+                        + Page.getTerminalname() + "|"
+                        + Page.getSerialno() + "|"
+                        + Page.getManufacturer() + "|"
+                        + Page.getModel() + "|"
+                        + inputBean.getDateinstalled().substring(0, 10) + "|"
+                        + Page.getStatus().getDescription() + "|"
+                        + Page.getTerminalCategory() + "|"
+                        + Page.getMobile() + "|"
+                        + inputBean.getNewBox();
+
+                audit.setCreatetime(sysDate);
+                audit.setNewvalue(newValue);
+                audit.setLastupdatedtime(sysDate);
+
+                session.save(Page);
+                session.save(audit);
+
+                txn.commit();
+                //start newly changed
+            } else {
+
+                long count = 0;
+
+                message = MessageVarList.COMMON_ALREADY_EXISTS;
+
+            }
+
+        } catch (Exception e) {
+            if (txn != null) {
+                txn.rollback();
+            }
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return message;
+    }
+
+    public MerchantOri findMccByMid(String mid,Session session) throws Exception {
+
+//        mid = String.format(mid);
+        MerchantOri mccori = null;
+        
+        String sql = "from MerchantOri as u where u.mid=:mid";
+        Query query = session.createQuery(sql).setString("mid", mid);
+        mccori = (MerchantOri) query.list().get(0);
+
+        return mccori;
+
+    }
+
+    public String checkTIDMID(TerminalORIInputBean inputBean) throws Exception {
+        Session session = null;
+        String message = "";
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+
+            TerminalOri u = (TerminalOri) session.get(TerminalOri.class, inputBean.getId());
+            if (u == null) {
+                message = "";
+
+            } else {
+
+                message = MessageVarList.COMMON_NOT_AVAILABLE_TERMINAL;
+
+            }
+
+        } catch (Exception e) {
+
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return message;
+    }
+
+    public boolean isValidTID(String tid) throws Exception {
+        boolean tidCheck = false;
+        Session session = null;
+        try {
+            long count = 0;
+            session = HibernateInit.sessionFactory.openSession();
+
+            String sqlCount = "select count(terminalid) from TerminalOri as u where u.id.terminalid=:tid";
+            Query query = session.createQuery(sqlCount).setString("tid", tid);
+
+            Iterator itCount = query.iterate();
+            count = (Long) itCount.next();
+
+            if (count > 0) {
+                tidCheck = false;
+
+            } else {
+                tidCheck = true;
+            }
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return tidCheck;
+
+    }
+
+    public List<Transactiontype> getTranList(String mid, String terminalid)
+            throws Exception {
+
+        List<Transactiontype> statusList = null;
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            String sql1 = "select t.typecode from Transactiontype as t where t.status.statuscode=:statuscode and typecode in "
+                    + "(select mp.id.transactionCode from TerminalOriTransaction mp where mp.id.mid=:mid "
+                    + "and mp.id.terminalid=:terminalid) order by t.description asc";
+
+            Query query = session.createQuery(sql1).setString("mid", mid).setString("terminalid", terminalid).setString("statuscode", CommonVarList.STATUS_ACTIVE);
+            statusList = query.list();
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return statusList;
+    }
+
+    public List<Transactiontype> getTranList(String terminalid)
+            throws Exception {
+
+        List<Transactiontype> statusList = null;
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            String sql1 = "select t.typecode from Transactiontype as t where t.status.statuscode=:statuscode and typecode in "
+                    + "(select mp.id.transactionCode from TerminalOriTransaction mp where  "
+                    + " mp.id.terminalid=:terminalid) order by t.description asc";
+
+            Query query = session.createQuery(sql1).setString("terminalid", terminalid).setString("statuscode", CommonVarList.STATUS_ACTIVE);
+            statusList = query.list();
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return statusList;
+    }
+
+    public String updatePage(TerminalORIInputBean inputBean, Systemaudit audit) throws Exception {
+
+        Session session = null;
+        Transaction txn = null;
+        String message = "";
+
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            txn = session.beginTransaction();
+            Date sysDate = CommonDAO.getSystemDate(session);
+
+            TerminalOri u = (TerminalOri) session.get(TerminalOri.class, inputBean.getId());
+            String mccOriginal = "";
+            String risk = "";
+            String statusOld = "";
+            String merchOld = "";
+            String mobile = "";
+            String date_installed = "";
+            String currency="";
+            if (u != null) {
+
+                try {
+                    if (u.getMerchantOri().getMid() != null) {
+                        merchOld = u.getMerchantOri().getMid();
+                    } else {
+                        merchOld = "";
+                    }
+                } catch (Exception eee) {
+                    merchOld = "";
+                }
+
+                try {
+                    if (u.getMccOri().getMccdes().trim() != null) {
+                        mccOriginal = u.getMccOri().getMccdes().trim();
+                    } else {
+                        mccOriginal = "";
+                    }
+                } catch (Exception eee) {
+                    mccOriginal = "";
+                }
+                try {
+
+                    if (u.getCurrency().getDescription().trim() != null) {
+                        currency = u.getCurrency().getDescription().trim();
+                    } else {
+                        currency = "";
+                    }
+
+                } catch (Exception eee) {
+                    currency = "";
+                }
+                try {
+
+                    if (u.getAcquirerRiskprofile().getDescription().trim() != null) {
+                        risk = u.getAcquirerRiskprofile().getDescription().trim();
+                    } else {
+                        risk = "";
+                    }
+
+                } catch (Exception eee) {
+                    risk = "";
+                }
+                try {
+                    if (u.getStatus().getDescription().trim() != null) {
+                        statusOld = u.getStatus().getDescription().trim();
+                    } else {
+                        statusOld = "";
+                    }
+                } catch (Exception eee) {
+                    statusOld = "";
+                }
+                try {
+                    if (u.getTerminalCategory() == null) {
+                        u.setTerminalCategory("");
+                    } else {
+
+                    }
+                } catch (Exception eee) {
+                    u.setTerminalCategory("");
+                }
+                try {
+                    if (u.getTerminalCategory().equals("MOB")) {
+                        mobile = u.getMobile();
+                    } else {
+                        mobile = "";
+                    }
+                } catch (Exception eee) {
+                    mobile = "";
+                }
+                try {
+                    date_installed = u.getDateinstalled().toString().substring(0, 10);
+                } catch (Exception eee) {
+                    date_installed = "";
+                }
+
+                String OldV
+                        = u.getTerminalid() + "|"
+                        + merchOld + "|"
+                        + currency +"|"
+                        + u.getTerminalname() + "|"
+                        + u.getSerialno() + "|"
+                        + u.getManufacturer() + "|"
+                        + u.getModel() + "|"
+                        + date_installed + "|"
+                        + mccOriginal + "|"
+                        + risk + "|"
+                        + statusOld + "|"
+                        + u.getTerminalCategory().replace("MOB", "Mobile") + "|"
+                        + mobile + "|"
+                        + this.getTranList(u.getTerminalid());
+
+                u.setTerminalname(inputBean.getTerminalname().trim());
+
+                inputBean.setMerchantOriedit( inputBean.getMerchantOriedit());
+
+                MerchantOri merchantori = (MerchantOri) session.get(MerchantOri.class, inputBean.getMerchantOri());
+                u.setMerchantOri(merchantori);
+
+                merchantori = this.findMccByMid(inputBean.getMerchantOri(),session);
+
+                if (merchantori.getMccOri()!= null && !merchantori.getMccOri().toString().isEmpty()) {
+                    u.setMccOri(merchantori.getMccOri());
+                    mccOriginal = u.getMccOri().getDescription();
+                } else {
+                    mccOriginal = "";
+                }
+
+                u.setSerialno(inputBean.getSerialno().trim());
+                u.setManufacturer(inputBean.getManufacturer().trim());
+                u.setModel(inputBean.getModel().trim());
+                u.setTerminalCategory(inputBean.getTerminalcategory().trim());
+
+                if (inputBean.getTerminalcategory().trim().equals("MOB")) {
+                    u.setMobile(inputBean.getMobile().trim());
+                } else {
+                    u.setMobile("");
+                }
+
+                try {
+                    if (inputBean.getAcquirerRiskprofile() != null && !inputBean.getAcquirerRiskprofile().isEmpty()) {
+
+                        AcquirerRiskprofile acquier = (AcquirerRiskprofile) session.get(AcquirerRiskprofile.class, inputBean.getAcquirerRiskprofile().trim());
+                        u.setAcquirerRiskprofile(acquier);
+                        risk = u.getAcquirerRiskprofile().getDescription();
+
+                    } else {
+
+                        AcquirerRiskprofile acquier = (AcquirerRiskprofile) session.get(AcquirerRiskprofile.class, "");
+                        u.setAcquirerRiskprofile(acquier);
+                        risk = "";
+                    }
+                } catch (Exception eee) {
+
+                    AcquirerRiskprofile acquier = (AcquirerRiskprofile) session.get(AcquirerRiskprofile.class, "");
+                    u.setAcquirerRiskprofile(acquier);
+
+                    risk = "";
+                }
+
+                Status status = (Status) session.get(Status.class, inputBean.getStatus().trim());
+                u.setStatus(status);
+
+                Currency cu = (Currency) session.get(Currency.class, inputBean.getCurrency());
+                u.setCurrency(cu);
+
+                u.setModel(inputBean.getModel().trim());
+
+                u.setLastupdatedtime(sysDate);
+                u.setCreatedtime(sysDate);
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                Date dateins = formatter.parse(inputBean.getDateinstalled().trim());
+                u.setDateinstalled(dateins);
+                u.setLastupdateduser(audit.getLastupdateduser());
+
+                this.assignSection(inputBean, audit);
+                String newV
+                        = u.getTerminalid().trim() + "|"
+                        + u.getMerchantOri().getMid() + "|"
+                        + u.getCurrency().getDescription() +"|"
+                        + u.getTerminalname().trim() + "|"
+                        + u.getSerialno().trim() + "|"
+                        + u.getManufacturer().trim() + "|"
+                        + u.getModel().trim() + "|"
+                        + inputBean.getDateinstalled().trim().substring(0, 10) + "|"
+                        + mccOriginal + "|"
+                        + risk + "|"
+                        + u.getStatus().getDescription().trim() + "|"
+                        + u.getTerminalCategory().replace("MOB", "Mobile") + "|"
+                        + u.getMobile() + "|"
+                        + this.getTranList(u.getTerminalid());
+                audit.setOldvalue(OldV);
+                audit.setNewvalue(newV);
+                audit.setLastupdatedtime(sysDate);
+
+                session.save(audit);
+                session.update(u);
+
+                txn.commit();
+            } else {
+                message = MessageVarList.COMMON_NOT_EXISTS;
+            }
+        } catch (Exception e) {
+            if (txn != null) {
+                txn.rollback();
+            }
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return message;
+    }
+
+    public String checkAssign(String id, String mid) throws Exception {
+
+        Session session = null;
+        Transaction txn = null;
+        String message = "";
+
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            txn = session.beginTransaction();
+
+            TerminalOri u = (TerminalOri) session.get(TerminalOri.class, id);
+
+            if (u != null) {
+
+            } else {
+                message = MessageVarList.TERMINAL_ORI_INVALID_ASSIGN;
+            }
+        } catch (Exception e) {
+            if (txn != null) {
+                txn.rollback();
+            }
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return message;
+    }
+
+    public String deletePage(TerminalORIInputBean inputBean, Systemaudit audit) throws Exception {
+        Session session = null;
+        Transaction txn = null;
+        String message = "";
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            txn = session.beginTransaction();
+            Date sysDate = CommonDAO.getSystemDate(session);
+
+            TerminalOri u = (TerminalOri) session.get(TerminalOri.class, inputBean.getId());
+            if (u != null) {
+
+                long count = 0;
+
+                String sqlCount = "select count(u.mid) from TerminalOriTransaction as u where u.id.terminalid=:terminalid ";
+                Query queryCount = session.createQuery(sqlCount)
+                        .setString("terminalid", inputBean.getId().trim()) 
+                        ;
+
+                Iterator itCount = queryCount.iterate();
+                count = (Long) itCount.next();
+
+                if (count > 0) {
+                    String sqlDelete = "delete from terminal_ori_transaction where terminalid='" + inputBean.getId() + "' and mid='" + inputBean.getMerchantOri().trim() + "'";
+                    Query queryDelete = session.createSQLQuery(sqlDelete);
+                    queryDelete.executeUpdate();
+
+                    audit.setCreatetime(sysDate);
+                    audit.setLastupdatedtime(sysDate);
+
+                    session.save(audit);
+                    session.delete(u);
+                    txn.commit();
+
+                } else {
+
+                    audit.setCreatetime(sysDate);
+                    audit.setLastupdatedtime(sysDate);
+
+                    session.save(audit);
+                    session.delete(u);
+                    txn.commit();
+                }
+
+            } else {
+                message = MessageVarList.COMMON_NOT_EXISTS;
+            }
+        } catch (Exception e) {
+            if (txn != null) {
+                txn.rollback();
+            }
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return message;
+    }
+
+    public String assignSection(TerminalORIInputBean inputBean, Systemaudit audit) throws Exception {
+        Session session = null;
+        Transaction txn = null;
+        String message = "";
+        TerminalOriTransactionId userrolesectionid = null;
+        long count = 0;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            txn = session.beginTransaction();
+            Date sysDate = CommonDAO.getSystemDate(session);
+            TerminalOriTransaction userrolesection = null;
+            String sql = "from TerminalOriTransaction as u where u.id.terminalid=:terminalid ";
+            Query query = session.createQuery(sql)
+                    .setString("terminalid", inputBean.getId());
+            List<TerminalOriTransaction> userRoleList = query.list();
+            List<String> newBoxHas = inputBean.getNewBox();
+
+            for (TerminalOriTransaction mr : userRoleList) {
+
+                if (newBoxHas.contains(mr.getId().getTransactionCode())) {
+
+                    mr.setLastupdatedtime(sysDate);
+                    mr.setLastupdateduser(audit.getLastupdateduser());
+                    session.update(mr);
+
+                    newBoxHas.remove(mr.getId().getTransactionCode());
+                } else {
+                    String sql2 = "select count(pt.id.transactionCode) from TerminalOriTransaction as pt where pt.id.terminalid =:terminalid ";
+                    Query query2 = session.createQuery(sql2).setString("terminalid", mr.getId().getTerminalid());
+                    Iterator itCount = query2.iterate();
+                    count = (Long) itCount.next();
+
+                    if (count > 0) {
+                        session.delete(mr);
+                        session.flush();
+                    } else {
+                        session.delete(mr);
+                        session.flush();
+                    }
+                }
+            }
+
+            for (String sections : newBoxHas) {
+
+                userrolesection = new TerminalOriTransaction();
+                userrolesectionid = new TerminalOriTransactionId();
+
+                userrolesection.setMid(inputBean.getMerchantOri());
+                userrolesectionid.setTerminalid(inputBean.getId());
+                userrolesectionid.setTransactionCode(sections);
+
+                userrolesection.setId(userrolesectionid);
+                userrolesection.setCreatedtime(sysDate);
+                userrolesection.setLastupdatedtime(sysDate);
+                userrolesection.setLastupdateduser(audit.getLastupdateduser());
+                session.save(userrolesection);
+            }
+
+            audit.setCreatetime(sysDate);
+            audit.setLastupdatedtime(sysDate);
+            txn.commit();
+
+        } catch (Exception e) {
+            if (txn != null) {
+                txn.rollback();
+            }
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return message;
+    }
+
+    public TerminalOri findPageById(String id, String mid) throws Exception {
+        TerminalOri cardProduct = null;
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+
+            String sql = "from TerminalOri as u where u.id.terminalid=:id and u.id.mid=:mid";
+            Query query = session.createQuery(sql).setString("id", id).setString("mid", mid);
+            cardProduct = (TerminalOri) query.list().get(0);
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return cardProduct;
+
+    }
+
+    public TerminalOri findPageById(String id) throws Exception {
+        TerminalOri cardProduct = null;
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+
+            String sql = "from TerminalOri as u where u.id.terminalid=:id";
+            Query query = session.createQuery(sql).setString("id", id);
+            cardProduct = (TerminalOri) query.list().get(0);
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return cardProduct;
+
+    }
+
+    public List<TerminalOri> getSectionListByUserRole(String userRole) throws Exception {
+        List<TerminalOri> sectionList = new ArrayList<TerminalOri>();
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+
+            String sql = "from TerminalOri as t where t.id.terminalid=:status and sectioncode in (select mp.id.sectioncode from Userrolesection mp where mp.id.userrolecode=:userrolecode) order by t.description asc";
+            Query query = session.createQuery(sql).setString("status", CommonVarList.STATUS_ACTIVE).setString("userrolecode", userRole);
+            sectionList = (List<TerminalOri>) query.list();
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return sectionList;
+    }
+
+    private String makeWhereClause(TerminalORIInputBean inputBean) throws Exception {
+
+        String where = "1=1";
+
+        if ((inputBean.getS_id() == null || inputBean.getS_id().isEmpty())
+                && (inputBean.getS_terminalname() == null || inputBean.getS_terminalname().isEmpty())
+                && (inputBean.getS_serialno() == null || inputBean.getS_serialno().isEmpty())
+                && (inputBean.getS_manufacturer() == null || inputBean.getS_manufacturer().isEmpty())
+                && (inputBean.getS_model() == null || inputBean.getS_model().isEmpty())
+                && (inputBean.getS_merchantOri() == null || inputBean.getS_merchantOri().isEmpty())
+                && (inputBean.getS_dateinstalled() == null || inputBean.getS_dateinstalled().isEmpty())
+                && (inputBean.getS_mccOri() == null || inputBean.getS_mccOri().isEmpty())
+                && (inputBean.getS_acquirerRiskprofile() == null || inputBean.getS_acquirerRiskprofile().isEmpty())
+                && (inputBean.getS_status() == null || inputBean.getS_status().isEmpty())
+                && (inputBean.getS_mobile() == null || inputBean.getS_mobile().isEmpty())
+                && (inputBean.getS_terminalcategory() == null || inputBean.getS_terminalcategory().isEmpty())) {
+
+        } else {
+
+            if (inputBean.getS_id() != null && !inputBean.getS_id().isEmpty()) {
+                where += " and CP.TERMINALID like '%" + inputBean.getS_id() + "%'";
+            }
+            if (inputBean.getS_terminalname() != null && !inputBean.getS_terminalname().isEmpty()) {
+                where += " and UPPER(CP.TERMINALNAME) like UPPER('%" + inputBean.getS_terminalname() + "%')";
+            }
+            if (inputBean.getS_serialno() != null && !inputBean.getS_serialno().isEmpty()) {
+                where += " and UPPER(CP.SERIALNO) like UPPER('%" + inputBean.getS_serialno() + "%')";
+            }
+            if (inputBean.getS_manufacturer() != null && !inputBean.getS_manufacturer().isEmpty()) {
+                where += " and UPPER(CP.MANUFACTURER) like UPPER('%" + inputBean.getS_manufacturer() + "%')";
+            }
+            if (inputBean.getS_model() != null && !inputBean.getS_model().isEmpty()) {
+                where += " and UPPER(CP.MODEL) like UPPER('%" + inputBean.getS_model() + "%')";
+            }
+            if (inputBean.getS_merchantOri() != null && !inputBean.getS_merchantOri().isEmpty()) {
+                where += " and CP.MID ='" + inputBean.getS_merchantOri() + "'";
+            }
+//            va
+            if (inputBean.getS_dateinstalled() != null && !inputBean.getS_dateinstalled().isEmpty()) {
+
+                String date1 = inputBean.getS_dateinstalled().substring(0, 10);  // Start date
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                Calendar c = Calendar.getInstance();
+                c.setTime(sdf.parse(date1));
+                sdf.applyPattern("dd-MMM-yy");
+                date1 = sdf.format(c.getTime());  // dt is now the new date
+
+                c.add(Calendar.DATE, 1);
+                String date2 = sdf.format(c.getTime());
+
+                where += " and CP.DATEINSTALLED >='" + date1 + "'";
+                where += " and CP.DATEINSTALLED < '" + date2 + "'";
+
+            }
+            if (inputBean.getS_mccOri() != null && !inputBean.getS_mccOri().isEmpty()) {
+                where += " and CP.MCC = '" + inputBean.getS_mccOri() + "'";
+            }
+            if (inputBean.getS_acquirerRiskprofile() != null && !inputBean.getS_acquirerRiskprofile().isEmpty()) {
+                where += " and CP.RISKPROFILE = '" + inputBean.getS_acquirerRiskprofile() + "'";
+            }
+            if (inputBean.getS_status() != null && !inputBean.getS_status().isEmpty()) {
+                where += " and CP.STATUS = '" + inputBean.getS_status() + "'";
+            }
+            if (inputBean.getS_mobile() != null && !inputBean.getS_mobile().isEmpty()) {
+                where += " and UPPER(CP.MOBILE) like UPPER('%" + inputBean.getS_mobile() + "%')";
+            }
+            if (inputBean.getS_terminalcategory() != null && !inputBean.getS_terminalcategory().isEmpty()) {
+                where += " and CP.TERMINAL_CATEGORY = '" + inputBean.getS_terminalcategory() + "'";
+            }
+
+        }
+
+        return where;
+    }
+
+    public void findTxnByMidTid(TerminalORIInputBean bean)
+            throws Exception {
+
+        String mid = bean.getMerchantOri();
+        String terminalid = bean.getId();
+        List<Transactiontype> newList = new ArrayList<Transactiontype>();
+        List<Transactiontype> currentList = new ArrayList<Transactiontype>();
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+
+            String sql1 = "from Transactiontype as t where t.status.statuscode=:statuscode and typecode not in (select mp.id.transactionCode from TerminalOriTransaction mp where mp.id.terminalid=:terminalid) order by t.description asc";
+            String sql2 = "from Transactiontype as t where t.status.statuscode=:statuscode and typecode in (select mp.id.transactionCode from TerminalOriTransaction mp where mp.id.terminalid=:terminalid) order by t.description asc";
+
+            Query query1 = session.createQuery(sql1)
+                    .setString("statuscode", CommonVarList.STATUS_ACTIVE)
+                    .setString("terminalid", terminalid);
+            Query query2 = session.createQuery(sql2)
+                    .setString("statuscode", CommonVarList.STATUS_ACTIVE)
+                    .setString("terminalid", terminalid);
+
+            newList = (List<Transactiontype>) query1.list();
+            currentList = (List<Transactiontype>) query2.list();
+
+            for (Iterator<Transactiontype> it = newList.iterator(); it.hasNext();) {
+
+                Transactiontype usersection = it.next();
+                bean.getCurrentList().put(usersection.getTypecode(), usersection.getDescription());
+            }
+
+            for (Iterator<Transactiontype> it = currentList.iterator(); it.hasNext();) {
+
+                Transactiontype usersection = it.next();
+                bean.getNewList().put(usersection.getTypecode(), usersection.getDescription());
+            }
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+    }
+
+    public String findStatusDescription(String statuscode) throws Exception {
+
+        String taskDes = "";
+        Session session = null;
+        Status tk = null;
+        try {
+
+            session = HibernateInit.sessionFactory.openSession();
+
+            if (statuscode != null) {
+
+                String sql = "from Status as u where u.statuscode=:statuscode";
+                Query query = session.createQuery(sql).setString("statuscode", statuscode);
+                tk = (Status) query.list().get(0);
+                taskDes = tk.getDescription();
+            } else {
+                taskDes = "--";
+            }
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return taskDes;
+    }
+
+    public String findRiskProfileDescription(String profilecode) throws Exception {
+
+        String taskDes = "";
+        Session session = null;
+        AcquirerRiskprofile tk = null;
+        try {
+
+            session = HibernateInit.sessionFactory.openSession();
+
+            if (profilecode != null) {
+
+                String sql = "from AcquirerRiskprofile as u where u.profilecode=:profilecode";
+                Query query = session.createQuery(sql).setString("profilecode", profilecode);
+                tk = (AcquirerRiskprofile) query.list().get(0);
+                taskDes = tk.getDescription();
+            } else {
+                taskDes = "--";
+            }
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return taskDes;
+    }
+
+    public String findMIDDescription(String mid) throws Exception {
+
+        String taskDes = "";
+        Session session = null;
+        MerchantOri tk = null;
+        try {
+
+            session = HibernateInit.sessionFactory.openSession();
+
+            if (mid != null) {
+
+                String sql = "from MerchantOri as u where u.mid=:mid";
+                Query query = session.createQuery(sql).setString("mid", mid);
+                tk = (MerchantOri) query.list().get(0);
+                taskDes = tk.getDescription();
+            } else {
+                taskDes = "--";
+            }
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return taskDes;
+    }
+
+    public String findMCCDescription(String mcccode) throws Exception {
+
+        String taskDes = "";
+        Session session = null;
+        MccOri tk = null;
+        try {
+
+            session = HibernateInit.sessionFactory.openSession();
+
+            if (mcccode != null) {
+
+                String sql = "from MccOri as u where u.mcccode=:mcccode";
+                Query query = session.createQuery(sql).setString("mcccode", mcccode);
+                tk = (MccOri) query.list().get(0);
+                taskDes = tk.getMccdes();
+            } else {
+                taskDes = "--";
+            }
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return taskDes;
+    }
+
+    public String findCurrencyDescription(String currencycode) throws Exception {
+
+        String taskDes = "";
+        Session session = null;
+        Currency tk = null;
+        try {
+
+            session = HibernateInit.sessionFactory.openSession();
+
+            if (currencycode != null) {
+
+                String sql = "from Currency as u where u.currencycode=:currencycode";
+                Query query = session.createQuery(sql).setString("currencycode", currencycode);
+                tk = (Currency) query.list().get(0);
+                taskDes = tk.getDescription();
+            } else {
+                taskDes = "--";
+            }
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return taskDes;
+    }
+
+    public String resetTerminal(TerminalORIInputBean inputBean, Systemaudit audit) throws Exception {
+        Session session = null;
+        Transaction txn = null;
+        String message = "";
+        String newValue = "";
+        String oldValue = "";
+
+        try {
+            inputBean.setMerchantOri(inputBean.getMerchantOri());
+            session = HibernateInit.sessionFactory.openSession();
+            txn = session.beginTransaction();
+            Date sysDate = CommonDAO.getSystemDate(session);
+            TerminalOri terminal = (TerminalOri) session.get(TerminalOri.class, inputBean.getId());
+
+            if (terminal != null) {
+
+                //for audit
+                oldValue = "|"
+                        + terminal.getTerminalid() + "|"
+                        + terminal.getStatus().getDescription() + "|";
+
+                Status st = (Status) session.get(Status.class, CommonVarList.STATUS_CUS_INITIAL.trim());
+                terminal.setStatus(st);
+
+                terminal.setLastupdatedtime(sysDate);
+                terminal.setLastupdateduser(audit.getLastupdateduser());
+                session.update(terminal);
+
+                //for audit
+                newValue = "|"
+                        + terminal.getTerminalid() + "|"
+                        + terminal.getStatus().getDescription() + "|";
+
+                audit.setOldvalue(oldValue);
+                audit.setNewvalue(newValue);
+                audit.setCreatetime(sysDate);
+                audit.setLastupdatedtime(sysDate);
+                session.save(audit);
+
+                txn.commit();
+
+            } else {
+                message = MessageVarList.COMMON_NOT_EXISTS;
+            }
+        } catch (Exception e) {
+            if (txn != null) {
+                txn.rollback();
+            }
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return message;
+    }
+
+    public List<MerchantOri> getAddMerchantList(String statusCode)
+            throws Exception {
+
+        List<MerchantOri> merchantList = null;
+        Session session = null;
+        try {
+            System.out.println("----"+statusCode+"--------");
+            session = HibernateInit.sessionFactory.openSession();
+            String sql = "from MerchantOri as s where s.status.statuscode=:statuscode and s.mid not in(select t.merchantOri.mid from TerminalOri as t where t.merchantOri.mid !='') order by Upper(s.description) asc";
+            Query query = session.createQuery(sql).setString(
+                    "statuscode", statusCode);
+            merchantList = query.list();
+            System.out.println("------merchantlist---------"+merchantList);
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return merchantList;
+    }
+    public List<MerchantOri> getUpdateMerchantList(String statusCode,String mid)
+            throws Exception {
+
+        List<MerchantOri> merchantList = null;
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            String sql = "from MerchantOri as s where s.status.statuscode=:statuscode and s.mid not in(select t.merchantOri.mid from TerminalOri as t where t.merchantOri.mid !=:mid ) order by Upper(s.description) asc";
+            Query query = session.createQuery(sql)
+                    .setString("statuscode", statusCode)
+                    .setString("mid", mid);
+            merchantList = query.list();
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return merchantList;
+    }
+}

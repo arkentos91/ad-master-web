@@ -1,0 +1,218 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.bean.controlpanel.acquirer;
+
+/**
+ *
+ * @author jayana_i
+ */
+public class TerminalORIBean {
+    private String id;
+    private String acquirerRiskprofile;
+    private String acquirerRiskprofileDes;
+    private String status;
+    private String statusDes;
+    private String merchantOri;
+    private String merchantOriDes;
+    private String currency;
+    private String currencyDes;
+    private String mccOri;
+    private String mccOriDes;
+    private String terminalname;
+    private String serialno;
+    private String manufacturer;
+    private String model;
+    private String terminalcategory;
+    private String mobile;
+    private String lastupdateduser;
+    private String lastupdatedtime;
+    private String createdtime;
+    private String dateinstalled;
+    private long fullcount;
+
+    public String getTerminalcategory() {
+        return terminalcategory;
+    }
+
+    public void setTerminalcategory(String terminalcategory) {
+        this.terminalcategory = terminalcategory;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
+
+    
+    
+    public String getAcquirerRiskprofileDes() {
+        return acquirerRiskprofileDes;
+    }
+
+    public void setAcquirerRiskprofileDes(String acquirerRiskprofileDes) {
+        this.acquirerRiskprofileDes = acquirerRiskprofileDes;
+    }
+
+    public String getStatusDes() {
+        return statusDes;
+    }
+
+    public void setStatusDes(String statusDes) {
+        this.statusDes = statusDes;
+    }
+
+    public String getMerchantOriDes() {
+        return merchantOriDes;
+    }
+
+    public void setMerchantOriDes(String merchantOriDes) {
+        this.merchantOriDes = merchantOriDes;
+    }
+
+    public String getCurrencyDes() {
+        return currencyDes;
+    }
+
+    public void setCurrencyDes(String currencyDes) {
+        this.currencyDes = currencyDes;
+    }
+
+    public String getMccOriDes() {
+        return mccOriDes;
+    }
+
+    public void setMccOriDes(String mccOriDes) {
+        this.mccOriDes = mccOriDes;
+    }
+    
+    public long getFullcount() {
+        return fullcount;
+    }
+
+    public void setFullcount(long fullcount) {
+        this.fullcount = fullcount;
+    }
+    
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getAcquirerRiskprofile() {
+        return acquirerRiskprofile;
+    }
+
+    public void setAcquirerRiskprofile(String acquirerRiskprofile) {
+        this.acquirerRiskprofile = acquirerRiskprofile;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getMerchantOri() {
+        return merchantOri;
+    }
+
+    public void setMerchantOri(String merchantOri) {
+        this.merchantOri = merchantOri;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public String getMccOri() {
+        return mccOri;
+    }
+
+    public void setMccOri(String mccOri) {
+        this.mccOri = mccOri;
+    }
+
+    public String getTerminalname() {
+        return terminalname;
+    }
+
+    public void setTerminalname(String terminalname) {
+        this.terminalname = terminalname;
+    }
+
+    public String getSerialno() {
+        return serialno;
+    }
+
+    public void setSerialno(String serialno) {
+        this.serialno = serialno;
+    }
+
+    public String getManufacturer() {
+        return manufacturer;
+    }
+
+    public void setManufacturer(String manufacturer) {
+        this.manufacturer = manufacturer;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+   
+
+    public String getLastupdateduser() {
+        return lastupdateduser;
+    }
+
+    public void setLastupdateduser(String lastupdateduser) {
+        this.lastupdateduser = lastupdateduser;
+    }
+
+    public String getLastupdatedtime() {
+        return lastupdatedtime;
+    }
+
+    public void setLastupdatedtime(String lastupdatedtime) {
+        this.lastupdatedtime = lastupdatedtime;
+    }
+
+    public String getCreatedtime() {
+        return createdtime;
+    }
+
+    public void setCreatedtime(String createdtime) {
+        this.createdtime = createdtime;
+    }
+
+    public String getDateinstalled() {
+        return dateinstalled;
+    }
+
+    public void setDateinstalled(String dateinstalled) {
+        this.dateinstalled = dateinstalled;
+    }
+    
+    
+}

@@ -1,0 +1,176 @@
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>BML Alipay Solution</title>
+<sj:head jqueryui="true" jquerytheme="flick" customBasepath="resouces/themes"/>
+<link rel="icon" type="image/png" href="${pageContext.request.contextPath}/resouces/uinew/assets/image/favicon.ico"/>
+
+<link href="resouces/uinew/assets/css/bootstrap.css" rel="stylesheet" />
+<link href="resouces/uinew/assets/css/main.css" rel="stylesheet" />
+<link href="resouces/uinew/assets/css/home.css" rel="stylesheet" />
+<link href="resouces/uinew/assets/css/body.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<style type="text/css">
+    .jqstooltip { position: absolute;left: 0px;top: 0px;visibility: hidden;background: rgb(0, 0, 0) transparent;background-color: rgba(0,0,0,0.6);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";color: white;font: 10px arial, san serif;text-align: left;white-space: nowrap;padding: 5px;border: 1px solid white;z-index: 10000;}.jqsfield { color: white;font: 10px arial, san serif;text-align: left;}
+</style>
+
+<style>
+    /*jQuery ui overide*/
+
+    /*    .ui-jqgrid tr.ui-row-ltr td{
+            font-size: 10px;
+            font-family: sans-serif;
+        }*/
+    .ui-jqgrid tr.jqgrow td{
+        height: 25px !important;
+        padding: 0 2px 0 5px !important;
+    }
+
+    .ui-jqgrid .ui-jqgrid-htable th{
+
+        background-color:  #9E9E9E;
+        border: none;
+        color: white;
+        font-family: aller;
+    }
+
+    .ui-jqgrid .ui-jqgrid-hdiv{
+        background-color:  #607D8B;
+        padding: 0;
+        overflow: none;
+    }
+    .ui-jqgrid .ui-jqgrid-titlebar{
+        border: none;
+        border-bottom: 5px solid #34313a;
+        padding: 2px 0px 0px 15px !important;
+        font-family: Raleway;
+        font-weight: bold;
+        font-size: 12px;
+        letter-spacing: 1px;
+        border-top-left-radius: 0px;
+        border-top-right-radius: 0px;
+    }
+    .ui-jqgrid .ui-jqgrid-pager{
+        background-color: #ebebeb;
+        border-top: 2px solid #ff0808;
+        font-family: sans-serif;
+        color: black;
+        border-bottom-left-radius: 0px;
+        border-bottom-right-radius: 0px;
+    }
+    .ui-jqgrid{
+        border-radius: 10px;
+        border: none;
+        /*overflow: none;*/
+        /*margin-right: 20px;*/
+
+    }
+    .ui-jqgrid .ui-jqgrid-btable{
+        border: 0px solid #ffffff;
+    }
+
+    .ui-jqgrid-resize-ltr{
+        width:5px;
+    }
+
+   
+
+
+    /*moving select sections*/
+    .move-change-side{
+        background-color: rgba(171, 171, 171, 0.55);
+        padding: 13px;
+        border-radius: 10px;
+        margin: 10px 0 20px 0;
+        border-left: 5px solid #607d8b;  
+    }
+    .move-change-side  a{
+        background-color: #84959e;
+        color: white;
+        width: 50px;
+        height: 24px;
+        margin: 2px 0 4px 0;
+        border-radius: 5px;
+        border: 2px solid #7e8b9a;
+    }
+    .move-change-side  a:hover{
+        background-color: #7e8b9a;
+        color: black;
+        border: 2px solid #84959e;
+    }
+    .move-selectClass{
+        border: 7px solid white;
+        height: 145px !important;
+        min-width: 300px;
+        padding: 12px;
+        font-size: 14px;
+        font-family: aller;
+    }
+    .move-buttonClass{
+        float: left;
+        text-align: center;
+        width: 100px;
+        padding: 18px 0px 0 0px;
+    }
+    .move-buttonClassWithText{
+        float: left;
+        text-align: center;
+        width: 100px;
+        padding: 47px 0px 0 0px;
+    }
+    .move-change-side td.textNew{
+        font-size: 13px;
+        font-weight: bold;
+        font-family: aller;
+        padding: 1px 5px;
+        width: auto;
+        color: black;
+    }
+    table.table-newtheme{
+        padding: 0;
+        background-color: white;
+    }
+    table.table-newtheme tbody> tr> td{
+        padding: 0px 0px 0px 20px;
+        font-family: aller;
+        font-size: 13px;
+        font-weight: bold;
+        color: black;
+    }
+    .choosefileClass{
+        border: 1px solid #0074bc;
+        padding: 5px;
+        background-color: #e7ded2;
+        color: black;
+        border-radius: 0px;
+        height: 34px;
+    }
+    input.radioClass{
+        width: 20px;
+        height: 20px;
+        margin: 4px;
+        float: left;
+    }
+    label.radioClass{
+        float: left;
+        margin: 5px;
+        color: black;
+    }
+
+</style>
+
+
+<!--<script src="resouces/uinew/assets/js/jquery.min.js"></script>-->
+<script src="resouces/js/bootstrap.min.js"></script>
+<script src="resouces/js/jquery.blockUI.js"></script>
+<script src="resouces/js/jquery.icheck.min.js"></script>
+<script src="resouces/js/jquery.mousewheel.js"></script>
+<script src="resouces/js/perfect-scrollbar.js"></script>
+<script src="resouces/js/less-1.5.0.min.js"></script>
+<script src="resouces/js/jquery.cookie.js"></script>
+<script src="resouces/js/bootstrap-colorpalette.js"></script>
+<script src="resouces/js/main.js"></script>
+<script src="resouces/js/jquery-ui-1.10.2.custom.min.js"></script>
+<script src="resouces/uinew/assets/js/main.js"></script>
+<!-- end: MAIN JAVASCRIPTS -->
+
+

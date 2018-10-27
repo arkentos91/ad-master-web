@@ -1,0 +1,114 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.bean.controlpanel.acquirer;
+
+/**
+ *
+ * @author samith_k
+ */
+public class AcqRiskProfileBean {
+
+    private String profilecode;
+    private String status;
+    private String riskprofilecurrency;
+    private String currencycode;
+    private String acquirerRiskprofileType;
+    private String description;
+    private String lastupdateduser;
+    private String lastupdatedtime;
+    private String createtime;
+    private String defaultStatus;
+    private long fullCount;
+
+    public String getProfilecode() {
+        return profilecode;
+    }
+
+    public void setProfilecode(String profilecode) {
+        this.profilecode = profilecode;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getAcquirerRiskprofileType() {
+        return acquirerRiskprofileType;
+    }
+
+    public void setAcquirerRiskprofileType(String acquirerRiskprofileType) {
+        this.acquirerRiskprofileType = acquirerRiskprofileType;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getLastupdateduser() {
+        return lastupdateduser;
+    }
+
+    public void setLastupdateduser(String lastupdateduser) {
+        this.lastupdateduser = lastupdateduser;
+    }
+
+    public String getLastupdatedtime() {
+        return lastupdatedtime;
+    }
+
+    public void setLastupdatedtime(String lastupdatedtime) {
+        this.lastupdatedtime = lastupdatedtime;
+    }
+
+    public String getCreatetime() {
+        return createtime;
+    }
+
+    public void setCreatetime(String createtime) {
+        this.createtime = createtime;
+    }
+
+    public long getFullCount() {
+        return fullCount;
+    }
+
+    public void setFullCount(long fullCount) {
+        this.fullCount = fullCount;
+    }
+
+    public String getDefaultStatus() {
+        return defaultStatus;
+    }
+
+    public void setDefaultStatus(String defaultStatus) {
+        this.defaultStatus = defaultStatus;
+    }
+
+    public String getRiskprofilecurrency() {
+        return riskprofilecurrency;
+    }
+
+    public void setRiskprofilecurrency(String riskprofilecurrency) {
+        this.riskprofilecurrency = riskprofilecurrency;
+    }
+
+    public String getCurrencycode() {
+        return currencycode;
+    }
+
+    public void setCurrencycode(String currencycode) {
+        this.currencycode = currencycode;
+    }
+
+}

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+  <session-factory>
+    <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+    <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+     
+    <!--<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/webtest?zeroDateTimeBehavior=convertToNull&amp;autoReconnect=true</property>-->
+    <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/admaster?autoReconnect=true</property>
+    <property name="hibernate.connection.username">root</property>
+    <property name="hibernate.connection.password">password</property>
+
+    <property name="hibernate.connection.autocommit">false</property>
+    <property name="hibernate.cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+
+    <property name="current_session_context_class">thread</property>
+    <property name="show_sql">false</property>
+
+    
+    <mapping class="com.arkentos.util.mapping.UserpasswordId"/>
+    <mapping class="com.arkentos.util.mapping.Status"/>
+    <mapping class="com.arkentos.util.mapping.Pagetask"/>
+    <mapping class="com.arkentos.util.mapping.Passwordpolicy"/>
+    <mapping class="com.arkentos.util.mapping.Systemuser"/>
+    <mapping class="com.arkentos.util.mapping.Systemaudit"/>
+    <mapping class="com.arkentos.util.mapping.Userpassword"/>
+    <mapping class="com.arkentos.util.mapping.Section"/>
+    <mapping class="com.arkentos.util.mapping.SectionpageId"/>
+    <mapping class="com.arkentos.util.mapping.Sectionpage"/>
+    <mapping class="com.arkentos.util.mapping.PagetaskId"/>
+    <mapping class="com.arkentos.util.mapping.Statuscategory"/>
+    <mapping class="com.arkentos.util.mapping.Task"/>
+    <mapping class="com.arkentos.util.mapping.Userrole"/>
+    <mapping class="com.arkentos.util.mapping.UserrolesectionId"/>
+    <mapping class="com.arkentos.util.mapping.Page"/>
+    <mapping class="com.arkentos.util.mapping.Userrolesection"/>
+    <mapping class="com.arkentos.util.mapping.Userlevel"/>
+    <mapping class="com.arkentos.util.mapping.ResponseCodes"/>
+    <mapping class="com.arkentos.util.mapping.Commonconfiguration"/>
+    
+    
+    
+    <mapping class="com.arkentos.util.mapping.Hrcandidate"/>
+    <mapping class="com.arkentos.util.mapping.Hrinterview"/>
+    
+    
+    
+  </session-factory>
+</hibernate-configuration>

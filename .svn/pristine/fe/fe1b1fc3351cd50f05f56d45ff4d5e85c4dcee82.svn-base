@@ -1,0 +1,451 @@
+@import 'fonts.css';
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+.ap-main {
+    box-sizing: border-box;
+}
+.ap-sec1,
+.ap-sec2 {
+    width: 50%;
+    float: left;
+    height: 100%;
+}
+.ap-sec1 {
+    background-image: url(../image/alipay.png);
+    background-position: center;
+    background-size: cover;
+}
+.ap-sec2 {
+    display: table;
+    height: 100%;
+    background-color: #EC3B29;
+}
+.ap-secmain {
+    display: table-cell;
+    vertical-align: middle;
+}
+.ap-form {
+    margin: 0 auto;
+    text-align: center;
+}
+.ap-banklogo {}
+.ap-banktext {
+    padding: 25px 0;
+    margin: 0;
+    font-family: Raleway;
+    color: white;
+    font-weight: 300;
+}
+.ap-banktext > .ap-text1 {
+    letter-spacing: 4px;
+    font-size: 15px;
+}
+.ap-banktext > .ap-text2 {
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+.ap-username,
+.ap-password {
+    font-family: Raleway;
+}
+.ap-username > .ap-usernamelbl,
+.ap-password > .ap-passwordlbl {
+    font-size: 12px;
+    padding: 5px 0 2px 0;
+    color: white;
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+.ap-username > input[type=text],
+.ap-password > input[type=password] {
+    font-family: Raleway;
+    font-weight: 600;
+    text-align: center;
+    border: 0px solid;
+    width: 250px;
+    height: 30px;
+    border-radius: 20px;
+    outline: none;
+    margin: 2px;
+}
+.ap-password > input[type=password] {
+    font-size: 40px;
+    margin-bottom: 12px;
+    letter-spacing: -4px;
+}
+.ap-loginbut > input.btn {
+    font-family: Raleway;
+    border: 0px solid;
+    height: 30px;
+    width: 90px;
+    background-color: white;
+    border-radius: 20px;
+    margin: 10px;
+    outline: none;
+    cursor: pointer;
+    font-size: 11px;
+    letter-spacing: 2px;
+}
+.ap-loginbut > input.btn:hover {
+    background-color: #ec3b29;
+    color: white;
+    border: 1px solid white;
+}
+.ap-loginbut > input.btn:active {
+    color: black;
+}
+.ap-message {
+    font-family: Raleway;
+    font-size: 12px;
+    /*padding: 3px 100px;*/
+    color: #ff0d0d;
+    letter-spacing: 1px;
+    background: white;
+    font-weight: bold;
+}
+.ap-footer1 {
+    bottom: 0;
+    position: absolute;
+    right: 50%;
+    font-size: 12px;
+    font-family: Raleway;
+    padding: 0 10px 22px 0;
+}
+.ap-footer2 {
+    bottom: 0;
+    position: absolute;
+    right: 50%;
+    font-size: 12px;
+    font-family: Raleway;
+    padding: 0 10px 7px 0;
+    color: #ec3b29;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+}
+body {
+    /*background-image: url(../image/8648.jpg);*/
+    background-position: center;
+    background-size: cover;
+    background-attachment: fixed;
+}
+body::-webkit-scrollbar {
+    width: 11px !important;
+    background-color: #ecf0f1;
+}
+body::-webkit-scrollbar-thumb {
+    box-shadow: inset 0 0 15px black;
+    background-color: #2c3e50;
+}
+.ali-background {
+    /*background-image: url(../image/8648.jpg);*/
+    background-position: center;
+    background-size: cover;
+    background-attachment: fixed;
+}
+.ali-header {
+    width: 81%;
+    right: 0;
+    height: 25px;
+    background-color: #EC3B29;
+    box-shadow: 0 3px 4px 0 rgba(0, 0, 0, .14), 0 3px 3px -2px rgba(0, 0, 0, .2), 0 1px 8px 0 rgba(0, 0, 0, .12);
+    transition: 0.3s;
+    z-index: 10;
+}
+.ali-fixed-header {
+    position: fixed;
+    top: 0;
+}
+.ali-header-text {
+    font-family: Raleway;
+    font-size: 20px;
+    font-weight: 800;
+}
+.ali-header-text-small {
+    font-family: Raleway;
+    font-size: 15px;
+    font-weight: 800;
+}
+.f-left {
+    float: left;
+}
+.f-right {
+    float: right;
+}
+.ali-header-logo {}
+.ali-header-margin {
+    margin: 4px 1px;
+    padding: 4px 3px;
+}
+.ali-header .ali-header-divider {
+    float: left;
+    color: #E91E63;
+    font-weight: bold;
+}
+.ali-header-logout,
+.ali-header-passchange {
+    background: #e92222;
+    width: 25px;
+    height: 25px;
+    margin-right: 10px;
+    transition: 0.3s;
+}
+.ali-header-logout:hover,
+.ali-header-passchange:hover {
+    background: #34313a;
+}
+.ali-header-logout > a,
+.ali-header-passchange >a {
+    color: white;
+    text-decoration: none;
+}
+
+/*navbar*/
+
+.ali-navbar {
+    position: fixed;
+    word-break: break-all;
+    top: 30px;
+    height: auto;
+    background-color: white;
+    z-index: 9;
+}
+.ali-navbar-menu {
+    transform: rotate(270deg);
+    position: fixed;
+    left: 300px;
+    top: 86px;
+    font-size: 12px;
+    background: #8BC34A;
+    padding: 0px 9px;
+    color: #ffffff;
+    z-index: 0;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    box-shadow: -5px 0px 0px 0px #009688;
+}
+.ali-click-home {
+    cursor: pointer;
+}
+
+/*body*/
+
+.ali-body {
+    width: 81%;
+    margin-top: 30px;
+    background-color: white;
+    height: auto;
+    padding: 0px;
+    padding-left: 0px;
+    margin-left: 19%;
+}
+.ali-table {
+    /*background-color: #eeeeee;*/
+    padding: 20px;
+    margin-top: 20px;
+}
+.ali-body > .ali-form,
+.ali-body > .ali-other {
+    padding: 20px;
+    margin-top: 20px;
+    background-color: #EBEBEB;
+    box-shadow: 0 3px 4px 0px #d8d8d8;
+    /*margin-bottom:20px;*/
+}
+.ali-breadcrumb {
+    position: fixed;
+    left: 19%;
+    font-size: 12px;
+    background: #E92222;
+    padding: 5px 15px;
+    height: 25px;
+    color: #ffffff;
+    z-index: 10;
+    font-family: raleway;
+    font-size: 11px;
+}
+.ali-mandatory-field {
+    font-family: Raleway;
+    font-size: 11px;
+    font-weight: normal;
+    letter-spacing: 1px;
+    background-color: white;
+    margin: 0 0px 0 -20px;
+    padding: 2px 0 2px 20px;
+}
+.ali-mandatory-field > span{
+    font-family: cursive;
+    color: red;
+}
+.ali-margin{
+    margin: 10px 0;
+}
+
+
+/*modal*/
+
+.ali-modal-body {
+    width: 100%;
+    background-color: white;
+    height: auto;
+    /*padding: 10px;*/
+}
+.ali-modal {
+    /*padding: 10px;*/
+    /*border: 1px solid rgba(63, 81, 181, 0.52);*/
+}
+.ali-modal-body > .ali-form,
+.ali-modal-body > .ali-other {
+    /*margin-top: 20px;*/
+    background-color: #EBEBEB;
+    padding: 15px;
+    box-shadow: 0 3px 4px 0px #d8d8d8;
+}
+
+/*colors*/
+
+.color1 > span {
+    color: white;
+    transition: 0.5s;
+}
+.color1 > span > span {
+    color: darkgray;
+    transition: 0.5s;
+}
+.color2 > span {
+    color: #03A9F4;
+    transition: 0.5s;
+}
+.color2 > span > span {
+    color: darkgray;
+    transition: 0.5s;
+}
+
+/*tootltip*/
+
+.ali-tooltip {
+    position: relative;
+    display: inline-block;
+    font-family: Raleway;
+    font-size: 11px;
+    font-weight: normal;
+}
+.ali-tooltip .ali-tooltiptext {
+    background-color: rgba(255, 255, 255, 0.8);
+    color: black;
+    text-align: center;
+    border-radius: 3px;
+    padding: 2px 4px;
+    position: absolute;
+    z-index: 1;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    box-shadow: 0 2px 1px 0px rgba(95, 95, 95, 0.4);
+}
+.ali-tooltip .ali-tooltiptext-home {
+    left: 100px;
+    top: 100%;
+    width: auto;
+}
+.ali-tooltip .ali-tooltiptext-logout {
+    left: 55px;
+    top: 42px;
+    width: auto;
+}
+.ali-tooltip .ali-tooltiptext-cpass {
+    left: 22px;
+    width: 110px;
+    top: 42px;
+}
+.ali-tooltip .ali-tooltiptext::after {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent rgba(255, 255, 255, 0.8) transparent;
+}
+.ali-tooltip:hover .ali-tooltiptext {
+    opacity: 1;
+}
+.ali-Horizonline {
+    width: 96%;
+    height: 1px;
+    background-color: #5f5f5f;
+    padding: 0px;
+    margin: 10px 0 5px 10px;
+}
+.ali-topdetail {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    width: 19%;
+    padding: 20px 0;
+    background-color: #34313a;
+}
+.ali-homedetail > .logo {
+    float: left;
+    padding: 0 0 0px 5px;
+}
+.ali-homedetail > .text1 {
+    font-size: 14px;
+    font-weight: 400;
+    color: #ababab;
+    text-align: right;
+    padding-right: 10px;
+    letter-spacing: 1px;
+}
+.ali-homedetail > .text2 {
+    font-size: 11px;
+    font-weight: 400;
+    color: #ffffff;
+    text-align: right;
+    font-style: italic;
+    padding-right: 10px;
+}
+.ali-logindetail {
+    padding: 10px 0
+}
+.ali-logindetail > .welcome,
+.ali-logindetail > .role,
+.ali-logindetail > .time {
+    font-weight: 400;
+    font-size: 11px;
+    color: #969696;
+    text-align: right;
+    padding: 2px 10px;
+}
+.ali-logindetail > .role {}
+.ali-logindetail > .time {}
+.ali-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    width: 19%;
+    padding: 5px 0;
+    background-color: #34313a;
+    font-family: Raleway;
+    color: #b59898;
+}
+.ali-footer > .text1 {
+    text-align: right;
+    font-size: 10px;
+    padding: 2px 8px 0 0;
+}
+.ali-footer > .text2 {
+    text-align: right;
+    font-size: 10px;
+    padding: 2px 8px 0 0;
+}

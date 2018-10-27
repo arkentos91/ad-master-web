@@ -1,0 +1,151 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.bean.controlpanel.acquirer;
+
+/**
+ *
+ * @author : dilanka_w
+ * @Created on : Sep 20, 2016, 12:42:02 PM
+ */
+public class AcquirerPromotionAssignBean {
+
+    private String txnType;
+    private String txnTypeDes;
+    private String bankAmountType;
+    private String bankAmountTypeDes;
+    private String bankAmount;
+    private String merchantAmountType;
+    private String merchantAmountTypeDes;
+    private String merchantAmount;
+    private int fullCount;
+
+    /**
+     * @return the txnType
+     */
+    public String getTxnType() {
+        return txnType;
+    }
+
+    /**
+     * @param txnType the txnType to set
+     */
+    public void setTxnType(String txnType) {
+        this.txnType = txnType;
+    }
+
+    /**
+     * @return the txnTypeDes
+     */
+    public String getTxnTypeDes() {
+        return txnTypeDes;
+    }
+
+    /**
+     * @param txnTypeDes the txnTypeDes to set
+     */
+    public void setTxnTypeDes(String txnTypeDes) {
+        this.txnTypeDes = txnTypeDes;
+    }
+
+    /**
+     * @return the bankAmountType
+     */
+    public String getBankAmountType() {
+        return bankAmountType;
+    }
+
+    /**
+     * @param bankAmountType the bankAmountType to set
+     */
+    public void setBankAmountType(String bankAmountType) {
+        this.bankAmountType = bankAmountType;
+    }
+
+    /**
+     * @return the bankAmountTypeDes
+     */
+    public String getBankAmountTypeDes() {
+        return bankAmountTypeDes;
+    }
+
+    /**
+     * @param bankAmountTypeDes the bankAmountTypeDes to set
+     */
+    public void setBankAmountTypeDes(String bankAmountTypeDes) {
+        this.bankAmountTypeDes = bankAmountTypeDes;
+    }
+
+    /**
+     * @return the bankAmount
+     */
+    public String getBankAmount() {
+        return bankAmount;
+    }
+
+    /**
+     * @param bankAmount the bankAmount to set
+     */
+    public void setBankAmount(String bankAmount) {
+        this.bankAmount = bankAmount;
+    }
+
+    /**
+     * @return the merchantAmountType
+     */
+    public String getMerchantAmountType() {
+        return merchantAmountType;
+    }
+
+    /**
+     * @param merchantAmountType the merchantAmountType to set
+     */
+    public void setMerchantAmountType(String merchantAmountType) {
+        this.merchantAmountType = merchantAmountType;
+    }
+
+    /**
+     * @return the merchantAmountTypeDes
+     */
+    public String getMerchantAmountTypeDes() {
+        return merchantAmountTypeDes;
+    }
+
+    /**
+     * @param merchantAmountTypeDes the merchantAmountTypeDes to set
+     */
+    public void setMerchantAmountTypeDes(String merchantAmountTypeDes) {
+        this.merchantAmountTypeDes = merchantAmountTypeDes;
+    }
+
+    /**
+     * @return the merchantAmount
+     */
+    public String getMerchantAmount() {
+        return merchantAmount;
+    }
+
+    /**
+     * @param merchantAmount the merchantAmount to set
+     */
+    public void setMerchantAmount(String merchantAmount) {
+        this.merchantAmount = merchantAmount;
+    }
+
+    /**
+     * @return the fullCount
+     */
+    public int getFullCount() {
+        return fullCount;
+    }
+
+    /**
+     * @param fullCount the fullCount to set
+     */
+    public void setFullCount(int fullCount) {
+        this.fullCount = fullCount;
+    }
+
+}

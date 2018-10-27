@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+        "http://struts.apache.org/dtds/struts-2.3.dtd">
+<!-- 
+  - This file is included by the struts.xml file.
+-->
+<struts>
+
+
+    <package name="login" extends="pglobal" namespace="/">
+
+        <action name="*UserLogin" method="{1}" class="com.arkentos.action.login.LoginAction">
+            <result name="message">/login.jsp</result>
+            <result name="success">/homepage.jsp</result>
+            <result name="firstlogin" type="redirectAction">
+                <param name="actionName">Viewpaschanged</param>               
+            </result>
+           
+        </action>
+    </package>
+
+    <package name="usermanagement" extends="pglobal" namespace="/">
+        
+        <action name="*SystemUser" method="{1}" class="com.arkentos.action.usermanagement.SystemUserAction" >
+            <result name="message">/WEB-INF/pages/msgSpe.jsp</result>
+            <result name="success"></result>
+            <result name="list" type="json"></result>
+            <result name="find" type="json"></result>
+            <result name="findDualAuthUsers" type="json"></result>
+            <result name="delete" type="json"></result>
+            <result name="changepassword" type="json"></result>
+            <result name="activate" type="json"></result>
+            <!--<result name="view">/WEB-INF/pages/controlpanel/usermanagement/systemuser.jsp</result>--> 
+            <result name="view">/WEB-INF/pages/controlpanel/usermanagement/systemuser/systemuser.jsp</result> 
+            <result name="viewpopup">/WEB-INF/pages/controlpanel/usermanagement/systemuser/systemuserinsert.jsp</result>
+            <result name="detail">/WEB-INF/pages/controlpanel/usermanagement/systemuser/systemuseredit.jsp</result>
+            <result name="changepassword" >/WEB-INF/pages/controlpanel/usermanagement/systemuser/systemuserpwdchange.jsp</result> 
+        </action>
+        
+        <action name="*Section" method="{1}" class="com.arkentos.action.usermanagement.SectionAction">
+            
+            <result name="message">/WEB-INF/pages/msgSpe.jsp</result>
+            <result name="success"></result>
+            <result name="list" type="json"></result>
+            <result name="find" type="json"></result>
+            <result name="delete" type="json"></result>
+            <result name="activate" type="json"></result>
+            <result name="view">/WEB-INF/pages/controlpanel/usermanagement/sectionmgt/sectionmgt.jsp</result>   
+            <result name="viewpopup">/WEB-INF/pages/controlpanel/usermanagement/sectionmgt/sectionmgtinsert.jsp</result>
+            <result name="detail">/WEB-INF/pages/controlpanel/usermanagement/sectionmgt/sectionmgtedit.jsp</result> 
+            
+        </action>
+        
+        <action name="*Task" method="{1}" class="com.arkentos.action.usermanagement.TaskAction">
+            
+            <result name="message">/WEB-INF/pages/msgSpe.jsp</result>
+            <result name="success"></result>
+            <result name="list" type="json"></result>
+            <result name="find" type="json"></result>
+            <result name="delete" type="json"></result>
+            <result name="activate" type="json"></result>
+            <result name="view">/WEB-INF/pages/controlpanel/usermanagement/task/task.jsp</result>
+            <result name="viewpopup">/WEB-INF/pages/controlpanel/usermanagement/task/taskinsert.jsp</result>
+            <result name="detail">/WEB-INF/pages/controlpanel/usermanagement/task/taskedit.jsp</result>
+        </action>        
+
+        <action name="*Page" method="{1}" class="com.arkentos.action.usermanagement.PageAction">
+            
+            <result name="message">/WEB-INF/pages/msgSpe.jsp</result>
+            <result name="success"></result>
+            <result name="list" type="json"></result>
+            <result name="find" type="json"></result>
+            <result name="delete" type="json"></result>
+            <result name="activate" type="json"></result>
+            <result name="view">/WEB-INF/pages/controlpanel/usermanagement/page/page.jsp</result>
+            <result name="viewpopup">/WEB-INF/pages/controlpanel/usermanagement/page/pageinsert.jsp</result>
+            <result name="detail">/WEB-INF/pages/controlpanel/usermanagement/page/pageedit.jsp</result>
+            
+        </action>
+           
+        <action name="*UserRolePrivilege" method="{1}" class="com.arkentos.action.usermanagement.UserRolePrivilegeAction">            
+            <result name="message">/WEB-INF/pages/msgFrag.jsp</result>
+            <result name="cerror">/WEB-INF/pages/controlpanel/usermanagement/userroleprivilege.jsp</result>
+            <result name="success"></result>
+            <result name="list" type="json"></result>
+            <result name="find" type="json"></result>
+            <result name="findpage" type="json"></result>
+            <result name="delete" type="json"></result>
+            <result name="loadsections" type="json"></result>
+            <result name="findtask" type="json"></result>
+            <result name="loadpages" type="json"></result>
+            <result name="logoutuser" type="json"></result>
+            <result name="view">/WEB-INF/pages/controlpanel/usermanagement/userroleprivilege.jsp</result>
+            <result name="assignrole">/WEB-INF/pages/controlpanel/usermanagement/userroleassign.jsp</result>
+        </action>
+        
+        <action name="*UserRole" method="{1}" class="com.arkentos.action.usermanagement.UserRoleMgtAction">
+            
+            <result name="message">/WEB-INF/pages/msgSpe.jsp</result>
+            <result name="success"></result>
+            <result name="list" type="json"></result>
+            <result name="find" type="json"></result>
+            <result name="txnload" type="json"></result>
+            <result name="delete" type="json"></result>
+            <result name="activate" type="json"></result>
+            <result name="view">/WEB-INF/pages/controlpanel/usermanagement/userrolemgt/userrolemanagement.jsp</result>
+            <result name="viewpopup">/WEB-INF/pages/controlpanel/usermanagement/userrolemgt/userrolemanagementinsert.jsp</result>
+            <result name="detail">/WEB-INF/pages/controlpanel/usermanagement/userrolemgt/userrolemanagementedit.jsp</result>
+        </action>
+        
+        <action name="*ChangePassword" method="{1}" class="com.arkentos.action.usermanagement.PasswordResetAction">
+            <result name="message">/WEB-INF/pages/msgFrag.jsp</result>
+            <result name="resetpassword">/defaultaccesscontroler.jsp</result>
+            <result name="logoutuser" type="json"></result>
+            <result name="view">/WEB-INF/pages/controlpanel/usermanagement/passwordreset.jsp
+            </result>
+            <result name="success"></result>
+        </action>
+        
+        <action name="*paschanged" method="{1}"
+                class="com.arkentos.action.usermanagement.PasswordResetAction">
+            <result name="message">/WEB-INF/pages/msgFrag.jsp</result>
+            <result name="resetpassword">/defaultaccesscontroler.jsp</result>
+            <result name="logoutuser" type="json"></result>
+            <result name="view">/WEB-INF/pages/controlpanel/usermanagement/paschanged.jsp
+            </result>
+            <result name="success"></result>
+        </action>
+        
+        <action name="*SystemAudit" method="{1}"
+                class="com.arkentos.action.usermanagement.SystemAuditAction">
+            <result name="message">/WEB-INF/pages/controlpanel/systemconfig/audit.jsp</result>
+            <result name="success"></result>            
+            <result name="list" type="json"></result>
+            <result name="find" type="json"></result>
+            <result name="delete" type="json"></result>
+            <result name="logoutuser" type="json"></result>            
+            <result name="view">/WEB-INF/pages/controlpanel/systemconfig/audit.jsp
+            </result>
+            <result name="viewdetail">/WEB-INF/pages/controlpanel/systemconfig/viewaudit.jsp
+            </result>
+            <result name="download" type="stream">
+                <param name="contentType">application/pdf</param>
+                <param name="inputName">fileInputStream</param>
+                <param name="contentDisposition">attachment;filename=audit_report.pdf</param>
+                <!--<param name="bufferSize">1024</param>-->
+            </result>  
+            <result name="report" type="jasper">
+                <param name="location">/WEB-INF/pages/controlpanel/systemconfig/report/view_audit_report.jasper</param>
+                <param name="dataSource">audata</param>               
+                <param name="format">PDF</param>     
+                <param name="contentDisposition">attachment;filename=view_audit_report.pdf</param>
+                <param name="reportParameters">parameterMap</param>
+            </result>
+            
+            <result name="excelreport" type="stream">
+                <param name="contentType">"application/vnd.ms-excel"</param>
+                <param name="inputName">excelStream</param>
+                <param name="contentDisposition">attachment;filename="audit_report.xlsx"</param>
+                <param name="bufferSize">61440</param>
+            </result>
+            <result name="zip" type="stream">
+                <param name="contentDisposition">attachment;filename="audit_report.zip"</param>
+                <param name="contentType">application/octet-stream</param>
+                <param name="inputName">zipStream</param>
+                <param name="bufferSize">61440</param>
+            </result> 
+            
+        </action>
+        
+    </package>
+
+    <package name="hrmanagement" extends="pglobal" namespace="/">
+                
+       <action name="*Candidate" method="{1}" class="com.arkentos.action.hrmanagement.CandidateAction">
+            <result name="message">/WEB-INF/pages/msgSpe.jsp</result>
+            <result name="success"></result>
+            <result name="list" type="json"></result>
+            <result name="find" type="json"></result>
+            <result name="delete" type="json"></result>
+            <result name="select" type="json"></result>
+            <result name="hire" type="json"></result>
+            <result name="activate" type="json"></result>
+            <result name="view">/WEB-INF/pages/controlpanel/hrmanagement/candidate/candidate.jsp</result>
+            <result name="viewpopup">/WEB-INF/pages/controlpanel/hrmanagement/candidate/candidateinsert.jsp</result>
+            <result name="detail">/WEB-INF/pages/controlpanel/hrmanagement/candidate/candidateedit.jsp</result>
+        </action>
+        
+        <action name="*Interview" method="{1}" class="com.arkentos.action.hrmanagement.InterviewAction">
+            <result name="message">/WEB-INF/pages/msgSpe.jsp</result>
+            <result name="success"></result>
+            <result name="list" type="json"></result>
+            <result name="find" type="json"></result>
+            <result name="delete" type="json"></result>
+            <result name="activate" type="json"></result>
+            <result name="view">/WEB-INF/pages/controlpanel/hrmanagement/interview/interview.jsp</result>
+            <result name="viewpopup">/WEB-INF/pages/controlpanel/hrmanagement/interview/interviewinsert.jsp</result>
+            <result name="detail">/WEB-INF/pages/controlpanel/hrmanagement/interview/interviewedit.jsp</result>
+        </action>
+        
+    </package>
+    
+
+    
+        
+    
+</struts>

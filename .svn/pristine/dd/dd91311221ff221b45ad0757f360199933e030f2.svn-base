@@ -1,0 +1,449 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.action.reportexplorer;
+
+import com.epic.bmlalipay.bean.reportexplorer.TransDataBean;
+import com.epic.bmlalipay.bean.reportexplorer.TxnDataBean;
+import com.epic.bmlalipay.bean.reportexplorer.TxnExplorerInputBean;
+import com.epic.bmlalipay.bean.reportexplorer.TxnHisDataBean;
+import com.epic.bmlalipay.bean.reportexplorer.TxnSearchDataBean;
+import com.epic.bmlalipay.dao.common.CommonDAO;
+import com.epic.bmlalipay.dao.controlpanel.usermanagement.SystemAuditDAO;
+import com.epic.bmlalipay.dao.reportexplorer.TransactionExplorerDAO;
+import com.epic.bmlalipay.util.common.AccessControlService;
+import com.epic.bmlalipay.util.common.Common;
+import com.epic.bmlalipay.util.mapping.Systemaudit;
+import com.epic.bmlalipay.util.mapping.Task;
+import com.epic.bmlalipay.util.varlist.CommonVarList;
+import com.epic.bmlalipay.util.varlist.MessageVarList;
+import com.epic.bmlalipay.util.varlist.PageVarList;
+import com.epic.bmlalipay.util.varlist.SectionVarList;
+import com.epic.bmlalipay.util.varlist.SessionVarlist;
+import com.epic.bmlalipay.util.varlist.TaskVarList;
+import com.opensymphony.xwork2.ActionSupport;
+import com.opensymphony.xwork2.ModelDriven;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.fill.JRSwapFileVirtualizer;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.struts2.ServletActionContext;
+import org.hibernate.Session;
+import java.lang.instrument.Instrumentation;
+
+/**
+ *
+ * @author thushanth
+ */
+public class TransactionExplorerAction extends ActionSupport implements ModelDriven<Object>, AccessControlService {
+
+
+    TxnExplorerInputBean inputBean = new TxnExplorerInputBean();
+    Map parameterMap = new HashMap();
+    InputStream fileInputStream = null;
+    TransDataBean audata = new TransDataBean();
+
+    public TransDataBean getAudata() {
+        return audata;
+    }
+
+    public Map getParameterMap() {
+        return parameterMap;
+    }
+
+    public InputStream getFileInputStream() {
+        return fileInputStream;
+    }
+
+    public void setFileInputStream(InputStream fileInputStream) {
+        this.fileInputStream = fileInputStream;
+    }
+
+    public Object getModel() {
+        return inputBean;
+    }
+
+    public boolean checkAccess(String method, String userRole) {
+        boolean status = false;
+        String page = PageVarList.TXN_EXPLORER;
+        String task = null;
+        if ("View".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("Search".equals(method)) {
+            task = TaskVarList.SEARCH_TASK;
+        } else if ("List".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("viewDetail".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("individualReport".equals(method)) {
+            task = TaskVarList.GENERATE_TASK;
+        } else if ("reportGenerate".equals(method)) {
+            task = TaskVarList.GENERATE_TASK;
+        }
+        if ("execute".equals(method)) {
+            status = true;
+        } else {
+            HttpServletRequest request = ServletActionContext.getRequest();
+            status = new Common().checkMethodAccess(task, page, userRole, request);
+        }
+        return status;
+    }
+
+    private boolean applyUserPrivileges() {
+        HttpServletRequest request = ServletActionContext.getRequest();
+        List<Task> tasklist = new Common().getUserTaskListByPage(PageVarList.TXN_EXPLORER, request);
+
+        inputBean.setVgenerate(true);
+        inputBean.setVsearch(true);
+
+        if (tasklist != null && tasklist.size() > 0) {
+            for (Task task : tasklist) {
+                if (task.getTaskcode().equalsIgnoreCase(TaskVarList.GENERATE_TASK)) {
+                    inputBean.setVgenerate(false);
+                } else if (task.getTaskcode().equalsIgnoreCase(TaskVarList.SEARCH_TASK)) {
+                    inputBean.setVsearch(false);
+                } else if (task.getTaskcode().equalsIgnoreCase(TaskVarList.VIEW_TASK)) {
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public String View() {
+
+        String result = "view";
+        try {
+            if (this.applyUserPrivileges()) {
+                CommonDAO Codao = new CommonDAO();
+                TransactionExplorerDAO dao = new TransactionExplorerDAO();
+                inputBean.setTxnTypeList(Codao.getTxnTypeCodeList());
+                inputBean.setStatusList(Codao.getDefultStatusList("TXN"));
+                inputBean.setResponcecodeList(Codao.getResponseList());
+                inputBean.setCurrencyList(Codao.getCurrencyList());
+                HttpSession session = ServletActionContext.getRequest().getSession(false);
+                TxnExplorerInputBean data = (TxnExplorerInputBean) session.getAttribute(SessionVarlist.TRANS_EXPOR_SEARCHBEAN);
+
+                if (inputBean.getLoad() != null && inputBean.getLoad().equals("yes") && data != null) {
+
+                    TxnSearchDataBean bean = new TxnSearchDataBean();
+                    bean.setResponcecode(data.getResponcecode());
+                    bean.setStatus(data.getStatus());
+                    bean.setHs_destination_uri(data.getHs_destination_uri());
+                    bean.setHs_txn_cycle_status(data.getHs_txn_cycle_status());
+                    bean.setDestination_country(data.getDestination_country());
+                    bean.setDestination_service_id(data.getDestination_service_id());
+                    bean.setListnerconfig(data.getListnerconfig());
+                    bean.setCurrency(data.getCurrency());
+                    bean.setUritype(data.getUritype());
+                    bean.setSourceofincome(data.getSourceofincome());
+                    bean.setRemit(data.getRemit());
+                    bean.setBank(data.getBank());
+                    bean.setListnerconfig(data.getListnerconfig());
+
+                    String[] days = data.getTodate().split("-");
+                    bean.setTodate(days[0] + "-" + days[1] + "-" + days[2]);
+
+                    days = data.getFromdate().split("-");
+                    bean.setFromdate(days[0] + "-" + days[1] + "-" + days[2]);
+
+                    inputBean.setTxnSearchdataBean(bean);
+
+                }
+
+            } else {
+                result = "loginpage";
+            }
+
+            System.out.println("called TransactionExplorerAction :view");
+
+        } catch (Exception ex) {
+            addActionError("Transaction explorer " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(TransactionExplorerAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public String individualReport() {
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy 'at' HH:mm a");
+        System.out.println("called TransactionExplorerAction: individualReport");
+
+        try {
+
+            HttpServletRequest request = ServletActionContext.getRequest();
+            Systemaudit audit = Common.makeAudittrace(request, TaskVarList.GENERATE_TASK, PageVarList.TXN_EXPLORER, SectionVarList.REPORT_EXPLORER, "Transaction explorer individual report generated", null);
+            SystemAuditDAO dao = new SystemAuditDAO();
+            dao.saveAudit(audit);
+
+            ServletContext context = ServletActionContext.getServletContext();
+            String imgPath = context.getRealPath("/resouces/images/bml_logo.png");
+
+            HttpSession session = ServletActionContext.getRequest().getSession(false);
+            audata = (TransDataBean) session.getAttribute(SessionVarlist.TRANS_EXPOR_INDIVIDUAL_BEAN);
+
+            parameterMap.put("bankaddressheader", CommonVarList.REPORT_BML_ADD_HEADER);
+            parameterMap.put("printeddate", sdf.format(cal.getTime()));
+            parameterMap.put("bankaddress", CommonVarList.REPORT_BML_ADD);
+            parameterMap.put("banktel", CommonVarList.REPORT_BML_TEL);
+            parameterMap.put("bankmail", CommonVarList.REPORT_SBML_MAIL);
+            parameterMap.put("imageurl", imgPath);
+
+        } catch (Exception e) {
+            Logger.getLogger(TransactionExplorerAction.class.getName()).log(Level.SEVERE, null, e);
+            addActionError("Transaction explorer " + MessageVarList.COMMON_ERROR_PROCESS);
+            return "message";
+        }
+        return "report";
+    }
+
+    public String viewDetail() {
+        System.out.println("called TransactionExplorerAction :viewDetail");
+        TransDataBean dataBean = new TransDataBean();
+
+        try {
+            TransactionExplorerDAO dao = new TransactionExplorerDAO();
+            dataBean = dao.findTransactionById(inputBean.getTransactionid());
+
+            inputBean.setTransdataBean(dataBean);
+
+            HttpSession session = ServletActionContext.getRequest().getSession(false);
+            session.setAttribute(SessionVarlist.TRANS_EXPOR_INDIVIDUAL_BEAN, dataBean);
+
+            HttpServletRequest request = ServletActionContext.getRequest();
+            Systemaudit audit = Common.makeAudittrace(request, TaskVarList.VIEW_TASK, PageVarList.TXN_EXPLORER, SectionVarList.REPORT_EXPLORER, "Transaction explorer individual view of transaction ID " + inputBean.getTransactionid() + " viewed ", null, null, null);
+            CommonDAO.saveAudit(audit);
+
+
+        } catch (Exception ex) {
+            addActionError("Transaction explorer " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(TransactionExplorerAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return "viewdetail";
+    }
+
+    public String List() {
+
+        System.out.println("called TransactionExplorerAction: List");
+        try {
+            //if (inputBean.isSearch()) {
+
+            int rows = inputBean.getRows();
+            int page = inputBean.getPage();
+            int to = (rows * page);
+            int from = to - rows;
+            long records = 0;
+            String orderBy = "";
+            if (!inputBean.getSidx().isEmpty()) {
+                orderBy = " order by " + inputBean.getSidx() + " " + inputBean.getSord();
+            }
+            TransactionExplorerDAO dao = new TransactionExplorerDAO();
+            List<TxnHisDataBean> dataList = dao.getSearchHistoryList(inputBean, rows, from, orderBy);
+
+            if (!dataList.isEmpty()) {
+                records = dataList.get(0).getFullCount();
+                inputBean.setRecords(records);
+                inputBean.setGridHisModel(dataList);
+                int total = (int) Math.ceil((double) records / (double) rows);
+                inputBean.setTotal(total);
+            } else {
+                inputBean.setRecords(0L);
+                inputBean.setTotal(0);
+            }
+            // }
+        } catch (Exception e) {
+            Logger.getLogger(TransactionExplorerAction.class.getName()).log(Level.SEVERE, null, e);
+            addActionError("Transaction explorer " + MessageVarList.COMMON_ERROR_PROCESS);
+        }
+        return "list";
+    }
+
+    public String Search() {
+        System.out.println("called TransactionExplorerAction : search");
+
+        try {
+            HttpSession session = ServletActionContext.getRequest().getSession(false);
+            TxnExplorerInputBean data = (TxnExplorerInputBean) session.getAttribute(SessionVarlist.TRANS_EXPOR_SEARCHBEAN);
+
+            if (inputBean.isSearch() == false && inputBean.getLoad() != null && inputBean.getLoad().equals("yes") && data != null) {
+                inputBean.setFromdate(data.getFromdate());
+                inputBean.setTodate(data.getTodate());
+                inputBean.setResponcecode(data.getResponcecode());
+                inputBean.setStatus(data.getStatus());
+                
+                inputBean.setCurrency(data.getCurrency());
+                
+                inputBean.setRrn(data.getRrn());
+                inputBean.setSearch(true);
+
+            }
+            if (inputBean.isSearch()) {
+
+                int rows = inputBean.getRows();
+                int page = inputBean.getPage();
+                int to = (rows * page);
+                int from = to - rows;
+                long records = 0;
+                String orderBy = "";
+                if (!inputBean.getSidx().isEmpty()) {
+                    orderBy = " order by " + inputBean.getSidx() + " " + inputBean.getSord();
+                } else {
+                    orderBy = " order by t.CREATETIME desc";
+                }
+
+                TransactionExplorerDAO dao = new TransactionExplorerDAO();
+
+                String searchParameters = "["
+                        + Common.checkEmptyorNullString("From Date", inputBean.getFromdate())
+                        + Common.checkEmptyorNullString("To Date", inputBean.getTodate())
+                        + Common.checkEmptyorNullString("Response Code", inputBean.getResponcecodeDes())
+                        + Common.checkEmptyorNullString("Transaction Decision", inputBean.getStatusDes())
+                        + Common.checkEmptyorNullString("HS Transaction Cycle Status", inputBean.getHs_txn_cycle_status())
+                        + Common.checkEmptyorNullString("HS Destination URI", inputBean.getHs_destination_uri())
+                        + Common.checkEmptyorNullString("Destination Country", inputBean.getDestination_countryDes())
+                        + Common.checkEmptyorNullString("Destination Service ID", inputBean.getDestination_service_idDes())
+                        + Common.checkEmptyorNullString("Bank", inputBean.getBankDes())
+                        + Common.checkEmptyorNullString("Transaction Currency", inputBean.getCurrencyDes())
+                        + Common.checkEmptyorNullString("Funding Source", inputBean.getSourceofincomeDes())
+                        + Common.checkEmptyorNullString("Purpose of Payment", inputBean.getRemitDes())
+                        + Common.checkEmptyorNullString("Delivery Method", inputBean.getUritypeDes())
+                        + Common.checkEmptyorNullString("Source of Transaction", inputBean.getListnerconfigDes())
+                        + Common.checkEmptyorNullString("RRN", inputBean.getRrn())
+                        + "]";
+
+                String description = "Transaction explorer search using " + searchParameters.substring(0, searchParameters.length() - 2) + "] parameters";
+
+                List<TxnDataBean> dataList = dao.getSearchList(inputBean, rows, from, orderBy);
+                HttpServletRequest request = ServletActionContext.getRequest();
+                Systemaudit audit = Common.makeAudittrace(request, TaskVarList.SEARCH_TASK, PageVarList.TXN_EXPLORER, SectionVarList.REPORT_EXPLORER, description, null);
+                SystemAuditDAO sysdao = new SystemAuditDAO();
+                sysdao.saveAudit(audit);
+
+                if (!dataList.isEmpty()) {
+
+                    records = dataList.get(0).getFullCount();
+                    inputBean.setRecords(records);
+                    inputBean.setGridModel(dataList);
+                    int total = (int) Math.ceil((double) records / (double) rows);
+                    inputBean.setTotal(total);
+
+                    session.setAttribute(SessionVarlist.TRANS_EXPOR_SEARCHBEAN, inputBean);
+
+                } else {
+                    inputBean.setRecords(0L);
+                    inputBean.setTotal(0);
+                }
+            }
+        } catch (Exception e) {
+            Logger.getLogger(TransactionExplorerAction.class.getName()).log(Level.SEVERE, null, e);
+            addActionError("Transaction explorer " + MessageVarList.COMMON_ERROR_PROCESS);
+        }
+        return "search";
+    }
+
+    public String reportGenerate() {
+
+        System.out.println("called TransactionExplorerAction : reportGeneration");
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy 'at' HH:mm a");
+        JRSwapFileVirtualizer virtualizer = null;
+        JasperPrint jasperPrint = null;
+        byte[] outputFile;
+        Session hSession = null;
+        String retMsg = "view";
+
+        try {
+            if (inputBean.getReporttype().equals("pdf")) {
+               
+            } else if (inputBean.getReporttype().trim().equalsIgnoreCase("exel")) {
+                TransactionExplorerDAO dao = new TransactionExplorerDAO();
+                retMsg = "excelreport";
+                ByteArrayOutputStream outputStream = null;
+                try {
+
+                    HttpSession session = ServletActionContext.getRequest().getSession(false);
+
+                    TxnExplorerInputBean searchBean = (TxnExplorerInputBean) session.getAttribute(SessionVarlist.TRANS_EXPOR_SEARCHBEAN);
+                    Object object = dao.generateExcelReport(searchBean);
+                    if (object instanceof SXSSFWorkbook) {
+                        SXSSFWorkbook workbook = (SXSSFWorkbook) object;
+                        outputStream = new ByteArrayOutputStream();
+                        workbook.write(outputStream);
+                        inputBean.setExcelStream(new ByteArrayInputStream(outputStream.toByteArray()));
+
+                    } else if (object instanceof ByteArrayOutputStream) {
+                        outputStream = (ByteArrayOutputStream) object;
+                        inputBean.setZipStream(new ByteArrayInputStream(outputStream.toByteArray()));
+                        retMsg = "zip";
+                    }
+
+                    HttpServletRequest request = ServletActionContext.getRequest();
+                    Systemaudit audit = Common.makeAudittrace(request, TaskVarList.GENERATE_TASK, PageVarList.TXN_EXPLORER, SectionVarList.REPORT_EXPLORER, "Transaction explorer excel report generated ", null);
+                    CommonDAO.saveAudit(audit);
+
+                } catch (Exception e) {
+                    addActionError(MessageVarList.COMMON_ERROR_PROCESS + " transaction explorer excel report");
+                    Logger.getLogger(TransactionExplorerAction.class.getName()).log(Level.SEVERE, null, e);
+                    this.loadPageData();
+                    retMsg = "view";
+                    throw e;
+                } finally {
+                    try {
+                        if (outputStream != null) {
+                            outputStream.flush();
+                            outputStream.close();
+                        }
+
+                    } catch (IOException ex) {
+                        //do nothing
+                    }
+                }
+            }
+        } catch (Exception e) {
+            this.loadPageData();
+            Logger.getLogger(TransactionExplorerAction.class.getName()).log(Level.SEVERE, null, e);
+            addActionError(MessageVarList.COMMON_ERROR_PROCESS + " Transaction explorer");
+
+            return "message";
+        } finally {
+            if (virtualizer != null) {
+                virtualizer.cleanup();
+            }
+
+            if (hSession != null) {
+                hSession.close();
+            }
+        }
+        return retMsg;
+    }
+
+    private void loadPageData() {
+        try {
+            CommonDAO dao = new CommonDAO();
+            inputBean.setTxnTypeList(dao.getTxnTypeCodeList());
+            inputBean.setStatusList(dao.getDefultStatusList("TRAN"));
+
+        } catch (Exception e) {
+            addActionError("Transaction explorer " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(TransactionExplorerAction.class.getName()).log(Level.SEVERE, null, e);
+        }
+    }
+
+}

@@ -1,0 +1,946 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.action.controlpanel.acquirer;
+
+
+import com.epic.bmlalipay.bean.controlpanel.acquirer.AcquirerPromotionAssignBean;
+import com.epic.bmlalipay.bean.controlpanel.acquirer.AcquirerPromotionBean;
+import com.epic.bmlalipay.bean.controlpanel.acquirer.AcquirerPromotionInputBean;
+import com.epic.bmlalipay.dao.common.CommonDAO;
+import com.epic.bmlalipay.dao.controlpanel.acquirer.AcquirerPromotionDAO;
+import com.epic.bmlalipay.dao.controlpanel.usermanagement.SystemAuditDAO;
+import com.epic.bmlalipay.util.common.AccessControlService;
+import com.epic.bmlalipay.util.common.Common;
+import static com.epic.bmlalipay.util.common.Common.checkEmptyorNullString;
+import com.epic.bmlalipay.util.mapping.AcquirerPromotion;
+import com.epic.bmlalipay.util.mapping.AcquirerPromotionCurrency;
+import com.epic.bmlalipay.util.mapping.Systemaudit;
+import com.epic.bmlalipay.util.mapping.Task;
+import com.epic.bmlalipay.util.varlist.CommonVarList;
+import com.epic.bmlalipay.util.varlist.MessageVarList;
+import com.epic.bmlalipay.util.varlist.OracleMessage;
+import com.epic.bmlalipay.util.varlist.PageVarList;
+import com.epic.bmlalipay.util.varlist.SectionVarList;
+import com.epic.bmlalipay.util.varlist.SessionVarlist;
+import com.epic.bmlalipay.util.varlist.TaskVarList;
+import static com.opensymphony.xwork2.Action.SUCCESS;
+import com.opensymphony.xwork2.ActionSupport;
+import com.opensymphony.xwork2.ModelDriven;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import org.apache.struts2.ServletActionContext;
+
+/**
+ *
+ * @author : dilanka_w
+ * @Created on : Sep 20, 2016, 12:37:42 PM
+ */
+public class AcquirerPromotionAction extends ActionSupport implements ModelDriven<Object>, AccessControlService {
+
+    AcquirerPromotionInputBean inputBean = new AcquirerPromotionInputBean();
+
+    @Override
+    public String execute() throws Exception {
+        System.out.println("called AcquirerPromotionAction : execute");
+        return SUCCESS;
+    }
+
+    public Object getModel() {
+        return inputBean;
+    }
+
+    public boolean checkAccess(String method, String userRole) {
+        boolean status = false;
+        String page = PageVarList.ACQUIRER_PROMOTION_PAGE;
+        String task = null;
+        if ("view".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("list".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("search".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("list1".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("find".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("load".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("delete".equals(method)) {
+            task = TaskVarList.DELETE_TASK;
+        } else if ("assign".equals(method)) {
+            task = TaskVarList.ADD_TASK;
+        } else if ("remove".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("add".equals(method)) {
+            task = TaskVarList.ADD_TASK;
+        } else if ("update".equals(method)) {
+            task = TaskVarList.UPDATE_TASK;
+        } else if ("reset".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("load".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("ViewPopup".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("Detail".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("setMessage".equals(method)) {
+            task = TaskVarList.ADD_TASK;
+        } else if ("findAssign".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        }
+        if ("execute".equals(method)) {
+            status = true;
+        } else {
+            HttpServletRequest request = ServletActionContext.getRequest();
+            status = new Common().checkMethodAccess(task, page, userRole, request);
+        }
+        return status;
+    }
+
+    public String view() throws Exception {
+        String result = "view";
+        System.out.println("called AcquirerPromotionAction :view");
+
+        try {
+            HttpSession session = ServletActionContext.getRequest().getSession(false);
+            if (this.applyUserPrivileges()) {
+
+                CommonDAO dao = new CommonDAO();
+                AcquirerPromotionDAO pDao = new AcquirerPromotionDAO();
+
+                inputBean.setStatusList(dao.getDefultStatusList(CommonVarList.STATUS_CATEGORY_GENERAL));
+                inputBean.setCurrencyList(dao.getCurrencyList());
+
+            } else {
+                result = "loginpage";
+            }
+
+            if (session.getAttribute(SessionVarlist.MIN_PASSWORD_CHANGE_PERIOD) != null && session.getAttribute(SessionVarlist.ONLY_SHOW_ONTIME) != null) {
+                if ((Integer) session.getAttribute(SessionVarlist.ONLY_SHOW_ONTIME) == 0) {
+                    session.setAttribute(SessionVarlist.ONLY_SHOW_ONTIME, 1);
+                    addActionError((String) session.getAttribute(SessionVarlist.MIN_PASSWORD_CHANGE_PERIOD));
+                }
+            }
+
+        } catch (Exception ex) {
+            addActionError("Acquirer promotion " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(AcquirerPromotionAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public String ViewPopup() {
+        String result = "viewpopup";
+        System.out.println("called AcquirerPromotionAction : ViewPopup");
+        try {
+            HttpSession session = ServletActionContext.getRequest().getSession(false);
+            if (this.applyUserPrivileges()) {
+
+                CommonDAO dao = new CommonDAO();
+                AcquirerPromotionDAO pDao = new AcquirerPromotionDAO();
+
+                inputBean.setStatusList(dao.getDefultStatusList(CommonVarList.STATUS_CATEGORY_GENERAL));
+                inputBean.setCurrencyList(dao.getCurrencyList());
+                inputBean.setTxnTypeList(dao.getActiveTxnTypeList(CommonVarList.STATUS_ACTIVE));
+                inputBean.setAmountType(pDao.getFlatPercentageTypeBeanList());
+
+                session.setAttribute(SessionVarlist.ACQUIRER_PROMOTION_LIST, null);
+                inputBean.setIsAssign("init");
+
+            } else {
+                result = "loginpage";
+            }
+
+            if (session.getAttribute(SessionVarlist.MIN_PASSWORD_CHANGE_PERIOD) != null && session.getAttribute(SessionVarlist.ONLY_SHOW_ONTIME) != null) {
+                if ((Integer) session.getAttribute(SessionVarlist.ONLY_SHOW_ONTIME) == 0) {
+                    session.setAttribute(SessionVarlist.ONLY_SHOW_ONTIME, 1);
+                    addActionError((String) session.getAttribute(SessionVarlist.MIN_PASSWORD_CHANGE_PERIOD));
+                }
+            }
+
+        } catch (Exception ex) {
+            addActionError("Acquirer promotion " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(AcquirerPromotionAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public String list() {
+        System.out.println("called AcquirerPromotionAction : list");
+        try {
+            int rows = inputBean.getRows();
+            int page = inputBean.getPage();
+            int to = (rows * page);
+            int from = to - rows;
+            long records = 0;
+            String orderBy = "";
+            if (!inputBean.getSidx().isEmpty()) {
+                orderBy = " order by " + inputBean.getSidx() + " " + inputBean.getSord();
+            }
+            AcquirerPromotionDAO dao = new AcquirerPromotionDAO();
+            List<AcquirerPromotionBean> dataList = dao.getSearchList(inputBean, rows, from, orderBy);
+
+            /**
+             * for search audit
+             */
+            if (inputBean.isSearch() && from == 0) {
+
+                HttpServletRequest request = ServletActionContext.getRequest();
+
+                String searchParameters = "["
+                        + checkEmptyorNullString("Acquirer Promotion Code", inputBean.getCodeSearch())
+                        + checkEmptyorNullString("Description", inputBean.getDescriptionSearch())
+                        + checkEmptyorNullString("Status", inputBean.getStatusSearch())
+                        + "]";
+
+                Systemaudit audit = Common.makeAudittrace(request, TaskVarList.SEARCH_TASK, PageVarList.ACQUIRER_PROMOTION_PAGE, SectionVarList.ACQUIERERMANAGEMENT, "Acquirer promotion search using " + searchParameters + " parameters ", null);
+                SystemAuditDAO sysdao = new SystemAuditDAO();
+                sysdao.saveAudit(audit);
+            }
+
+            if (!dataList.isEmpty()) {
+                records = dataList.get(0).getFullCount();
+                inputBean.setRecords(records);
+                inputBean.setGridModel(dataList);
+                int total = (int) Math.ceil((double) records / (double) rows);
+                inputBean.setTotal(total);
+            } else {
+                inputBean.setRecords(0L);
+                inputBean.setTotal(0);
+            }
+        } catch (Exception e) {
+            Logger.getLogger(AcquirerPromotionAction.class.getName()).log(Level.SEVERE, null, e);
+            addActionError("Acquirer promotion " + MessageVarList.COMMON_ERROR_PROCESS);
+        }
+        return "list";
+    }
+
+    public String search() {
+        System.out.println("called AcquirerPromotionAction : list");
+        try {
+            int rows = inputBean.getRows();
+            int page = inputBean.getPage();
+            int to = (rows * page);
+            int from = to - rows;
+            long records = 0;
+            String orderBy = "";
+            if (!inputBean.getSidx().isEmpty()) {
+                orderBy = " order by " + inputBean.getSidx() + " " + inputBean.getSord();
+            }
+            AcquirerPromotionDAO dao = new AcquirerPromotionDAO();
+            List<AcquirerPromotionBean> dataList = dao.getSearchList(inputBean, rows, from, orderBy);
+
+            HttpServletRequest request = ServletActionContext.getRequest();
+            Systemaudit audit = Common.makeAudittrace(request, TaskVarList.SEARCH_TASK, PageVarList.ACQUIRER_PROMOTION_PAGE, SectionVarList.ACQUIERERMANAGEMENT, "Acquirer Promotion search", null);
+            SystemAuditDAO sysdao = new SystemAuditDAO();
+            sysdao.saveAudit(audit);
+
+            if (!dataList.isEmpty()) {
+                records = dataList.get(0).getFullCount();
+                inputBean.setRecords(records);
+                inputBean.setGridModel(dataList);
+                int total = (int) Math.ceil((double) records / (double) rows);
+                inputBean.setTotal(total);
+            } else {
+                inputBean.setRecords(0L);
+                inputBean.setTotal(0);
+            }
+        } catch (Exception e) {
+            Logger.getLogger(AcquirerPromotionAction.class.getName()).log(Level.SEVERE, null, e);
+            addActionError("Acquirer promotion " + MessageVarList.COMMON_ERROR_PROCESS);
+        }
+        return "list";
+    }
+
+    public String load() {
+        System.out.println("called AcquirerPromotionAction : load");
+        String result = "load";
+        try {
+
+            AcquirerPromotionDAO dao = new AcquirerPromotionDAO();
+            String message = "";
+
+            message = dao.loadAcquirerPromotionCode(inputBean);
+
+            if (!message.isEmpty()) {
+                inputBean.setCode(message);
+            } else {
+                inputBean.setMessage(message);
+            }
+
+        } catch (Exception ex) {
+            inputBean.setMessage("Acquirer Promotion " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(AcquirerPromotionAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public String add() {
+        System.out.println("called AcquirerPromotionAction : add");
+        String result = "message";
+        List<AcquirerPromotionAssignBean> tmpDataList = null;
+        try {
+            HttpServletRequest request = ServletActionContext.getRequest();
+            AcquirerPromotionDAO dao = new AcquirerPromotionDAO();
+
+            System.out.println("code: " + inputBean.getCode().trim());
+            inputBean.setCode(inputBean.getCode().trim());
+            inputBean.setBankAmount(inputBean.getBankAmount().replace(",", ""));
+            inputBean.setMerchantAmount(inputBean.getMerchantAmount().replace(",", ""));
+            inputBean.setBankAmount(inputBean.getBankAmount().replace("%", ""));
+            inputBean.setMerchantAmount(inputBean.getMerchantAmount().replace("%", ""));
+
+            String message = this.validateInputs();
+
+            if (message.isEmpty()) {
+
+                HttpSession session = ServletActionContext.getRequest().getSession(false);
+                tmpDataList = (List<AcquirerPromotionAssignBean>) session.getAttribute(SessionVarlist.ACQUIRER_PROMOTION_LIST);
+
+                Systemaudit audit = Common.makeAudittrace(request, TaskVarList.ADD_TASK, PageVarList.ACQUIRER_PROMOTION_PAGE, SectionVarList.ACQUIERERMANAGEMENT, "Acquirer promotion " + inputBean.getCode() + " added", null, null, null);
+                message = dao.insertAcquirerPromotion(inputBean, tmpDataList, audit);
+
+                if (message.isEmpty()) {
+                    addActionMessage("Acquirer promotion " + MessageVarList.COMMON_SUCC_INSERT);
+                } else {
+                    addActionError(message);
+                }
+            } else {
+                addActionError(message);
+            }
+        } catch (Exception ex) {
+            addActionError("Acquirer promotion " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(AcquirerPromotionAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public String Detail() {
+        System.out.println("called AcquirerPromotionAction : detail");
+        AcquirerPromotionCurrency ar = null;
+
+        try {
+
+            CommonDAO commonDAO = new CommonDAO();
+            AcquirerPromotionDAO dao = new AcquirerPromotionDAO();
+
+            inputBean.setStatusList(commonDAO.getDefultStatusList(CommonVarList.STATUS_CATEGORY_GENERAL));
+            inputBean.setCurrencyList(commonDAO.getCurrencyList());
+            inputBean.setTxnTypeList(commonDAO.getActiveTxnTypeList(CommonVarList.STATUS_ACTIVE));
+            inputBean.setAmountType(dao.getFlatPercentageTypeBeanList());
+
+            if (inputBean.getCode() != null && !inputBean.getCode().isEmpty()) {
+                if (inputBean.getPromotioncurrency() != null && !inputBean.getPromotioncurrency().isEmpty()) {
+                    int rows = inputBean.getRows();
+                    int page = inputBean.getPage();
+                    int to = (rows * page);
+                    int from = to - rows;
+                    long records = 0;
+
+                    ar = dao.findAcquirerPromotionById(inputBean.getCode(),inputBean.getPromotioncurrency());
+
+                    inputBean.setCode(ar.getId().getCode());
+                    inputBean.setPromotioncurrency(ar.getId().getCurrencycode());
+                    inputBean.setDescription(ar.getDescription());
+                    inputBean.setStatus(ar.getStatus().getStatuscode());
+
+                    List<AcquirerPromotionAssignBean> dataList = dao.findAcquirerPromotionTxnListByCode(inputBean.getCode(),inputBean.getPromotioncurrency());
+
+                    HttpSession session = ServletActionContext.getRequest().getSession(false);
+                    session.setAttribute(SessionVarlist.ACQUIRER_PROMOTION_LIST, dataList);
+
+                    if (!dataList.isEmpty()) {
+                        records = new Long(dataList.size());
+                        inputBean.setRecords(records);
+                        inputBean.setGridModelTxn(dataList);
+                        int total = (int) Math.ceil((double) records / (double) rows);
+                        inputBean.setTotal(total);
+                    } else {
+                        inputBean.setRecords(0L);
+                        inputBean.setTotal(0);
+
+                    }
+
+                }else{
+                  inputBean.setMessage("Empty acquirer promotion currency");  
+                }
+                
+            } else {
+                inputBean.setMessage("Empty acquirer promotion code");
+            }
+        } catch (Exception ex) {
+            inputBean.setMessage("Acquirer promotion code  " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(AcquirerPromotionAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return "detail";
+
+    }
+
+    public String find() {
+        System.out.println("called AcquirerPromotionAction : find");
+        AcquirerPromotionCurrency ar = null;
+
+        try {
+            if (inputBean.getCode() != null && !inputBean.getCode().isEmpty()) {
+                
+                if (inputBean.getPromotioncurrency()!= null && !inputBean.getPromotioncurrency().isEmpty()) {
+                    int rows = inputBean.getRows();
+                    int page = inputBean.getPage();
+                    int to = (rows * page);
+                    int from = to - rows;
+                    long records = 0;
+
+                    AcquirerPromotionDAO dao = new AcquirerPromotionDAO();
+
+                    ar = dao.findAcquirerPromotionById(inputBean.getCode(),inputBean.getPromotioncurrency());
+
+                    inputBean.setCode(ar.getId().getCode());
+                    inputBean.setDescription(ar.getDescription());
+                    inputBean.setStatus(ar.getStatus().getStatuscode());
+
+                    List<AcquirerPromotionAssignBean> dataList = dao.findAcquirerPromotionTxnListByCode(inputBean.getCode(),inputBean.getPromotioncurrency());
+
+                    HttpSession session = ServletActionContext.getRequest().getSession(false);
+                    session.setAttribute(SessionVarlist.ACQUIRER_PROMOTION_LIST, dataList);
+
+                    if (!dataList.isEmpty()) {
+                        records = new Long(dataList.size());
+                        inputBean.setRecords(records);
+                        inputBean.setGridModelTxn(dataList);
+                        int total = (int) Math.ceil((double) records / (double) rows);
+                        inputBean.setTotal(total);
+                    } else {
+                        inputBean.setRecords(0L);
+                        inputBean.setTotal(0);
+
+                    }
+                }else{
+                    inputBean.setMessage("Empty acquirer promotion currency");
+                }
+
+            } else {
+                inputBean.setMessage("Empty acquirer promotion code");
+            }
+        } catch (Exception ex) {
+            inputBean.setMessage("Acquirer promotion code  " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(AcquirerPromotionAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return "find";
+
+    }
+
+    public String setMessage() {
+        System.out.println("called AcquirerPromotionAction : setMessage");
+
+        String message = null;
+        String result = "delete";
+        try {
+            Thread.sleep(500);
+
+            HttpSession session = ServletActionContext.getRequest().getSession(false);
+            message = (String) session.getAttribute(SessionVarlist.ACQUIRER_PROMOTION_VALIDATE_MSG);
+            if (message != null && !message.isEmpty()) {
+                inputBean.setMessage(message);
+            } else {
+                inputBean.setMessage(null);
+            }
+
+        } catch (Exception e) {
+            Logger.getLogger(AcquirerPromotionAction.class.getName()).log(Level.SEVERE, null, e);
+            inputBean.setMessage(OracleMessage.getMessege(e.getMessage()));
+        }
+        return result;
+    }
+
+    public String assign() {
+        System.out.println("called AcquirerPromotionAction : assign");
+        String result = "list";
+        List<AcquirerPromotionAssignBean> tmpDataList = null;
+        try {
+            HttpSession session = ServletActionContext.getRequest().getSession(false);
+
+            if (inputBean.getIsAssign() == null || inputBean.getIsAssign().equals("init")) {
+
+                System.out.println("called AcquirerPromotionAction : assign - init");
+                int rows = inputBean.getRows();
+                int page = inputBean.getPage();
+                int to = (rows * page);
+                int from = to - rows;
+                long records = 0;
+
+                List<AcquirerPromotionAssignBean> fullList = (List<AcquirerPromotionAssignBean>) session.getAttribute(SessionVarlist.ACQUIRER_PROMOTION_LIST);
+                if (fullList != null && !fullList.isEmpty()) {
+                    tmpDataList = pageData(fullList, from, to);
+                    session.setAttribute(SessionVarlist.ACQUIRER_PROMOTION_LIST, fullList);
+
+                    if (tmpDataList != null && !tmpDataList.isEmpty()) {
+                        records = new Long(fullList.size());
+                        inputBean.setRecords(records);
+                        inputBean.setGridModelTxn(tmpDataList);
+                        int total = (int) Math.ceil((double) records / (double) rows);
+                        inputBean.setTotal(total);
+                    } else {
+                        inputBean.setRecords(0L);
+                        inputBean.setTotal(0);
+
+                    }
+                } else {
+                    inputBean.setRecords(0L);
+                    inputBean.setTotal(0);
+                }
+
+            } else if (inputBean.getIsAssign().equals("remove")) {
+
+                System.out.println("called AcquirerPromotionAction : assign - remove");
+                int rows = inputBean.getRows();
+                int page = inputBean.getPage();
+                int to = (rows * page);
+                int from = to - rows;
+                long records = 0;
+
+                if (session.getAttribute(SessionVarlist.ACQUIRER_PROMOTION_LIST) != null) {
+                    tmpDataList = (List<AcquirerPromotionAssignBean>) session.getAttribute(SessionVarlist.ACQUIRER_PROMOTION_LIST);
+                } else {
+                    tmpDataList = new ArrayList<AcquirerPromotionAssignBean>();
+                }
+
+                List<AcquirerPromotionAssignBean> dataListRemoved = new ArrayList<AcquirerPromotionAssignBean>();
+
+                for (AcquirerPromotionAssignBean acquirerPAssignBean : tmpDataList) {
+                    if (!acquirerPAssignBean.getTxnType().equals(inputBean.getTxnType())) {
+                        dataListRemoved.add(acquirerPAssignBean);
+                    }
+                }
+
+                session.setAttribute(SessionVarlist.ACQUIRER_PROMOTION_LIST, null);
+                session.setAttribute(SessionVarlist.ACQUIRER_PROMOTION_LIST, dataListRemoved);
+
+                if (!dataListRemoved.isEmpty()) {
+
+                    records = new Long(dataListRemoved.size());
+                    inputBean.setRecords(records);
+                    inputBean.setGridModelTxn(dataListRemoved);
+                    int total = (int) Math.ceil((double) records / (double) rows);
+                    inputBean.setTotal(total);
+
+                } else {
+
+                    inputBean.setRecords(0L);
+                    inputBean.setTotal(0);
+
+                }
+            } else if (inputBean.getIsAssign().equals("update")) {
+
+                System.out.println("called AcquirerPromotionAction : assign - update");
+                
+                int rows = inputBean.getRows();
+                int page = inputBean.getPage();
+                int to = (rows * page);
+                int from = to - rows;
+                long records = 0;
+
+                inputBean.setBankAmount(inputBean.getBankAmount().replace(",", ""));
+                inputBean.setMerchantAmount(inputBean.getMerchantAmount().replace(",", ""));
+                inputBean.setBankAmount(inputBean.getBankAmount().replace("%", ""));
+                inputBean.setMerchantAmount(inputBean.getMerchantAmount().replace("%", ""));
+
+                String message = this.validateAssignUpdateInputs();
+
+                if (message.isEmpty()) {
+                    List<AcquirerPromotionAssignBean> dataListUpdated = new ArrayList<AcquirerPromotionAssignBean>();
+                    if (session.getAttribute(SessionVarlist.ACQUIRER_PROMOTION_LIST) != null) {
+                        
+                        tmpDataList = (List<AcquirerPromotionAssignBean>) session.getAttribute(SessionVarlist.ACQUIRER_PROMOTION_LIST);
+                    } else {
+                        tmpDataList = new ArrayList<AcquirerPromotionAssignBean>();
+                    }
+
+                    
+                    for (AcquirerPromotionAssignBean acquirerPAssignBean : tmpDataList) {
+                        if (!acquirerPAssignBean.getTxnType().equals(inputBean.getTxnType())) {
+                            dataListUpdated.add(acquirerPAssignBean);
+                        }
+                    }
+                    
+                    CommonDAO commonDao = new CommonDAO();
+                    AcquirerPromotionDAO dao = new AcquirerPromotionDAO();
+
+                    AcquirerPromotionAssignBean updated = new AcquirerPromotionAssignBean();
+
+                    updated.setTxnType(inputBean.getTxnType());
+                    updated.setTxnTypeDes(commonDao.getDescriptionByTxnCode(inputBean.getTxnType()));
+
+                    updated.setBankAmountType(inputBean.getBankAmountType());
+                    updated.setBankAmountTypeDes(dao.getAmountTypeDes(inputBean.getBankAmountType()));
+                    updated.setBankAmount(Common.toCurrencyFormat(inputBean.getBankAmount()));
+
+                    updated.setMerchantAmountType(inputBean.getMerchantAmountType());
+                    updated.setMerchantAmountTypeDes(dao.getAmountTypeDes(inputBean.getMerchantAmountType()));
+                    updated.setMerchantAmount(Common.toCurrencyFormat(inputBean.getMerchantAmount()));
+
+                    dataListUpdated.add(updated);
+
+                    session.setAttribute(SessionVarlist.ACQUIRER_PROMOTION_VALIDATE_MSG, null);
+                    session.setAttribute(SessionVarlist.ACQUIRER_PROMOTION_LIST, null);
+                    session.setAttribute(SessionVarlist.ACQUIRER_PROMOTION_LIST, dataListUpdated);
+                    
+                    List<AcquirerPromotionAssignBean> dataListUpdatednew=pageData(dataListUpdated, from, to);
+                    
+                    if (!dataListUpdated.isEmpty()) {
+
+                        records = new Long(dataListUpdated.size());
+                        inputBean.setRecords(records);
+                        inputBean.setGridModelTxn(dataListUpdatednew);
+                        int total = (int) Math.ceil((double) records / (double) rows);
+                        inputBean.setTotal(total);
+
+                    } else {
+
+                        inputBean.setRecords(0L);
+                        inputBean.setTotal(0);
+
+                    }
+                    
+                } else {
+
+                    result = "message";
+                    addActionError(message);
+                    session.setAttribute(SessionVarlist.ACQUIRER_PROMOTION_VALIDATE_MSG, message);
+
+                }
+            } else if (inputBean.getIsAssign().equals("assign")) {
+
+                System.out.println("called AcquirerPromotionAction : assign - assign");
+                int rows = inputBean.getRows();
+                int page = inputBean.getPage();
+                int to = (rows * page);
+                int from = to - rows;
+                long records = 0;
+
+                inputBean.setBankAmount(inputBean.getBankAmount().replace(",", ""));
+                inputBean.setMerchantAmount(inputBean.getMerchantAmount().replace(",", ""));
+                inputBean.setBankAmount(inputBean.getBankAmount().replace("%", ""));
+                inputBean.setMerchantAmount(inputBean.getMerchantAmount().replace("%", ""));
+
+                String message = this.validateAssignInputs();
+                inputBean.setBankAmount(Common.toCurrencyFormat(inputBean.getBankAmount()));
+                inputBean.setMerchantAmount(Common.toCurrencyFormat(inputBean.getMerchantAmount()));
+                if (message.isEmpty()) {
+
+                    if (session.getAttribute(SessionVarlist.ACQUIRER_PROMOTION_LIST) != null) {
+                        tmpDataList = (List<AcquirerPromotionAssignBean>) session.getAttribute(SessionVarlist.ACQUIRER_PROMOTION_LIST);
+                    } else {
+                        tmpDataList = new ArrayList<AcquirerPromotionAssignBean>();
+                    }
+
+                    AcquirerPromotionDAO dao = new AcquirerPromotionDAO();
+
+                    int count = 0;
+                    for (AcquirerPromotionAssignBean bean : tmpDataList) {
+                        if (bean.getTxnType().equals(inputBean.getTxnType())) {
+                            count++;
+                        }
+                    }
+
+                    if (count == 0) {
+
+                        List<AcquirerPromotionAssignBean> dataList = dao.getAssignSearchList(inputBean, tmpDataList);
+
+                        session.setAttribute(SessionVarlist.ACQUIRER_PROMOTION_LIST, dataList);
+                        session.setAttribute(SessionVarlist.ACQUIRER_PROMOTION_VALIDATE_MSG, null);
+
+                        List<AcquirerPromotionAssignBean> pagelList = pageData(dataList, from, to);
+
+                        if (!dataList.isEmpty()) {
+                            records = new Long(dataList.size());
+                            inputBean.setRecords(records);
+                            inputBean.setGridModelTxn(pagelList);
+                            int total = (int) Math.ceil((double) records / (double) rows);
+                            inputBean.setTotal(total);
+                        } else {
+                            inputBean.setRecords(0L);
+                            inputBean.setTotal(0);
+                        }
+
+                    } else {
+                        List<AcquirerPromotionAssignBean> pagelList = pageData(tmpDataList, from, to);
+                        if (!tmpDataList.isEmpty()) {
+                            records = new Long(tmpDataList.size());
+                            inputBean.setRecords(records);
+                            inputBean.setGridModelTxn(pagelList);
+                            int total = (int) Math.ceil((double) records / (double) rows);
+                            inputBean.setTotal(total);
+                        } else {
+                            inputBean.setRecords(0L);
+                            inputBean.setTotal(0);
+                        }
+                        addActionError(MessageVarList.ACQUIRER_PROMOTION_TRANSACTION_TYPE_EXISTS);
+                        session.setAttribute(SessionVarlist.ACQUIRER_PROMOTION_VALIDATE_MSG, MessageVarList.ACQUIRER_PROMOTION_TRANSACTION_TYPE_EXISTS);
+                    }
+
+                } else {
+                    result = "message";
+                    inputBean.setMessage(message);
+                    addActionError(message);
+                    session.setAttribute(SessionVarlist.ACQUIRER_PROMOTION_VALIDATE_MSG, message);
+
+                }
+            } else if (inputBean.getIsAssign().equals("clear")) {
+
+                session.setAttribute(SessionVarlist.ACQUIRER_PROMOTION_LIST, null);
+            }
+        } catch (Exception e) {
+            Logger.getLogger(AcquirerPromotionAction.class.getName()).log(Level.SEVERE, null, e);
+            addActionError("Acquirer promotion " + MessageVarList.COMMON_ERROR_PROCESS);
+        }
+        return result;
+    }
+
+    public String findAssign() {
+        System.out.println("called AcquirerPromotionAction : findAssign");
+        List<AcquirerPromotionAssignBean> tmpDataList = null;
+
+        try {
+            if (inputBean.getTxnType() != null && !inputBean.getTxnType().isEmpty()) {
+
+                HttpSession session = ServletActionContext.getRequest().getSession(false);
+
+                if (session.getAttribute(SessionVarlist.ACQUIRER_PROMOTION_LIST) != null) {
+                    tmpDataList = (List<AcquirerPromotionAssignBean>) session.getAttribute(SessionVarlist.ACQUIRER_PROMOTION_LIST);
+                } else {
+                    tmpDataList = new ArrayList<AcquirerPromotionAssignBean>();
+                }
+
+                List<AcquirerPromotionAssignBean> dataListRemoved = new ArrayList<AcquirerPromotionAssignBean>();
+
+                for (AcquirerPromotionAssignBean acquirerPromotionAssignBean : tmpDataList) {
+
+                    if (acquirerPromotionAssignBean.getTxnType().equals(inputBean.getTxnType())) {
+                        inputBean.setTxnType(acquirerPromotionAssignBean.getTxnType());
+                        inputBean.setBankAmountType(acquirerPromotionAssignBean.getBankAmountType());
+                        if (acquirerPromotionAssignBean.getBankAmountType().equals("PER")) {
+                            inputBean.setBankAmount(acquirerPromotionAssignBean.getBankAmount().replace(",", "") + "%");
+                        } else {
+                            inputBean.setBankAmount(Common.toCurrencyFormat(acquirerPromotionAssignBean.getBankAmount().replace(",", "")));
+                        }
+                        inputBean.setMerchantAmountType(acquirerPromotionAssignBean.getMerchantAmountType());
+                        if (acquirerPromotionAssignBean.getMerchantAmountType().equals("PER")) {
+                            inputBean.setMerchantAmount(acquirerPromotionAssignBean.getMerchantAmount().replace(",", "") + "%");
+                        } else {
+                            inputBean.setMerchantAmount(Common.toCurrencyFormat(acquirerPromotionAssignBean.getMerchantAmount().replace(",", "")));
+                        }
+
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            inputBean.setMessage("Acquirer promotion  " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(AcquirerPromotionAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return "find";
+    }
+
+    public String update() {
+
+        System.out.println("called AcquirerPromotionAction : Update");
+        String retType = "message";
+
+        try {
+            if (inputBean.getCode() != null && !inputBean.getCode().isEmpty()) {
+                
+                if (inputBean.getPromotioncurrency()!= null && !inputBean.getPromotioncurrency().isEmpty()) {
+                    
+                    inputBean.setBankAmount(inputBean.getBankAmount().replace(",", ""));
+                    inputBean.setMerchantAmount(inputBean.getMerchantAmount().replace(",", ""));
+                    inputBean.setBankAmount(inputBean.getBankAmount().replace("%", ""));
+                    inputBean.setMerchantAmount(inputBean.getMerchantAmount().replace("%", ""));
+                    String message = this.validateInputs();
+
+                    if (message.isEmpty()) {
+
+                        HttpSession session = ServletActionContext.getRequest().getSession(false);
+                        List<AcquirerPromotionAssignBean> tmpDataList = (List<AcquirerPromotionAssignBean>) session.getAttribute(SessionVarlist.ACQUIRER_PROMOTION_LIST);
+
+                        HttpServletRequest request = ServletActionContext.getRequest();
+                        AcquirerPromotionDAO dao = new AcquirerPromotionDAO();
+
+                        Systemaudit audit = Common.makeAudittrace(request, TaskVarList.UPDATE_TASK, PageVarList.ACQUIRER_PROMOTION_PAGE, SectionVarList.ACQUIERERMANAGEMENT, "Acquirer promotion code " + inputBean.getCode() + " updated", null, null, null);
+                        message = dao.updateAcquirerPromotion(inputBean, tmpDataList, audit);
+
+                        if (message.isEmpty()) {
+                            addActionMessage("Acquirer promotion " + MessageVarList.COMMON_SUCC_UPDATE);
+                        } else {
+                            addActionError(message);
+                        }
+
+                    } else {
+                        addActionError(message);
+                    } 
+                }
+               
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(AcquirerPromotionAction.class.getName()).log(Level.SEVERE, null, ex);
+            addActionError("Acquirer promotion " + MessageVarList.COMMON_ERROR_UPDATE);
+        }
+        return retType;
+    }
+
+    public String delete() {
+        System.out.println("called AcquirerPromotionAction : Delete");
+        String message = null;
+        String result = "delete";
+        try {
+            HttpServletRequest request = ServletActionContext.getRequest();
+            AcquirerPromotionDAO dao = new AcquirerPromotionDAO();
+            Systemaudit audit = Common.makeAudittrace(request, TaskVarList.DELETE_TASK, PageVarList.ACQUIRER_PROMOTION_PAGE, SectionVarList.ACQUIERERMANAGEMENT, "Acquirer promotion " + inputBean.getCode() + " deleted", null);
+            message = dao.deleteAcquirerPromotion(inputBean, audit);
+            if (message.isEmpty()) {
+                message = "Acquirer promotion " + MessageVarList.COMMON_SUCC_DELETE;
+            }
+            inputBean.setMessage(message);
+
+        } catch (Exception e) {
+            Logger.getLogger(AcquirerPromotionAction.class.getName()).log(Level.SEVERE, null, e);
+            inputBean.setMessage(OracleMessage.getMessege(e.getMessage()));
+        }
+        return result;
+    }
+
+    private List<AcquirerPromotionAssignBean> pageData(List<AcquirerPromotionAssignBean> list, int start, int end) {
+        List<AcquirerPromotionAssignBean> newList = new ArrayList<AcquirerPromotionAssignBean>();
+        for (int i = start; i < end && i < list.size(); i++) {
+            newList.add(list.get(i));
+        }
+
+        return newList;
+    }
+
+    private boolean applyUserPrivileges() {
+        HttpServletRequest request = ServletActionContext.getRequest();
+        List<Task> tasklist = new Common().getUserTaskListByPage(PageVarList.ACQUIRER_PROMOTION_PAGE, request);
+
+        inputBean.setVadd(true);
+        inputBean.setVdelete(true);
+        inputBean.setVupdatelink(true);
+        inputBean.setVremovelink(true);
+        inputBean.setVsearch(true);
+
+        if (tasklist != null && tasklist.size() > 0) {
+            for (Task task : tasklist) {
+                if (task.getTaskcode().toString().equalsIgnoreCase(TaskVarList.ADD_TASK)) {
+                    inputBean.setVadd(false);
+                    inputBean.setVremovelink(false);
+                } else if (task.getTaskcode().toString().equalsIgnoreCase(TaskVarList.DELETE_TASK)) {
+                    inputBean.setVdelete(false);
+                } else if (task.getTaskcode().toString().equalsIgnoreCase(TaskVarList.UPDATE_TASK)) {
+                    inputBean.setVupdatelink(false);
+                } else if (task.getTaskcode().toString().equalsIgnoreCase(TaskVarList.SEARCH_TASK)) {
+                    inputBean.setVsearch(false);
+                }
+            }
+        }
+        inputBean.setVupdatebutt(true);
+
+        return true;
+    }
+
+    private String validateInputs() throws Exception {
+        String message = "";
+
+        try {
+
+            if (inputBean.getCode() == null || inputBean.getCode().trim().isEmpty()) {
+                message = MessageVarList.ACQUIRER_PROMOTION_MGT_EMPTY_CODE;
+
+            } else if (inputBean.getDescription() == null || inputBean.getDescription().trim().isEmpty()) {
+                message = MessageVarList.ACQUIRER_PROMOTION_MGT_EMPTY_DESCRIPTION;
+
+            } else if (inputBean.getStatus() == null || inputBean.getStatus().isEmpty()) {
+                message = MessageVarList.ACQUIRER_PROMOTION_MGT_EMPTY_STATUS;
+
+            }
+        } catch (Exception e) {
+            throw e;
+        }
+
+        return message;
+    }
+
+    private String validateAssignUpdateInputs() throws Exception {
+        String message = "";
+
+        try {
+
+            if (inputBean.getTxnType() == null || inputBean.getTxnType().trim().isEmpty()) {
+                message = MessageVarList.ACQUIRER_PROMOTION_MGT_EMPTY_TRANSACTION_TYPE;
+
+            } else if (inputBean.getBankAmountType() == null || inputBean.getBankAmountType().trim().isEmpty()) {
+                message = MessageVarList.ACQUIRER_PROMOTION_MGT_EMPTY_BANK_AMOUNT_TYPE;
+
+            } else if (inputBean.getBankAmount() == null || inputBean.getBankAmount().trim().isEmpty()) {
+                message = MessageVarList.ACQUIRER_PROMOTION_MGT_EMPTY_BANK_AMOUNT;
+
+            } else if (inputBean.getBankAmountType().equals("PER") && !Common.isvalidPercentage(inputBean.getBankAmount()).isEmpty()) {
+                message = MessageVarList.ACQUIRER_PROMOTION_MGT_INVALID_BANK_AMOUNT_PER_FLAT+Common.isvalidPercentage(inputBean.getBankAmount());
+
+            } else if (inputBean.getMerchantAmountType() == null || inputBean.getMerchantAmountType().isEmpty()) {
+                message = MessageVarList.ACQUIRER_PROMOTION_MGT_EMPTY_MERCHANT_AMOUNT_TYPE;
+
+            } else if (inputBean.getMerchantAmount() == null || inputBean.getMerchantAmount().trim().isEmpty()) {
+                message = MessageVarList.ACQUIRER_PROMOTION_MGT_EMPTY_MERCHANT_AMOUNT;
+            } else if (inputBean.getMerchantAmountType().equals("PER") && !Common.isvalidPercentage(inputBean.getMerchantAmount()).isEmpty()) {
+                message = MessageVarList.ACQUIRER_PROMOTION_MGT_EMPTY_MERCHANT_AMOUNT_PER_FLAT+Common.isvalidPercentage(inputBean.getMerchantAmount());
+
+            }
+
+        } catch (Exception e) {
+            throw e;
+        }
+
+        return message;
+    }
+
+    private String validateAssignInputs() throws Exception {
+        String message = "";
+
+        try {
+
+            if (inputBean.getTxnType() == null || inputBean.getTxnType().trim().isEmpty()) {
+                message = MessageVarList.ACQUIRER_PROMOTION_MGT_EMPTY_TRANSACTION_TYPE;
+
+            } else if (inputBean.getBankAmountType() == null || inputBean.getBankAmountType().trim().isEmpty()) {
+                message = MessageVarList.ACQUIRER_PROMOTION_MGT_EMPTY_BANK_AMOUNT_TYPE;
+
+            } else if (inputBean.getBankAmount() == null || inputBean.getBankAmount().trim().isEmpty()) {
+                message = MessageVarList.ACQUIRER_PROMOTION_MGT_EMPTY_BANK_AMOUNT;
+
+            } else if (inputBean.getBankAmountType().equals("PER") && !Common.isvalidPercentage(inputBean.getBankAmount()).isEmpty()) {
+                message = MessageVarList.ACQUIRER_PROMOTION_MGT_EMPTY_BANK_AMOUNT_ISVALID + Common.isvalidPercentage(inputBean.getBankAmount());
+            } else if (inputBean.getMerchantAmountType() == null || inputBean.getMerchantAmountType().isEmpty()) {
+                message = MessageVarList.ACQUIRER_PROMOTION_MGT_EMPTY_MERCHANT_AMOUNT_TYPE;
+
+            } else if (inputBean.getMerchantAmount() == null || inputBean.getMerchantAmount().trim().isEmpty()) {
+                message = MessageVarList.ACQUIRER_PROMOTION_MGT_EMPTY_MERCHANT_AMOUNT;
+            } else if (inputBean.getMerchantAmountType().equals("PER") && !Common.isvalidPercentage(inputBean.getMerchantAmount()).isEmpty()) {
+                message = MessageVarList.ACQUIRER_PROMOTION_MGT_EMPTY_MERCHANT_AMOUNT_ISVALID + Common.isvalidPercentage(inputBean.getMerchantAmount());
+            }
+        } catch (Exception e) {
+            throw e;
+        }
+
+        return message;
+    }
+
+}

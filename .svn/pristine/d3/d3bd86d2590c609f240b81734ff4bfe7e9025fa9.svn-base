@@ -1,0 +1,1726 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.action.controlpanel.acquirer;
+
+import com.epic.bmlalipay.bean.controlpanel.acquirer.AccountTypeBean;
+import com.epic.bmlalipay.bean.controlpanel.acquirer.MerchantMgtAssignBean;
+import com.epic.bmlalipay.bean.controlpanel.acquirer.MerchantMgtDataBean;
+import com.epic.bmlalipay.bean.controlpanel.acquirer.MerchantMgtInputBean;
+import com.epic.bmlalipay.bean.controlpanel.acquirer.PaymentTypeDataBean;
+import com.epic.bmlalipay.dao.common.CommonDAO;
+import com.epic.bmlalipay.dao.controlpanel.acquirer.MerchantDAO;
+import com.epic.bmlalipay.dao.controlpanel.usermanagement.SystemAuditDAO;
+import com.epic.bmlalipay.util.common.AccessControlService;
+import com.epic.bmlalipay.util.common.Common;
+import static com.epic.bmlalipay.util.common.Common.checkEmptyorNullString;
+import com.epic.bmlalipay.util.common.Validation;
+import com.epic.bmlalipay.util.mapping.MerchantOri;
+import com.epic.bmlalipay.util.mapping.MerchantOriCommision;
+import com.epic.bmlalipay.util.mapping.Systemaudit;
+import com.epic.bmlalipay.util.mapping.Task;
+import com.epic.bmlalipay.util.varlist.CommonVarList;
+import com.epic.bmlalipay.util.varlist.MessageVarList;
+import com.epic.bmlalipay.util.varlist.OracleMessage;
+import com.epic.bmlalipay.util.varlist.PageVarList;
+import com.epic.bmlalipay.util.varlist.SectionVarList;
+import com.epic.bmlalipay.util.varlist.SessionVarlist;
+import com.epic.bmlalipay.util.varlist.TaskVarList;
+import static com.opensymphony.xwork2.Action.SUCCESS;
+import com.opensymphony.xwork2.ActionSupport;
+import com.opensymphony.xwork2.ModelDriven;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import org.apache.commons.io.FileUtils;
+import org.apache.struts2.ServletActionContext;
+
+/**
+ *
+ * @author samith_k
+ */
+public class MerchantMgtAction extends ActionSupport implements ModelDriven<Object>, AccessControlService {
+
+    MerchantMgtInputBean inputBean = new MerchantMgtInputBean();
+    MerchantMgtDataBean Bean = new MerchantMgtDataBean();
+
+    private String conXLFileName;
+    private File conXL;
+    private String serverPath;
+
+    private InputStream inputStream;
+    private String fileName;
+    private long contentLength;
+
+    public InputStream getInputStream() {
+        return inputStream;
+    }
+
+    public void setInputStream(InputStream inputStream) {
+        this.inputStream = inputStream;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public long getContentLength() {
+        return contentLength;
+    }
+
+    public void setContentLength(long contentLength) {
+        this.contentLength = contentLength;
+    }
+
+    public String getConXLFileName() {
+        return conXLFileName;
+    }
+
+    public void setConXLFileName(String conXLFileName) {
+        this.conXLFileName = conXLFileName;
+    }
+
+    public File getConXL() {
+        return conXL;
+    }
+
+    public void setConXL(File conXL) {
+        this.conXL = conXL;
+    }
+
+    public Object getModel() {
+        return inputBean;
+    }
+
+    public String execute() {
+        System.out.println("called MerchantMgtAction : execute");
+        return SUCCESS;
+    }
+
+    public boolean checkAccess(String method, String userRole) {
+        boolean status = false;
+        String page = PageVarList.MERCHANT_MGT_PAGE;
+        String task = null;
+        if ("view".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("List".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("Add".equals(method)) {
+            task = TaskVarList.ADD_TASK;
+        } else if ("assign".equals(method)) {
+            task = TaskVarList.ADD_TASK;
+        } else if ("setMessage".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("findCommision".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("Delete".equals(method)) {
+            task = TaskVarList.DELETE_TASK;
+        } else if ("Find".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("FindTxn".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("detail".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("Update".equals(method)) {
+            task = TaskVarList.UPDATE_TASK;
+        } else if ("ViewPopupcsv".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("ViewPopup".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("ViewPopupadd".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("upload".equals(method)) { //GENERATE_USER_PASS
+            task = TaskVarList.UPLOAD_TASK;
+        } else if ("Generateuserpass".equals(method)) { //GENERATE_USER_PASS
+            task = TaskVarList.GENERATE_USER_PASS;
+        } else if ("Resetattemp".equals(method)) { //GENERATE_USER_PASS
+            task = TaskVarList.RESET_ATTEMP_COUNT;
+        } else if ("MoreDetail".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("checkMID".equals(method)) {
+            task = TaskVarList.ADD_TASK;
+        } else if ("template".equals(method)) {
+            task = TaskVarList.UPLOAD_TASK;
+        } else if ("getImageSRC".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        }
+        if ("execute".equals(method)) {
+            status = true;
+        } else {
+            HttpServletRequest request = ServletActionContext.getRequest();
+            status = new Common().checkMethodAccess(task, page, userRole, request);
+        }
+        return status;
+    }
+
+    private boolean applyUserPrivileges() {
+        HttpServletRequest request = ServletActionContext.getRequest();
+        List<Task> tasklist = new Common().getUserTaskListByPage(PageVarList.MERCHANT_MGT_PAGE, request);
+
+        inputBean.setVadd(true);
+        inputBean.setVdelete(true);
+        inputBean.setVupdatelink(true);
+        inputBean.setVsearch(true);
+        inputBean.setVupload(true);
+        inputBean.setVreset(true);
+        inputBean.setVuserpassgen(true);
+
+        if (tasklist != null && tasklist.size() > 0) {
+            for (Task task : tasklist) {
+                if (task.getTaskcode().toString().equalsIgnoreCase(TaskVarList.ADD_TASK)) {
+                    inputBean.setVadd(false);
+                } else if (task.getTaskcode().toString().equalsIgnoreCase(TaskVarList.DELETE_TASK)) {
+                    inputBean.setVdelete(false);
+                } else if (task.getTaskcode().toString().equalsIgnoreCase(TaskVarList.UPDATE_TASK)) {
+                    inputBean.setVupdatelink(false);
+                } else if (task.getTaskcode().toString().equalsIgnoreCase(TaskVarList.UPLOAD_TASK)) {
+                    inputBean.setVupload(false);
+
+                } else if (task.getTaskcode().toString().equalsIgnoreCase(TaskVarList.SEARCH_TASK)) {
+                    inputBean.setVsearch(false);
+                } else if (task.getTaskcode().toString().equalsIgnoreCase(TaskVarList.RESET_ATTEMP_COUNT)) {
+                    inputBean.setVreset(false);
+                } else if (task.getTaskcode().toString().equalsIgnoreCase(TaskVarList.GENERATE_USER_PASS)) {
+                    inputBean.setVuserpassgen(false);
+                }
+
+            }
+        }
+        inputBean.setVupdatebutt(true);
+
+        return true;
+    }
+
+    public String checkMID() {
+        String result = "messageCheck";
+        String message = "";
+        System.out.println("called MerchantMgtAction : checkMercahnt");
+        try {
+            MerchantDAO dao = new MerchantDAO();
+            if (inputBean.getMerchantcode().isEmpty() || inputBean.getMerchantcode() == null) {
+                message = MessageVarList.MERCHANT_MGT_EMPTY_MCC;
+            }
+            if (message.isEmpty()) {
+                message = dao.checkMerchantcode(inputBean);
+                if (message.isEmpty()) {
+                    message = MessageVarList.COMMON_AVAILABLE_MERCHANT;
+                    addActionMessage(message);
+                } else {
+                    addActionError(message);
+                }
+            } else {
+                addActionError(message);
+            }
+        } catch (Exception ex) {
+            addActionError("Merchant Mgt " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(MerchantMgtAction.class.getName()).log(
+                    Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public String view() {
+        String result = "view";
+        try {
+            if (this.applyUserPrivileges()) {
+
+                CommonDAO coDAO = new CommonDAO();
+                inputBean.setStatusList(coDAO.getDefultStatusList(CommonVarList.STATUS_CATEGORY_GENERAL));
+                inputBean.setMerchantCustomerList(coDAO.getAllMerchantCustomerList());
+                inputBean.setPromotionList(coDAO.getAllAcqPromotion());
+                inputBean.setMccOriList(coDAO.getActiveMccList(CommonVarList.STATUS_ACTIVE));
+                inputBean.setMerchantList(coDAO.getMerchantListAll());
+                inputBean.setRiskProfileList(coDAO.getAcquirerRiskprofileList(CommonVarList.ACQUIRER_RISKPROFILE_TYPE_MERCHANT));
+
+            } else {
+                result = "loginpage";
+            }
+
+            HttpSession session = ServletActionContext.getRequest().getSession(false);
+            if (session.getAttribute(SessionVarlist.MIN_PASSWORD_CHANGE_PERIOD) != null && session.getAttribute(SessionVarlist.ONLY_SHOW_ONTIME) != null) {
+                if ((Integer) session.getAttribute(SessionVarlist.ONLY_SHOW_ONTIME) == 0) {
+                    session.setAttribute(SessionVarlist.ONLY_SHOW_ONTIME, 1);
+                    addActionError((String) session.getAttribute(SessionVarlist.MIN_PASSWORD_CHANGE_PERIOD));
+                }
+            }
+
+            System.out.println("called MerchantMgtAction :View");
+
+        } catch (Exception ex) {
+            addActionError("Merchant Mgt" + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(MerchantMgtAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public String ViewPopupcsv() {
+        String result = "viewpopupcsv";
+        System.out.println("called MerchantMgtAction : ViewPopupcsv");
+        try {
+            if (this.applyUserPrivileges()) {
+
+                CommonDAO commonDAO = new CommonDAO();
+                inputBean.setStatusList(commonDAO.getDefultStatusList(CommonVarList.STATUS_CATEGORY_GENERAL));
+                inputBean.setMerchantCustomerList(commonDAO.getDefultMerchantList(CommonVarList.STATUS_ACTIVE));
+                inputBean.setMerchantList(commonDAO.getMerchantListAll());
+
+                MerchantDAO merchantDAO = new MerchantDAO();
+
+                merchantDAO.getCurrencyList(inputBean);
+                merchantDAO.getMccList(inputBean);
+                merchantDAO.getTransactionTypeList(inputBean);
+
+            } else {
+                result = "loginpage";
+            }
+
+            HttpSession session = ServletActionContext.getRequest().getSession(false);
+            if (session.getAttribute(SessionVarlist.MIN_PASSWORD_CHANGE_PERIOD) != null && session.getAttribute(SessionVarlist.ONLY_SHOW_ONTIME) != null) {
+                if ((Integer) session.getAttribute(SessionVarlist.ONLY_SHOW_ONTIME) == 0) {
+                    session.setAttribute(SessionVarlist.ONLY_SHOW_ONTIME, 1);
+                    addActionError((String) session.getAttribute(SessionVarlist.MIN_PASSWORD_CHANGE_PERIOD));
+                }
+            }
+
+            System.out.println("called MerchantMgtAction :View");
+
+        } catch (Exception ex) {
+            addActionError("Merchant Mgt" + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(MerchantMgtAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public String ViewPopup() {
+        String result = "viewpopup";
+        System.out.println("called MerchantMgtAction : ViewPopup");
+
+        System.err.println("ViewPopup : value :" + inputBean.getMerchantcode() + ":");
+        System.err.println("ViewPopup : length:" + inputBean.getMerchantcode().length() + ":");
+
+        try {
+             HttpSession session = ServletActionContext.getRequest().getSession(false);
+            if (this.applyUserPrivileges()) {
+                CommonDAO commonDAO = new CommonDAO();
+                inputBean.setStatusList(commonDAO.getDefultStatusList(CommonVarList.STATUS_CATEGORY_GENERAL));
+                inputBean.setMerchantCustomerList(commonDAO.getAllMerchantCustomerList());
+                inputBean.setPromotionList(commonDAO.getActiveAcqPromotion(CommonVarList.STATUS_ACTIVE));
+                inputBean.setMccOriList(commonDAO.getActiveMccList(CommonVarList.STATUS_ACTIVE));
+                inputBean.setCurrencyList(commonDAO.getCurrencyList());
+                inputBean.setRiskProfileList(commonDAO.getAcqRiskprofile_ListByProfileType(CommonVarList.STATUS_ACTIVE, CommonVarList.ACQUIRER_RISKPROFILE_TYPE_MERCHANT));
+
+                MerchantDAO merchantDAO = new MerchantDAO();
+
+                inputBean.setAccountTypeList(merchantDAO.getAccountTypeBeanList());
+                inputBean.setFlatPercentageTypeList(merchantDAO.getFlatPercentageTypeBeanList());
+                inputBean.setIncomeExpenseTypeList(merchantDAO.getIncomeExpenseTypeBeanList());
+                
+                session.setAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST, null);
+                inputBean.setIsAssign("init");
+
+                merchantDAO.getCurrencyList(inputBean);
+                merchantDAO.getMccList(inputBean);
+                merchantDAO.getTransactionTypeList(inputBean);
+
+            } else {
+                result = "loginpage";
+            }
+
+//            HttpSession session = ServletActionContext.getRequest().getSession(false);
+            if (session.getAttribute(SessionVarlist.MIN_PASSWORD_CHANGE_PERIOD) != null && session.getAttribute(SessionVarlist.ONLY_SHOW_ONTIME) != null) {
+                if ((Integer) session.getAttribute(SessionVarlist.ONLY_SHOW_ONTIME) == 0) {
+                    session.setAttribute(SessionVarlist.ONLY_SHOW_ONTIME, 1);
+                    addActionError((String) session.getAttribute(SessionVarlist.MIN_PASSWORD_CHANGE_PERIOD));
+                }
+            }
+
+            System.out.println("called MerchantMgtAction :View");
+
+        } catch (Exception ex) {
+            addActionError("Merchant Mgt" + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(MerchantMgtAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    private List<PaymentTypeDataBean> getPaymentTypeList() {
+        List<PaymentTypeDataBean> userLevel = new ArrayList<PaymentTypeDataBean>();
+        PaymentTypeDataBean payBean = new PaymentTypeDataBean();
+        payBean.setKey("DAIL");
+        payBean.setValue("Daily");
+        userLevel.add(payBean);
+
+        payBean = new PaymentTypeDataBean();
+        payBean.setKey("ONLINE");
+        payBean.setValue("Online");
+        userLevel.add(payBean);
+
+        payBean = new PaymentTypeDataBean();
+        payBean.setKey("WEEK");
+        payBean.setValue("Weekly");
+
+        userLevel.add(payBean);
+
+        return userLevel;
+    }
+
+    private List<AccountTypeBean> getAccountTypeList() {
+        List<AccountTypeBean> userLevel = new ArrayList<AccountTypeBean>();
+        AccountTypeBean payBean = new AccountTypeBean();
+        payBean.setCode("NO");
+        payBean.setDescription("Non NTB Account");
+        userLevel.add(payBean);
+        payBean = new AccountTypeBean();
+        payBean.setCode("YES");
+        payBean.setDescription("NTB Account");
+        userLevel.add(payBean);
+
+        return userLevel;
+    }
+
+    public String ViewPopupadd() {
+        String result = "viewpopupadd";
+        System.out.println("called MerchantMgtAction : ViewPopupadd");
+        try {
+            HttpSession session = ServletActionContext.getRequest().getSession(false);
+            if (this.applyUserPrivileges()) {
+
+                CommonDAO commonDAO = new CommonDAO();
+                inputBean.setStatusList(commonDAO.getDefultStatusList(CommonVarList.STATUS_CATEGORY_GENERAL));
+                inputBean.setMerchantCustomerList(commonDAO.getDefultMerchantList(CommonVarList.STATUS_ACTIVE));
+                inputBean.setPromotionList(commonDAO.getActiveAcqPromotion(CommonVarList.STATUS_ACTIVE));
+                inputBean.setMerchantList(commonDAO.getMerchantList(CommonVarList.STATUS_ACTIVE));
+                inputBean.setRiskProfileList(commonDAO.getAcqRiskprofile_ListByProfileType(CommonVarList.STATUS_ACTIVE, CommonVarList.ACQUIRER_RISKPROFILE_TYPE_MERCHANT));
+                inputBean.setMccOriList(commonDAO.getActiveMccList(CommonVarList.STATUS_ACTIVE));
+                inputBean.setIsntbBeanList(this.getAccountTypeList());
+                inputBean.setPaymenttypeList(this.getPaymentTypeList());
+                inputBean.setCurrencyList(commonDAO.getCurrencyList());
+
+                MerchantDAO merchantDAO = new MerchantDAO();
+
+                inputBean.setAccountTypeList(merchantDAO.getAccountTypeBeanList());
+                inputBean.setFlatPercentageTypeList(merchantDAO.getFlatPercentageTypeBeanList());
+                inputBean.setIncomeExpenseTypeList(merchantDAO.getIncomeExpenseTypeBeanList());
+                
+                session.setAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST, null);
+                inputBean.setIsAssign("init");
+                
+                merchantDAO.getCurrencyList(inputBean);
+                merchantDAO.getMccList(inputBean);
+                merchantDAO.getTransactionTypeList(inputBean);
+
+            } else {
+                result = "loginpage";
+            }
+
+//            HttpSession session = ServletActionContext.getRequest().getSession(false);
+            if (session.getAttribute(SessionVarlist.MIN_PASSWORD_CHANGE_PERIOD) != null && session.getAttribute(SessionVarlist.ONLY_SHOW_ONTIME) != null) {
+                if ((Integer) session.getAttribute(SessionVarlist.ONLY_SHOW_ONTIME) == 0) {
+                    session.setAttribute(SessionVarlist.ONLY_SHOW_ONTIME, 1);
+                    addActionError((String) session.getAttribute(SessionVarlist.MIN_PASSWORD_CHANGE_PERIOD));
+                }
+            }
+
+            System.out.println("called MerchantMgtAction :View");
+
+        } catch (Exception ex) {
+            addActionError("Merchant Mgt" + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(MerchantMgtAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public String List() {
+        System.out.println("called MerchatMgtAction: List");
+        try {
+            int rows = inputBean.getRows();
+            int page = inputBean.getPage();
+            int to = (rows * page);
+            int from = to - rows;
+            long records = 0;
+            String orderBy = "";
+
+            if (!inputBean.getSidx().isEmpty()) {
+                orderBy = " order by " + inputBean.getSidx() + " " + inputBean.getSord();
+            }
+            MerchantDAO dao = new MerchantDAO();
+            List<MerchantMgtDataBean> dataList = dao.getSearchList(inputBean, to, from, orderBy);
+
+            /**
+             * for search audit
+             */
+            if (inputBean.isSearch() && from == 0) {
+                HttpServletRequest request = ServletActionContext.getRequest();
+
+                String searchParameters = "["
+                        + checkEmptyorNullString("Merchant ID", inputBean.getS_merchantCode())
+                        + checkEmptyorNullString("Description", inputBean.getS_description())
+                        + checkEmptyorNullString("Merchant Customer Name", inputBean.getS_merchantCustomer())
+                        + checkEmptyorNullString("Status", inputBean.getS_status())
+                        + checkEmptyorNullString("Acquirer Risk Profile", inputBean.getS_riskProfile())
+                        + checkEmptyorNullString("Mobile", inputBean.getS_mobile())
+                        + checkEmptyorNullString("Acquirer Commision", inputBean.getS_commision())
+                        + checkEmptyorNullString("Acquirer Promotion", inputBean.getS_promotion())
+                        + checkEmptyorNullString("Merchant Category Code", inputBean.getS_mcc())
+                        + "]";
+
+                Systemaudit audit = Common.makeAudittrace(request, TaskVarList.SEARCH_TASK, PageVarList.MERCHANT_MGT_PAGE, SectionVarList.ACQUIERERMANAGEMENT, "Merchant management search using " + searchParameters + " parameters ", null);
+                SystemAuditDAO sysdao = new SystemAuditDAO();
+                sysdao.saveAudit(audit);
+            }
+
+            if (!dataList.isEmpty()) {
+                records = dataList.get(0).getFullCount();
+                inputBean.setRecords(records);
+                inputBean.setGridModel(dataList);
+                int total = (int) Math.ceil((double) records / (double) rows);
+                inputBean.setTotal(total);
+            } else {
+                inputBean.setRecords(0L);
+                inputBean.setTotal(0);
+            }
+
+        } catch (Exception e) {
+            Logger.getLogger(MerchantMgtAction.class.getName()).log(Level.SEVERE, null, e);
+            addActionError(" Merchant Mgt " + MessageVarList.COMMON_ERROR_PROCESS);
+        }
+        return "list";
+    }
+
+    public String Add() {
+        System.out.println("called MerchantMgtAction : Add");
+        String result = "message";
+        try {
+            List<MerchantMgtAssignBean> tmpDataList = null;
+            inputBean.setAmountNormal(inputBean.getAmountNormal().replace(",", ""));
+//            inputBean.setAmountNormalDeb(inputBean.getAmountNormalDeb().replace(",", ""));
+            
+            inputBean.setAmountNormal(inputBean.getAmountNormal().replace("%", ""));
+//            inputBean.setAmountNormalDeb(inputBean.getAmountNormalDeb().replace("%", ""));
+
+            HttpServletRequest request = ServletActionContext.getRequest();
+            MerchantDAO dao = new MerchantDAO();
+            String message = this.validateInputs();
+
+            if (message.isEmpty()) {
+                HttpSession session = ServletActionContext.getRequest().getSession(false);
+                tmpDataList = (List<MerchantMgtAssignBean>) session.getAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST);
+                
+                Systemaudit audit = Common.makeAudittrace(request, TaskVarList.ADD_TASK, PageVarList.MERCHANT_MGT_PAGE, SectionVarList.ACQUIERERMANAGEMENT, "Merchant ID " + inputBean.getMerchantcode() + " added", null, null, null);
+                 message = dao.insertMcc(inputBean,tmpDataList,audit);
+
+                if (message.isEmpty()) {
+                    addActionMessage("Merchant " + MessageVarList.COMMON_SUCC_INSERT);
+                } else {
+                    addActionError(message);
+                }
+            } else {
+                addActionError(message);
+            }
+//            }
+        } catch (Exception ex) {
+            addActionError("Merchant " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(MerchantMgtAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+    
+    public String assign() {
+        System.out.println("called MerchantMgtAction : assign");
+        String result = "list";
+        List<MerchantMgtAssignBean> tmpDataList = null;
+        try {
+            HttpSession session = ServletActionContext.getRequest().getSession(false);
+
+            if (inputBean.getIsAssign() == null || inputBean.getIsAssign().equals("init")) {
+
+                System.out.println("called MerchantMgtAction : assign - init");
+                int rows = inputBean.getRows();
+                int page = inputBean.getPage();
+                int to = (rows * page);
+                int from = to - rows;
+                long records = 0;
+
+                List<MerchantMgtAssignBean> fullList = (List<MerchantMgtAssignBean>) session.getAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST);
+                if (fullList != null && !fullList.isEmpty()) {
+                    tmpDataList = pageData(fullList, from, to);
+                    session.setAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST, fullList);
+
+                    if (tmpDataList != null && !tmpDataList.isEmpty()) {
+                        records = new Long(fullList.size());
+                        inputBean.setRecords(records);
+                        inputBean.setGridModelCommision(tmpDataList);
+                        int total = (int) Math.ceil((double) records / (double) rows);
+                        inputBean.setTotal(total);
+                    } else {
+                        inputBean.setRecords(0L);
+                        inputBean.setTotal(0);
+
+                    }
+                } else {
+                    inputBean.setRecords(0L);
+                    inputBean.setTotal(0);
+                }
+
+            } else if (inputBean.getIsAssign().equals("remove")) {
+
+                System.out.println("called MerchantMgtAction : assign - remove");
+                int rows = inputBean.getRows();
+                int page = inputBean.getPage();
+                int to = (rows * page);
+                int from = to - rows;
+                long records = 0;
+
+                if (session.getAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST) != null) {
+                    tmpDataList = (List<MerchantMgtAssignBean>) session.getAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST);
+                } else {
+                    tmpDataList = new ArrayList<MerchantMgtAssignBean>();
+                }
+
+                List<MerchantMgtAssignBean> dataListRemoved = new ArrayList<MerchantMgtAssignBean>();
+
+                for (MerchantMgtAssignBean acquirerPAssignBean : tmpDataList) {
+                    if (!acquirerPAssignBean.getCurrencyCode().equals(inputBean.getCurrency())) {
+                        dataListRemoved.add(acquirerPAssignBean);
+                    }
+                }
+
+                session.setAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST, null);
+                session.setAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST, dataListRemoved);
+
+                if (!dataListRemoved.isEmpty()) {
+
+                    records = new Long(dataListRemoved.size());
+                    inputBean.setRecords(records);
+                    inputBean.setGridModelCommision(dataListRemoved);
+                    int total = (int) Math.ceil((double) records / (double) rows);
+                    inputBean.setTotal(total);
+
+                } else {
+
+                    inputBean.setRecords(0L);
+                    inputBean.setTotal(0);
+
+                }
+            } else if (inputBean.getIsAssign().equals("update")) {
+
+                System.out.println("called MerchantMgtAction : assign - update");
+                
+                int rows = inputBean.getRows();
+                int page = inputBean.getPage();
+                int to = (rows * page);
+                int from = to - rows;
+                long records = 0;
+
+                inputBean.setAmountNormal(inputBean.getAmountNormal().replace(",", ""));
+                inputBean.setAmountNormal(inputBean.getAmountNormal().replace("%", ""));
+
+                String message = this.validateAssignUpdateInputs();
+
+                if (message.isEmpty()) {
+                    List<MerchantMgtAssignBean> dataListUpdated = new ArrayList<MerchantMgtAssignBean>();
+                    if (session.getAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST) != null) {
+                        
+                        tmpDataList = (List<MerchantMgtAssignBean>) session.getAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST);
+                    } else {
+                        tmpDataList = new ArrayList<MerchantMgtAssignBean>();
+                    }
+
+                    
+                    for (MerchantMgtAssignBean merchAssignBean : tmpDataList) {
+                        if (!merchAssignBean.getCurrencyCode().equals(inputBean.getCurrency())) {
+                            dataListUpdated.add(merchAssignBean);
+                        }
+                    }
+                    
+//                    CommonDAO commonDao = new CommonDAO();
+                    MerchantDAO dao = new MerchantDAO();
+
+                    MerchantMgtAssignBean updated = new MerchantMgtAssignBean();
+
+                    updated.setCurrencyCode(inputBean.getCurrency());
+                    updated.setCurrencyDes(dao.getCurrencyByprefix(inputBean.getCurrency()));
+
+                    updated.setFlatPercentage(inputBean.getFlatPercentageNormal());
+                    updated.setFlatPercentageDes(dao.getFlatPercentageTypeDes(inputBean.getFlatPercentageNormal()));
+                    updated.setAmount(Common.toCurrencyFormat(inputBean.getAmountNormal()));
+
+                    dataListUpdated.add(updated);
+
+                    session.setAttribute(SessionVarlist.MERCHANT_MGT_VALIDATION_MSG, null);
+                    session.setAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST, null);
+                    session.setAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST, dataListUpdated);
+                    
+                    List<MerchantMgtAssignBean> dataListUpdatednew=pageData(dataListUpdated, from, to);
+                    
+                    if (!dataListUpdated.isEmpty()) {
+
+                        records = new Long(dataListUpdated.size());
+                        inputBean.setRecords(records);
+                        inputBean.setGridModelCommision(dataListUpdatednew);
+                        int total = (int) Math.ceil((double) records / (double) rows);
+                        inputBean.setTotal(total);
+
+                    } else {
+
+                        inputBean.setRecords(0L);
+                        inputBean.setTotal(0);
+
+                    }
+                    
+                } else {
+
+                    result = "message";
+                    addActionError(message);
+                    session.setAttribute(SessionVarlist.MERCHANT_MGT_VALIDATION_MSG, message);
+
+                }
+            } else if (inputBean.getIsAssign().equals("assign")) {
+
+                System.out.println("called MerchantMgtAction : assign - assign");
+                int rows = inputBean.getRows();
+                int page = inputBean.getPage();
+                int to = (rows * page);
+                int from = to - rows;
+                long records = 0;
+
+                inputBean.setAmountNormal(inputBean.getAmountNormal().replace(",", ""));
+                inputBean.setAmountNormal(inputBean.getAmountNormal().replace("%", ""));
+                
+                String message = this.validateAssignInputs();
+                inputBean.setAmountNormal(Common.toCurrencyFormat(inputBean.getAmountNormal()));
+                if (message.isEmpty()) {
+
+                    if (session.getAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST) != null) {
+                        tmpDataList = (List<MerchantMgtAssignBean>) session.getAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST);
+                    } else {
+                        tmpDataList = new ArrayList<MerchantMgtAssignBean>();
+                    }
+
+                    MerchantDAO dao = new MerchantDAO();
+
+                    int count = 0;
+                    for (MerchantMgtAssignBean bean : tmpDataList) {
+                        if (bean.getCurrencyCode().equals(inputBean.getCurrency())) {
+                            count++;
+                        }
+                    }
+
+                    if (count == 0) {
+
+                        List<MerchantMgtAssignBean> dataList = dao.getAssignSearchList(inputBean, tmpDataList);
+
+                        session.setAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST, dataList);
+                        session.setAttribute(SessionVarlist.MERCHANT_MGT_VALIDATION_MSG, null);
+
+                        List<MerchantMgtAssignBean> pagelList = pageData(dataList, from, to);
+
+                        if (!dataList.isEmpty()) {
+                            records = new Long(dataList.size());
+                            inputBean.setRecords(records);
+                            inputBean.setGridModelCommision(pagelList);
+                            int total = (int) Math.ceil((double) records / (double) rows);
+                            inputBean.setTotal(total);
+                        } else {
+                            inputBean.setRecords(0L);
+                            inputBean.setTotal(0);
+                        }
+
+                    } else {
+                        List<MerchantMgtAssignBean> pagelList = pageData(tmpDataList, from, to);
+                        if (!tmpDataList.isEmpty()) {
+                            records = new Long(tmpDataList.size());
+                            inputBean.setRecords(records);
+                            inputBean.setGridModelCommision(pagelList);
+                            int total = (int) Math.ceil((double) records / (double) rows);
+                            inputBean.setTotal(total);
+                        } else {
+                            inputBean.setRecords(0L);
+                            inputBean.setTotal(0);
+                        }
+                        addActionError(MessageVarList.MERCHANT_MGT_CURRENCY_TYPE_EXISTS);
+                        session.setAttribute(SessionVarlist.MERCHANT_MGT_VALIDATION_MSG, MessageVarList.MERCHANT_MGT_CURRENCY_TYPE_EXISTS);
+                    }
+
+                } else {
+                    result = "message";
+                    inputBean.setMessage(message);
+                    addActionError(message);
+                    session.setAttribute(SessionVarlist.MERCHANT_MGT_VALIDATION_MSG, message);
+
+                }
+            } else if (inputBean.getIsAssign().equals("clear")) {
+
+                session.setAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST, null);
+            }
+        } catch (Exception e) {
+            Logger.getLogger(MerchantMgtAction.class.getName()).log(Level.SEVERE, null, e);
+            addActionError("Merchant management " + MessageVarList.COMMON_ERROR_PROCESS);
+        }
+        return result;
+    }
+    
+    public String setMessage() {
+        System.out.println("called MerchantMgtAction : setMessage");
+
+        String message = null;
+        String result = "delete";
+        try {
+            Thread.sleep(500);
+
+            HttpSession session = ServletActionContext.getRequest().getSession(false);
+            message = (String) session.getAttribute(SessionVarlist.MERCHANT_MGT_VALIDATION_MSG);
+            if (message != null && !message.isEmpty()) {
+                inputBean.setMessage(message);
+            } else {
+                inputBean.setMessage(null);
+            }
+
+        } catch (Exception e) {
+            Logger.getLogger(MerchantMgtAction.class.getName()).log(Level.SEVERE, null, e);
+            inputBean.setMessage(OracleMessage.getMessege(e.getMessage()));
+        }
+        return result;
+    }
+
+    public String findCommision() {
+        System.out.println("called MerchantMgtAction : findCommision");
+        List<MerchantMgtAssignBean> tmpDataList = null;
+
+        try {
+            if (inputBean.getCurrency()!= null && !inputBean.getCurrency().isEmpty()) {
+
+                HttpSession session = ServletActionContext.getRequest().getSession(false);
+
+                if (session.getAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST) != null) {
+                    tmpDataList = (List<MerchantMgtAssignBean>) session.getAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST);
+                } else {
+                    tmpDataList = new ArrayList<MerchantMgtAssignBean>();
+                }
+
+                List<MerchantMgtAssignBean> dataListRemoved = new ArrayList<MerchantMgtAssignBean>();
+
+                for (MerchantMgtAssignBean assignBean : tmpDataList) {
+
+                    if (assignBean.getCurrencyCode().equals(inputBean.getCurrency())) {
+                        inputBean.setCurrency(assignBean.getCurrencyCode());
+                        inputBean.setFlatPercentageNormal(assignBean.getFlatPercentage());
+                        if (assignBean.getFlatPercentage().equals("PER")) {
+                            inputBean.setAmountNormal(assignBean.getAmount().replace(",", "") + "%");
+                        } else {
+                            inputBean.setAmountNormal(Common.toCurrencyFormat(assignBean.getAmount().replace(",", "")));
+                        }
+
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            inputBean.setMessage("Merchant management  " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(MerchantMgtAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return "find";
+    }
+    
+    public String Find() {
+        System.out.println("called MerchantMgtAction : Find");
+        MerchantOri tt = null;
+        MerchantOriCommision cc = null;
+        try {
+            if (inputBean.getMerchantcode() != null && !inputBean.getMerchantcode().isEmpty()) {
+                inputBean.setMerchantcode(String.format("%-15s", inputBean.getMerchantcode()));
+                MerchantDAO dao = new MerchantDAO();
+
+                dao.getCurrencyListByMid(inputBean);
+                dao.getTransactionListByMid(inputBean);
+
+                tt = dao.findMerchantByMcc(String.format("%-15s", inputBean.getMerchantcode()));
+
+                inputBean.setMerchantcode(String.format("%-15s", tt.getMid()));
+                inputBean.setMerchantCustomer(tt.getMercustomersOri().getMid());
+                inputBean.setDescription(tt.getDescription());
+      
+                inputBean.setAddress(tt.getAddress());
+                inputBean.setStatus(tt.getStatus().getStatuscode());
+                try {
+                    inputBean.setPromotion(tt.getPromotionProfile().getCode());
+                } catch (NullPointerException ee) {
+                    inputBean.setPromotion("");
+                }
+
+                try {
+                     inputBean.setRiskProfile(tt.getAcquirerRiskprofile().getProfilecode());
+                } catch (NullPointerException ee) {
+                    inputBean.setRiskProfile("");
+                }
+                inputBean.setEmail1(tt.getEmail1());
+                inputBean.setMerchantCustCategory(tt.getMccOri().getMcccode());
+                inputBean.setAccountnumber(tt.getAccountnumber());
+
+                try {
+                    inputBean.setPaymenttype(tt.getPaymentType());
+                } catch (NullPointerException ex) {
+                    inputBean.setPaymenttype("");
+                }
+                try {
+                    inputBean.setMobile(tt.getMobile());
+                } catch (NullPointerException ex) {
+                    inputBean.setMobile("");
+                }
+                try {
+                    inputBean.setPosacc(tt.getPosAccount());
+                } catch (NullPointerException ex) {
+                    inputBean.setPosacc("");
+                }
+
+                inputBean.setOldvalue(inputBean.getMerchantname() + "|" + inputBean.getMerchantcode() + "|" + inputBean.getDescription() + "|" + inputBean.getLatitude() + "|" + inputBean.getLongitude() + "|" + inputBean.getAddress() + "|" + inputBean.getStatus() + "|" + inputBean.getRiskProfile());
+
+            } else {
+                inputBean.setMessage("Empty Merchant ID.");
+            }
+        } catch (Exception ex) {
+            inputBean.setMessage("Merchant ID  " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(MerchantMgtAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return "find";
+
+    }
+
+    public String FindTxn() {
+        System.out.println("called MerchantMgtAction : FindTxn");
+        MerchantOri tt = null;
+        MerchantOriCommision cc = null;
+
+        try {
+            if (inputBean.getMerchantcode() != null && !inputBean.getMerchantcode().isEmpty()) {
+
+                System.err.println("<<<" + inputBean.getMerchantcode() + ">>>");
+                inputBean.setMerchantcode(String.format("%-15s", inputBean.getMerchantcode()));
+                MerchantDAO dao = new MerchantDAO();
+
+//                dao.getCurrencyListByMid(inputBean);
+//                dao.getTransactionListByMid(inputBean);
+                List<MerchantMgtAssignBean> dataList= dao.getCommisionList(inputBean.getMerchantcode());
+                HttpSession session = ServletActionContext.getRequest().getSession(false);
+                session.setAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST, dataList);
+//                tt = dao.findMerchantByMcc(String.format("%-15s", inputBean.getMerchantcode()));
+//
+//                inputBean.setMerchantcode(String.format("%-15s", tt.getMid()));
+
+//                try {
+//                    cc = dao.findMerchantTxnByMcc(inputBean.getMerchantcode(), "NORMAL", "01");
+//
+//                    inputBean.setIncomeExpenseNormaledit(cc.getIncomeExpense());
+//                    inputBean.setFlatPercentageNormaledit(cc.getFlatPercentage());
+//                    if (cc.getFlatPercentage().equals("PER")) {
+//                        inputBean.setAmountNormaledit(cc.getAmount().toString() + "%");
+//                    } else {
+//                        inputBean.setAmountNormaledit(Common.toCurrencyFormat(cc.getAmount().toString()));
+//                    }
+//
+//                } catch (Exception ex) {
+//                    inputBean.setIncomeExpenseNormaledit("");
+//                    inputBean.setFlatPercentageNormaledit("");
+//                    inputBean.setAmountNormaledit("");
+//                }
+//                try {
+//                    cc = dao.findMerchantTxnByMcc(inputBean.getMerchantcode(), "NORMAL", "02");
+//
+//                    inputBean.setIncomeExpenseNormaleditDeb(cc.getIncomeExpense());
+//                    inputBean.setFlatPercentageNormaleditDeb(cc.getFlatPercentage());
+//                    if (cc.getFlatPercentage().equals("PER")) {
+//                        inputBean.setAmountNormaleditDeb(cc.getAmount().toString() + "%");
+//                    } else {
+//                        inputBean.setAmountNormaleditDeb(Common.toCurrencyFormat(cc.getAmount().toString()));
+//                    }
+//
+//                } catch (Exception ex) {
+//                    inputBean.setIncomeExpenseNormaleditDeb("");
+//                    inputBean.setFlatPercentageNormaleditDeb("");
+//                    inputBean.setAmountNormaleditDeb("");
+//                }
+
+                inputBean.setOldvalue(inputBean.getMerchantname() + "|" + inputBean.getMerchantcode() + "|" + inputBean.getDescription() + "|" + inputBean.getLatitude() + "|" + inputBean.getLongitude() + "|" + inputBean.getAddress() + "|" + inputBean.getStatus() + "|" + inputBean.getRiskProfile());
+
+            } else {
+                inputBean.setMessage("Empty Merchant ID.");
+            }
+        } catch (Exception ex) {
+            inputBean.setMessage("Merchant ID  " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(MerchantMgtAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return "find";
+
+    }
+
+    public String detail() {
+        System.out.println("called MerchantMgtAction : detail");
+        inputBean.setMerchantcode(String.format("%-15s", inputBean.getMerchantcode()));
+        System.err.println("detail : value :" + inputBean.getMerchantcode() + ":");
+        System.err.println("detail : length:" + inputBean.getMerchantcode().length() + ":");
+
+        MerchantOri tt = null;
+        MerchantMgtDataBean bb = null;
+        MerchantOriCommision cc = null;
+        try {
+            if (inputBean.getMerchantcode() != null && !inputBean.getMerchantcode().isEmpty()) {
+
+                MerchantDAO dao = new MerchantDAO();
+                CommonDAO commonDAO = new CommonDAO();
+                inputBean.setStatusList(commonDAO.getDefultStatusList(CommonVarList.STATUS_CATEGORY_GENERAL));
+                inputBean.setMerchantCustomerList(commonDAO.getAllMerchantCustomerList());
+                inputBean.setPromotionList(commonDAO.getAllAcqPromotion());
+
+                inputBean.setMerchantList(commonDAO.getMerchantList(CommonVarList.STATUS_ACTIVE));
+                inputBean.setRiskProfileList(commonDAO.getAcquirerRiskprofileList(CommonVarList.ACQUIRER_RISKPROFILE_TYPE_MERCHANT));
+                inputBean.setMccOriList(commonDAO.getActiveMccList(CommonVarList.STATUS_ACTIVE));
+//                inputBean.setCurrencyList(commonDAO.getCurrencyList());
+
+                inputBean.setIsntbBeanList(this.getAccountTypeList());
+                inputBean.setPaymenttypeList(this.getPaymentTypeList());
+
+                dao.getCurrencyListByMid(inputBean);
+                dao.getTransactionListByMid(inputBean);
+                
+                inputBean.setCurrencyList(commonDAO.getCurrencyList());
+                inputBean.setAccountTypeList(dao.getAccountTypeBeanList());
+                inputBean.setFlatPercentageTypeList(dao.getFlatPercentageTypeBeanList());
+                inputBean.setIncomeExpenseTypeList(dao.getIncomeExpenseTypeBeanList());
+
+                bb = dao.findMerchantByMccbySQL(inputBean.getMerchantcode());
+
+                inputBean.setMerchantcode(bb.getMerchantcode());
+                inputBean.setMerchantCustomer(bb.getMerchantCustomer());
+                inputBean.setDescription(bb.getDescription());
+                
+                inputBean.setAddress(bb.getAddress());
+                inputBean.setStatus(bb.getStatus());
+
+                inputBean.setMobile(bb.getMobile());
+                inputBean.setContact1(bb.getContact1());
+                inputBean.setContact2(bb.getContact2());
+                inputBean.setEmail1(bb.getEmail1());
+                inputBean.setEmail2(bb.getEmail2());
+                inputBean.setMerchantCustCategory(bb.getMcc());
+                inputBean.setBankname(bb.getBankname());
+                inputBean.setBranch(bb.getBranch());
+                inputBean.setBranchcode(bb.getBranchcode());
+
+                try {
+                    inputBean.setRiskProfile(bb.getRiskprofile());
+                } catch (NullPointerException ex) {
+                    inputBean.setRiskProfile("");
+                }
+
+                try {
+                    inputBean.setPaymenttype(bb.getPaymenttype());
+                } catch (NullPointerException ex) {
+                    inputBean.setPaymenttype("");
+                }
+
+                try {
+                    inputBean.setCommision(bb.getCommision());
+                } catch (NullPointerException ex) {
+                    inputBean.setCommision("");
+                }
+                try {
+                    inputBean.setPromotion(bb.getPromotion());
+                } catch (NullPointerException ex) {
+                    inputBean.setPromotion("");
+                }
+                try {
+                    inputBean.setPosacc(bb.getPosacc());
+                } catch (NullPointerException ex) {
+                    inputBean.setPosacc("");
+                }
+                List<MerchantMgtAssignBean> dataList= dao.getCommisionList(inputBean.getMerchantcode());
+                HttpSession session = ServletActionContext.getRequest().getSession(false);
+                session.setAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST, dataList);
+//                try {
+//                    cc = dao.findMerchantTxnByMcc(inputBean.getMerchantcode(), "NORMAL", "01");
+//
+//                    inputBean.setIncomeExpenseNormal(cc.getIncomeExpense());
+//                    inputBean.setFlatPercentageNormal(cc.getFlatPercentage());
+//                    if (cc.getFlatPercentage().equals("PER")) {
+//                        inputBean.setAmountNormal(cc.getAmount().toString() + "%");
+//                    } else {
+//                        inputBean.setAmountNormal(Common.toCurrencyFormat(cc.getAmount().toString()));
+//                    }
+//
+//                } catch (Exception ex) {
+//                    inputBean.setIncomeExpenseNormal("");
+//                    inputBean.setFlatPercentageNormal("");
+//                    inputBean.setAmountNormal("");
+//                }
+//                try {
+//                    cc = dao.findMerchantTxnByMcc(inputBean.getMerchantcode(), "NORMAL", "02");
+//
+//                    inputBean.setIncomeExpenseNormalDeb(cc.getIncomeExpense());
+//                    inputBean.setFlatPercentageNormalDeb(cc.getFlatPercentage());
+//                    if (cc.getFlatPercentage().equals("PER")) {
+//                        inputBean.setAmountNormalDeb(cc.getAmount().toString() + "%");
+//                    } else {
+//                        inputBean.setAmountNormalDeb(Common.toCurrencyFormat(cc.getAmount().toString()));
+//                    }
+//
+//                } catch (Exception ex) {
+//                    inputBean.setIncomeExpenseNormalDeb("");
+//                    inputBean.setFlatPercentageNormalDeb("");
+//                    inputBean.setAmountNormalDeb("");
+//                }
+
+            } else {
+                inputBean.setMessage("Empty Merchant ID.");
+            }
+        } catch (Exception ex) {
+            inputBean.setMessage("Merchant " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(MerchantMgtAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return "detail";
+
+    }
+
+    public String Update() {
+
+        System.out.println("called MerchantMgtAction : Update");
+        String retType = "message";
+
+        
+        inputBean.setAmountNormal(inputBean.getAmountNormal().replace(",", ""));
+//        inputBean.setAmountNormalDeb(inputBean.getAmountNormalDeb().replace(",", ""));
+        
+        inputBean.setAmountNormal(inputBean.getAmountNormal().replace("%", ""));
+//        inputBean.setAmountNormalDeb(inputBean.getAmountNormalDeb().replace("%", ""));
+
+        try {
+            if (inputBean.getMerchantcode() != null && !inputBean.getMerchantcode().isEmpty()) {
+
+                inputBean.setMerchantcode(String.format("%-15s", inputBean.getMerchantcode()));
+
+                String message = this.validateInputs();
+
+                if (message.isEmpty()) {
+                    HttpSession session = ServletActionContext.getRequest().getSession(false);
+                    List<MerchantMgtAssignBean> tmpDataList = (List<MerchantMgtAssignBean>) session.getAttribute(SessionVarlist.MERCHANT_MGT_COMMISION_LIST);
+
+                    HttpServletRequest request = ServletActionContext.getRequest();
+                    MerchantDAO dao = new MerchantDAO();
+
+                    Systemaudit audit = Common.makeAudittrace(request, TaskVarList.UPDATE_TASK, PageVarList.MERCHANT_MGT_PAGE, SectionVarList.ACQUIERERMANAGEMENT, "Merchant ID " + inputBean.getMerchantcode() + " updated", null, inputBean.getOldvalue(), null);
+                    message = dao.updateMcc(inputBean, tmpDataList, audit);
+
+                    if (message.isEmpty()) {
+                        addActionMessage("Merchant " + MessageVarList.COMMON_SUCC_UPDATE);
+                    } else {
+                        addActionError(message);
+                    }
+
+                } else {
+                    addActionError(message);
+                }
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(MerchantMgtAction.class.getName()).log(Level.SEVERE, null, ex);
+            addActionError("Merchant " + MessageVarList.COMMON_ERROR_UPDATE);
+        }
+        return retType;
+    }
+
+    public String Delete() {
+        System.out.println("called MerchantMgtAction : Delete");
+        String message = null;
+        String retType = "delete";
+
+        try {
+            HttpServletRequest request = ServletActionContext.getRequest();
+            MerchantDAO dao = new MerchantDAO();
+            Systemaudit audit = Common.makeAudittrace(request, TaskVarList.DELETE_TASK, PageVarList.MERCHANT_MGT_PAGE, SectionVarList.ACQUIERERMANAGEMENT, "Merchant ID " + inputBean.getMerchantcode() + " deleted", null);
+            inputBean.setMerchantcode(String.format("%-15s", inputBean.getMerchantcode()));
+            message = dao.deleteMcc(inputBean, audit);
+
+            if (message.isEmpty()) {
+                message = "Merchant " + MessageVarList.COMMON_SUCC_DELETE;
+            }
+            inputBean.setMessage(message);
+        } catch (Exception e) {
+            Logger.getLogger(MerchantMgtAction.class.getName()).log(Level.SEVERE, null, e);
+            inputBean.setMessage(OracleMessage.getMessege(e.getMessage()));
+        }
+        return retType;
+    }
+
+    public String validateGenerateuserpass() {
+        String message = "";
+        inputBean.setMerchantcode(String.format("%-15s", inputBean.getMerchantcode()));
+        MerchantMgtDataBean bb = null;
+        MerchantDAO dao = new MerchantDAO();
+        try {
+            bb = dao.findMerchantByMccbySQL(inputBean.getMerchantcode());
+
+            if (bb.getMerchantCustomer() == null || bb.getMerchantCustomer().isEmpty()) {
+                message = MessageVarList.MERCHANT_CUS_MGT_MERCHANT_NAME;
+            }
+
+        } catch (Exception e) {
+
+        }
+
+        return message;
+    }
+
+    public String Generateuserpass() {
+        System.out.println("called MerchantMgtAction : Generateuserpass");
+
+        String message = null;
+        String retType = "generate";
+        try {
+            HttpServletRequest request = ServletActionContext.getRequest();
+            MerchantDAO dao = new MerchantDAO();
+            Systemaudit audit = Common.makeAudittrace(request, TaskVarList.GENERATE_USER_PASS, PageVarList.MERCHANT_MGT_PAGE, SectionVarList.ACQUIERERMANAGEMENT, "Merchant username and password generated ", null);
+            inputBean.setMerchantcode(String.format("%-15s", inputBean.getMerchantcode()));
+            message = this.validateGenerateuserpass();
+            if (message.isEmpty()) {
+                message = dao.generateUserPass(inputBean, audit);
+                if (message.isEmpty()) {
+                    message = "Merchant username and password " + MessageVarList.GENERATE_SUCC;
+                }
+            }
+            inputBean.setMessage(message);
+        } catch (Exception e) {
+            Logger.getLogger(MerchantMgtAction.class.getName()).log(Level.SEVERE, null, e);
+            inputBean.setMessage(OracleMessage.getMessege(e.getMessage()));
+        }
+        return retType;
+    }
+
+    public String Resetattemp() {
+        System.out.println("called MerchantMgtAction : Resetattemp");
+
+        String message = "";
+        String retType = "resetattempt";
+        try {
+            HttpServletRequest request = ServletActionContext.getRequest();
+            MerchantDAO dao = new MerchantDAO();
+            Systemaudit audit = Common.makeAudittrace(request, TaskVarList.RESET_ATTEMP_COUNT, PageVarList.MERCHANT_MGT_PAGE, SectionVarList.ACQUIERERMANAGEMENT, "Merchant attempt count reset ", null);
+            inputBean.setMerchantcode(String.format("%-15s", inputBean.getMerchantcode()));
+            if (message.isEmpty()) {
+                message = dao.resetAttemptCount(inputBean, audit);
+                if (message.isEmpty()) {
+                    message = "Attemp count reset successfully ";
+                }
+            }
+            inputBean.setMessage(message);
+        } catch (Exception e) {
+            Logger.getLogger(MerchantMgtAction.class.getName()).log(Level.SEVERE, null, e);
+            inputBean.setMessage(OracleMessage.getMessege(e.getMessage()));
+        }
+        return retType;
+    }
+
+    public String MoreDetail() {
+        System.out.println("called MerchantMgtAction : MoreDetail");
+        String retType = "moredetail";
+        String message = null;
+        MerchantOri merchantOri = null;
+
+        try {
+            if (inputBean.getMerchantcode() != null && !inputBean.getMerchantcode().isEmpty()) {
+                MerchantDAO dao = new MerchantDAO();
+                CommonDAO commonDao = new CommonDAO();
+
+                merchantOri = dao.findMerchantByMcc(String.format("%-15s", inputBean.getMerchantcode()));
+
+            } else {
+                inputBean.setMessage("Empty Merchant ID.");
+            }
+        } catch (Exception e) {
+            Logger.getLogger(MerchantMgtAction.class.getName()).log(Level.SEVERE, null, e);
+            inputBean.setMessage(OracleMessage.getMessege(e.getMessage()));
+        }
+
+        return retType;
+    }
+
+    public String getImageSRC() {
+        System.out.println("called MerchantMgtAction : MoreDetail");
+        MerchantOri merchantOri = null;
+
+        try {
+
+            if (inputBean.getMerchantcode() != null && !inputBean.getMerchantcode().isEmpty()) {
+                MerchantDAO dao = new MerchantDAO();
+                CommonDAO commonDao = new CommonDAO();
+
+                merchantOri = dao.findMerchantByMcc(String.format("%-15s", inputBean.getMerchantcode()));
+
+            } else {
+                inputBean.setMessage("Empty Merchant ID.");
+            }
+        } catch (Exception ex) {
+            inputBean.setMessage("Merchant Mgt Action  " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(MerchantMgtAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return "getimgsrc";
+    }
+
+    private String validateInputs() {
+        String message = "";
+        if (inputBean.getMerchantcode() == null || inputBean.getMerchantcode().trim().isEmpty()) {
+            message = MessageVarList.MERCHANT_MGT_EMPTY_MCC;
+        } else if (!Validation.isSpecailCharacter(inputBean.getMerchantcode())) {
+            message = MessageVarList.MERCHANT_MGT_ERROR_MERCHANT_CODE;
+        } else if (inputBean.getDescription() != null && inputBean.getDescription().isEmpty()) {
+            message = MessageVarList.MERCHANT_MGT_EMPTY_DESCRIPTION;
+        } else if (!Validation.isSpecailCharacter(inputBean.getDescription())) {
+            message = MessageVarList.MERCHANT_MGT_ERROR_DESC_INVALID;
+        } else if (inputBean.getMerchantCustomer() == null || inputBean.getMerchantCustomer().trim().isEmpty()) {
+            message = MessageVarList.MERCHANT_MGT_MERCHANT;
+        } //        else if (inputBean.getRiskProfile() != null && inputBean.getRiskProfile().isEmpty()) {
+        //            message = MessageVarList.MERCHANT_MGT_EMPTY_RISK_PROFILE;
+        //        } 
+        else if (inputBean.getStatus() != null && inputBean.getStatus().isEmpty()) {
+            message = MessageVarList.MERCHANT_MGT_EMPTY_STATUS;
+        } else if (inputBean.getMerchantCustCategory() != null && inputBean.getMerchantCustCategory().isEmpty()) {
+            message = MessageVarList.MERCHANT_MGT_EMPTY_MERCHANT_CATEGORY_CODE;
+//        }else if (inputBean.getCommision() != null && inputBean.getCommision().isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_COMMISION;
+//        } else if (inputBean.getPromotion() != null && inputBean.getPromotion().isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_PROMOTION;
+        } else if (inputBean.getAddress() != null && inputBean.getAddress().isEmpty()) {
+            message = MessageVarList.MERCHANT_MGT_EMPTY_ADDRESS;
+        } //        else if (inputBean.getMobile() != null && inputBean.getMobile().isEmpty()) {
+        //            message = MessageVarList.MERCHANT_MGT_EMPTY_MOBILE;
+        //        } 
+        else if (!inputBean.getMobile().isEmpty() && !Validation.isNumeric(inputBean.getMobile())) {
+            message = MessageVarList.MERCHANT_MGT_INVALID_MOBILE;
+//        } else if (!inputBean.getMobile().isEmpty() && !Validation.validLocalPhoneno(inputBean.getMobile())) {
+//            message = MessageVarList.MERCHANT_MGT_INVALID_MOBILE;
+        }else if (inputBean.getPosacc() != null && inputBean.getPosacc().isEmpty()) {
+            message = MessageVarList.MERCHANT_MGT_EMPTY_POS_ACC;
+        } else if (inputBean.getLongitude() != null && inputBean.getLongitude().isEmpty()) {
+            message = MessageVarList.MERCHANT_MGT_EMPTY_LONGITUDE;
+//        } else if (Validation.isLongitudeLatitude(inputBean.getLongitude())) {
+//            message = MessageVarList.ATM_LOCATIONS_INVALID_ATM_LONGITUDE;
+        } else if (inputBean.getLatitude() != null && inputBean.getLatitude().isEmpty()) {
+            message = MessageVarList.MERCHANT_MGT_EMPTY_LATITUDE;
+//        } else if (Validation.isLongitudeLatitude(inputBean.getLatitude())) {
+//            message = MessageVarList.ATM_LOCATIONS_INVALID_ATM_LATITUDE;
+        } else if (inputBean.getLegalname() != null && inputBean.getLegalname().isEmpty()) {
+            message = MessageVarList.MERCHANT_MGT_EMPTY_LEGAL_NAME;
+//        } else if (!inputBean.getContact1().isEmpty() && !Validation.validLocalPhonenoAll(inputBean.getContact1())) {
+//            message = MessageVarList.MERCHANT_MGT_INVALID_CONTACT1;
+//        } else if (!inputBean.getContact2().isEmpty() && !Validation.validLocalPhonenoAll(inputBean.getContact2())) {
+//            message = MessageVarList.MERCHANT_MGT_INVALID_CONTACT2;
+        } else if (!inputBean.getEmail1().isEmpty() && !Validation.isValidEmail(inputBean.getEmail1())) {
+            message = MessageVarList.MERCHANT_MGT_INVALID_EMAIL1;
+//        } else if (!inputBean.getEmail2().isEmpty() && !Validation.isValidEmail(inputBean.getEmail2())) {
+//            message = MessageVarList.MERCHANT_MGT_INVALID_EMAIL2;
+
+//            ********************************
+//        } else if (inputBean.getAccounttype() != null && inputBean.getAccounttype().isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_ACC_TYPE;
+//        } else if (inputBean.getAccountnumber() != null && inputBean.getAccountnumber().isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_ACC_NUMBER;
+//        } else if (inputBean.getAccounttype().equals("YES") && inputBean.getPaymenttype() != null && inputBean.getPaymenttype().isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_PAYMENT_TYPE;
+//        } else if (inputBean.getAccounttype().equals("NO") && inputBean.getBankname() != null && inputBean.getBankname().isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_BANK;
+//        } else if (inputBean.getAccounttype().equals("NO") && inputBean.getBranchcode() != null && inputBean.getBranchcode().isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_BRANCH_CODE;
+//        } else if (inputBean.getAccounttype().equals("NO") && inputBean.getBranch() != null && inputBean.getBranch().isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_BRANCH;
+//        } else if (inputBean.getBankname() != null && inputBean.getBankname().isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_BANK;
+//        } else if (inputBean.getBranchcode() != null && inputBean.getBranchcode().isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_BRANCH_CODE;
+//        } else if (inputBean.getBranch() != null && inputBean.getBranch().isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_BRANCH;
+//        }//            ********************************
+        //        else if (inputBean.getIncomeExpenseCashIn() != null && inputBean.getIncomeExpenseCashIn().isEmpty()) {
+        //            message = MessageVarList.MERCHANT_MGT_EMPTY_CHI_IEX;
+        //        } else if (inputBean.getFlatPercentageCashIn() != null && inputBean.getFlatPercentageCashIn().isEmpty()) {
+        //            message = MessageVarList.MERCHANT_MGT_EMPTY_CHI_FPE;
+        //        } else if (inputBean.getAmountCashIn() != null && inputBean.getAmountCashIn().isEmpty()) {
+        //            message = MessageVarList.MERCHANT_MGT_EMPTY_CHI_AMT;
+        //
+        //        } 
+//        else if (inputBean.getFlatPercentageCashIn().equals("PER") && !Common.isvalidPercentage(inputBean.getAmountCashIn()).isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_CHI_AMT_ISVALID + Common.isvalidPercentage(inputBean.getAmountCashIn());
+
+//        } //        else if (inputBean.getIncomeExpenseCashInDeb() != null && inputBean.getIncomeExpenseCashInDeb().isEmpty()) {
+        //            message = MessageVarList.MERCHANT_MGT_EMPTY_CHI_DEB_IEX;
+        //        } else if (inputBean.getFlatPercentageCashInDeb() != null && inputBean.getFlatPercentageCashInDeb().isEmpty()) {
+        //            message = MessageVarList.MERCHANT_MGT_EMPTY_CHI_DEB_FPE;
+        //        } else if (inputBean.getAmountCashInDeb() != null && inputBean.getAmountCashInDeb().isEmpty()) {
+        //            message = MessageVarList.MERCHANT_MGT_EMPTY_CHI_DEB_AMT;
+        //
+        //        } 
+//        else if (inputBean.getFlatPercentageCashInDeb().equals("PER") && !Common.isvalidPercentage(inputBean.getAmountCashInDeb()).isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_CHI_DEB_AMT_ISVALID + Common.isvalidPercentage(inputBean.getAmountCashInDeb());
+//        } //        else if (inputBean.getIncomeExpenseCashOut() != null && inputBean.getIncomeExpenseCashOut().isEmpty()) {
+        //
+        //            message = MessageVarList.MERCHANT_MGT_EMPTY_CHO_IEX;
+        //        } else if (inputBean.getFlatPercentageCashOut() != null && inputBean.getFlatPercentageCashOut().isEmpty()) {
+        //            message = MessageVarList.MERCHANT_MGT_EMPTY_CHO_FPE;
+        //        } else if (inputBean.getAmountCashOut() != null && inputBean.getAmountCashOut().isEmpty()) {
+        //            message = MessageVarList.MERCHANT_MGT_EMPTY_CHO_AMT;
+        //
+        //        } 
+//        else if (inputBean.getFlatPercentageCashOut().equals("PER") && !Common.isvalidPercentage(inputBean.getAmountCashOut()).isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_CHO_AMT_ISVALID + Common.isvalidPercentage(inputBean.getAmountCashOut());
+
+//        } //        else if (inputBean.getIncomeExpenseCashOutDeb() != null && inputBean.getIncomeExpenseCashOutDeb().isEmpty()) {
+        //            message = MessageVarList.MERCHANT_MGT_EMPTY_CHO_DEB_IEX;
+        //        } else if (inputBean.getFlatPercentageCashOutDeb() != null && inputBean.getFlatPercentageCashOutDeb().isEmpty()) {
+        //            message = MessageVarList.MERCHANT_MGT_EMPTY_CHO_DEB_FPE;
+        //        } else if (inputBean.getAmountCashOutDeb() != null && inputBean.getAmountCashOutDeb().isEmpty()) {
+        //            message = MessageVarList.MERCHANT_MGT_EMPTY_CHO_DEB_AMT;
+        //
+        //        } 
+//        else if (inputBean.getFlatPercentageCashOutDeb().equals("PER") && !Common.isvalidPercentage(inputBean.getAmountCashOutDeb()).isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_CHO_DEB_AMT_ISVALID + Common.isvalidPercentage(inputBean.getAmountCashOutDeb());
+            //        } else if (inputBean.getAccountTypeNormal() != null && inputBean.getAccountTypeNormal().isEmpty()) {
+            //            message = MessageVarList.MERCHANT_MGT_EMPTY_NOL_ACT;
+//        } 
+//        else if (inputBean.getIncomeExpenseNormal() != null && inputBean.getIncomeExpenseNormal().isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_NOL_IEX;
+//        } else if (inputBean.getFlatPercentageNormal() != null && inputBean.getFlatPercentageNormal().isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_NOL_FPE;
+//        } else if (inputBean.getAmountNormal() != null && inputBean.getAmountNormal().isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_NOL_AMT;
+//
+//        } else if (inputBean.getFlatPercentageNormal().equals("PER") && !Common.isvalidPercentage(inputBean.getAmountNormal()).isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_NOL_AMT_ISVALID + Common.isvalidPercentage(inputBean.getAmountNormal());
+//
+//        } 
+//        else if (inputBean.getIncomeExpenseNormalDeb() != null && inputBean.getIncomeExpenseNormalDeb().isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_NOL_DEB_IEX;
+//        } else if (inputBean.getFlatPercentageNormalDeb() != null && inputBean.getFlatPercentageNormalDeb().isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_NOL_DEB_FPE;
+//        } else if (inputBean.getAmountNormalDeb() != null && inputBean.getAmountNormalDeb().isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_NOL_DEB_AMT;
+//
+//        }
+//        else if (inputBean.getFlatPercentageNormalDeb().equals("PER") && !Common.isvalidPercentage(inputBean.getAmountNormalDeb()).isEmpty()) {
+//            message = MessageVarList.MERCHANT_MGT_EMPTY_NOL_DEB_AMT_ISVALID + Common.isvalidPercentage(inputBean.getAmountNormalDeb());
+
+        }
+        return message;
+    }
+
+    private String validateUploads() {
+        String message = "";
+        if (inputBean.getMerchantcode() == null || inputBean.getMerchantcode().trim().isEmpty()) {
+            message = MessageVarList.MERCHANT_MGT_EMPTY_MCC;
+        } else if (!Validation.isSpecailCharacter(inputBean.getMerchantcode())) {
+            message = MessageVarList.MERCHANT_MGT_ERROR_MERCHANT_CODE;
+        } else if (inputBean.getMerchantcode().length() > 15) {
+            message = MessageVarList.MERCHANT_MGT_INVALID_MAX_MCC + "15";
+        } else if (inputBean.getDescription() != null && inputBean.getDescription().isEmpty()) {
+            message = MessageVarList.MERCHANT_MGT_EMPTY_DESCRIPTION;
+        } else if (!Validation.isSpecailCharacter(inputBean.getDescription())) {
+            message = MessageVarList.MERCHANT_MGT_ERROR_DESC_INVALID;
+        } else if (inputBean.getDescription().length() > 50) {
+            message = MessageVarList.MERCHANT_MGT_ERROR_DESC_INVALID_MAX + "50";
+        } else if (inputBean.getLongitude() != null && inputBean.getLongitude().isEmpty()) {
+            message = MessageVarList.MERCHANT_MGT_EMPTY_LONGITUDE;
+        } else if (inputBean.getLongitude().length() > 120) {
+            message = MessageVarList.MERCHANT_MGT_MAX_LONGITUDE + "120";
+//        } else if (Validation.isLatitudeLongitude(inputBean.getLongitude())) {
+//            message = MessageVarList.ATM_LOCATIONS_INVALID_ATM_LATITUDE;
+        } else if (inputBean.getLatitude() != null && inputBean.getLatitude().isEmpty()) {
+            message = MessageVarList.MERCHANT_MGT_EMPTY_LATITUDE;
+        } else if (inputBean.getLatitude().length() > 120) {
+            message = MessageVarList.MERCHANT_MGT_MAX_LATITUDE + "120";
+//        } else if (Validation.isLatitudeLongitude(inputBean.getLatitude())) {
+//            message = MessageVarList.ATM_LOCATIONS_INVALID_ATM_LATITUDE;
+        } else if (inputBean.getStatus() != null && inputBean.getStatus().isEmpty()) {
+            message = MessageVarList.MERCHANT_MGT_EMPTY_STATUS;
+        } else if (inputBean.getStatus().length() > 20) {
+            message = MessageVarList.MERCHANT_MGT_INVALID_MAX__STATUS + "20";
+        } else if (inputBean.getAddress() != null && inputBean.getAddress().isEmpty()) {
+            message = MessageVarList.MERCHANT_MGT_EMPTY_ADDRESS;
+        } else if (inputBean.getAddress().length() > 250) {
+            message = MessageVarList.MERCHANT_MGT_ADDRESS_MAX + "250";
+        } else if (inputBean.getRiskProfile() != null && inputBean.getRiskProfile().isEmpty()) {
+            message = MessageVarList.MERCHANT_MGT_EMPTY_RISK_PROFILE;
+        } else if (inputBean.getRiskProfile().length() > 20) {
+            message = MessageVarList.MERCHANT_MGT_INVALID_MAX_RISK_PROFILE + "20";
+        } else if (inputBean.getMobile() != null && inputBean.getMobile().isEmpty()) {
+            message = MessageVarList.MERCHANT_MGT_EMPTY_MOBILE;
+        } else if (inputBean.getMobile().length() > 20) {
+            message = MessageVarList.MERCHANT_MGT_INVALID_MAX_MOBILE + "20";
+        } else if (!inputBean.getMobile().isEmpty() && !Validation.isNumeric(inputBean.getMobile())) {
+            message = MessageVarList.MERCHANT_MGT_INVALID_MOBILE;
+//        } else if (!inputBean.getMobile().isEmpty() && !Validation.validLocalPhoneno(inputBean.getMobile())) {
+//            message = MessageVarList.MERCHANT_MGT_INVALID_MOBILE;
+        } else if (inputBean.getMerchantname().length() > 15) {
+            message = MessageVarList.MERCHANT_MGT_INVALID_MAX_MERCHANT + "15";
+        }  
+
+        return message;
+    }
+
+    public String getFile(String file) {
+        String mesEx = "";
+        if (file != null) {
+//            mesEx = Validation.isCSV(this.conXLFileName);
+        } else {
+            mesEx = "Please choose a file to upload.";
+            mesEx = "";
+        }
+        return mesEx;
+    }
+
+    public String upload() {
+        System.out.println("called MerchantMgtAction : upload");
+        String result = "messagecsv";
+        ServletContext context = ServletActionContext.getServletContext();
+        this.serverPath = context.getRealPath("/resouces/csv_temp/merchn_catg_tmgt");
+        try {
+            if (inputBean.getHiddenId() != null) {
+                HttpServletRequest request = ServletActionContext.getRequest();
+                MerchantDAO dao = new MerchantDAO();
+
+                String message = "";
+                String token = "";
+                DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+                Date date = new Date();
+
+                message = this.getFile(this.conXLFileName); // get file
+                System.err.println(this.conXLFileName);
+                inputBean.setFilename(this.conXLFileName);
+                this.conXLFileName = dateFormat.format(date) + this.conXLFileName;
+
+                File directory = new File(serverPath);
+
+                if (!directory.exists()) {
+                    directory.mkdirs();
+                }
+
+                if (-1 != this.conXLFileName.lastIndexOf("\\")) {
+                    this.conXLFileName = this.conXLFileName.substring(this.conXLFileName.lastIndexOf("\\") + 1);
+                }
+                File filetoCreate = new File(serverPath, this.conXLFileName);
+
+                if (filetoCreate.exists()) {
+                    message = "File already exists.";
+                }
+
+                if (message.isEmpty()) {
+                    if (this.conXL == null) {
+                    } else {
+                        FileUtils.copyFile(this.conXL, filetoCreate);
+                    }
+                    Scanner content = new Scanner(this.conXL).useDelimiter("\\Z");
+                    String[] parts;
+                    int countrecord = 1;
+                    int succesrec = 0;
+                    boolean getline = false;
+                    while (content.hasNextLine()) {
+                        if (getline) {
+                            if (message.isEmpty()) {
+                                token = content.nextLine();
+                                parts = token.split("\\,");
+                                try {
+                                    inputBean.setMerchantcode(String.format("%-15s", parts[0]));
+                                    inputBean.setDescription(parts[1].trim());
+                                    inputBean.setAddress(parts[2].trim());
+                                    
+                                    inputBean.setStatus(parts[5].trim());
+//                                inputBean.setMerchantname(parts[6].trim());
+//                                inputBean.setRiskProfile(parts[7].trim());
+//                                inputBean.setMobile("94" + parts[7].trim().substring(parts[7].length() - 9, parts[7].length()));
+
+                                } catch (Exception ee) {
+                                    message = "File has incorrectly ordered records";
+                                    System.err.println(">>>" + ee);
+                                }
+                                countrecord++;
+                                if (parts.length == 6 && message.isEmpty()) {
+//                                message = this.validateUploads();
+                                    if (message.isEmpty()) {
+                                        Systemaudit audit = Common.makeAudittrace(request, TaskVarList.ADD_TASK, PageVarList.MERCHANT_MGT_PAGE, SectionVarList.ACQUIERERMANAGEMENT, null, null, null, null);
+                                        message = dao.insertupdateMcc(inputBean, audit, countrecord);
+                                        if (message.isEmpty()) {
+                                            succesrec++;
+                                        }
+                                    } else {
+//                                        message = message + " at line number " + countrecord + ",success count :" + (countrecord - 2);
+                                        break;
+                                    }
+                                } else {
+                                    message = "File has incorrectly ordered records at line number " + countrecord + ",success count :" + succesrec;
+                                }
+
+                            } else {
+//                                message = message + " at line number " + countrecord + ",success count :" + (countrecord - 2);
+                                break;
+                            }
+
+                        } else {
+                            getline = true;
+                            content.nextLine();
+                        }
+                    }
+                }
+                if (message.isEmpty()) {
+                    addActionMessage("File uploaded successfully");
+                    System.err.println("File uploaded successfully");
+
+                } else {
+                    addActionError(message);
+                }
+            }
+        } catch (Exception ex) {
+            addActionError("Merchant Management " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(MerchantMgtAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public String template() {
+        System.out.println("called MerchantMgtAction: template");
+        try {
+            ServletContext context = ServletActionContext.getServletContext();
+            String destPath = context.getRealPath("/resouces/csv_temp/merchant_mgt");
+            File fileToDownload = new File(destPath, "MERMGT.csv");
+            inputStream = new FileInputStream(fileToDownload);
+            fileName = fileToDownload.getName();
+            contentLength = fileToDownload.length();
+        } catch (Exception e) {
+            Logger.getLogger(MerchantMgtAction.class.getName()).log(Level.SEVERE, null, e);
+            addActionError("MerchantMgtAction " + MessageVarList.COMMON_ERROR_PROCESS);
+            return "message";
+        }
+        return "excelreport";
+    }
+
+    private BufferedImage getScaledInstance(BufferedImage img, int targetWidth, int targetHeight, Object hint, boolean higherQuality) {
+
+//        int type = (img.getTransparency() == Transparency.BITMASK) ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
+        int type = higherQuality ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
+        BufferedImage ret = (BufferedImage) img;
+        int w, h;
+        if (higherQuality) {
+            w = img.getWidth();
+            h = img.getHeight();
+
+        } else {
+
+            w = targetWidth;
+            h = targetHeight;
+        }
+
+        do {
+            if (higherQuality && w > targetWidth) {
+                w /= 2;
+                if (w < targetWidth) {
+                    w = targetWidth;
+                }
+            }
+
+            if (higherQuality && h > targetHeight) {
+                h /= 2;
+                if (h < targetHeight) {
+                    h = targetHeight;
+                }
+            }
+
+            BufferedImage tmp = new BufferedImage(w, h, type);
+            Graphics2D g2 = tmp.createGraphics();
+//            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, hint);
+//            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+//            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.drawImage(ret, 0, 0, w, h, null);
+            g2.dispose();
+
+            ret = tmp;
+        } while (w != targetWidth || h != targetHeight);
+        return ret;
+
+    }
+
+    private List<MerchantMgtAssignBean> pageData(List<MerchantMgtAssignBean> list, int start, int end) {
+        List<MerchantMgtAssignBean> newList = new ArrayList<MerchantMgtAssignBean>();
+        for (int i = start; i < end && i < list.size(); i++) {
+            newList.add(list.get(i));
+        }
+
+        return newList;
+    }
+    
+    private String validateAssignUpdateInputs() throws Exception {
+        String message = "";
+
+        try {
+
+            if (inputBean.getCurrency()== null || inputBean.getCurrency().trim().isEmpty()) {
+                message = MessageVarList.MERCHANT_MGT_EMPTY_CURRENCY;
+
+            } else if (inputBean.getFlatPercentageNormal()== null || inputBean.getFlatPercentageNormal().trim().isEmpty()) {
+                message = MessageVarList.MERCHANT_MGT_EMPTY_FPE;
+             } else if (inputBean.getAmountNormal() != null && inputBean.getAmountNormal().isEmpty()) {
+                message = MessageVarList.MERCHANT_MGT_EMPTY_AMT;
+
+            } else if (inputBean.getFlatPercentageNormal().equals("PER") && !Common.isvalidPercentage(inputBean.getAmountNormal()).isEmpty()) {
+                message = MessageVarList.MERCHANT_MGT_EMPTY_AMT_ISVALID + Common.isvalidPercentage(inputBean.getAmountNormal());
+            } 
+
+        } catch (Exception e) {
+            throw e;
+        }
+
+        return message;
+    }
+
+    private String validateAssignInputs() throws Exception {
+        String message = "";
+
+        try {
+
+            if (inputBean.getCurrency()== null || inputBean.getCurrency().trim().isEmpty()) {
+                message = MessageVarList.MERCHANT_MGT_EMPTY_CURRENCY;
+
+            } else if (inputBean.getFlatPercentageNormal()== null || inputBean.getFlatPercentageNormal().trim().isEmpty()) {
+                message = MessageVarList.MERCHANT_MGT_EMPTY_FPE;
+             } else if (inputBean.getAmountNormal() != null && inputBean.getAmountNormal().isEmpty()) {
+                message = MessageVarList.MERCHANT_MGT_EMPTY_AMT;
+
+            } else if (inputBean.getFlatPercentageNormal().equals("PER") && !Common.isvalidPercentage(inputBean.getAmountNormal()).isEmpty()) {
+                message = MessageVarList.MERCHANT_MGT_EMPTY_AMT_ISVALID + Common.isvalidPercentage(inputBean.getAmountNormal());
+            } 
+        } catch (Exception e) {
+            throw e;
+        }
+
+        return message;
+    }
+}

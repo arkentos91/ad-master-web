@@ -1,0 +1,857 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.bean.reportexplorer;
+
+import com.epic.bmlalipay.util.mapping.Currency;
+import com.epic.bmlalipay.util.mapping.ResponseCodes;
+import com.epic.bmlalipay.util.mapping.Status;
+import com.epic.bmlalipay.util.mapping.Transactiontype;
+import java.io.ByteArrayInputStream;
+import java.util.List;
+
+
+public class TxnExplorerInputBean {
+
+    //~~~~~~~~~~~~~~~user inputs ~~~~~~~~~~~~~~~~//
+    
+    private String transactionid;
+    private String txntypecode;
+    private String rrn;
+    private String tracenumber;
+    private String responcecode;
+    private String status;
+    private String lastupdateduser;
+    private String lastupdatedtime;
+    private String createtime;
+    private String mti;
+    private String processingcode;
+    private String localdate;
+    private String localtime;
+    private String posentrymode;
+    private String posconditioncode;
+    private String invoiceno;
+    private String nii;
+    private String amount;
+    private String currencycode;
+    private String tid;
+    private String mid;
+    private String listnertype;
+    private String settlementamount;
+    private String settlementtxncount;
+    private String settlementdate;
+    private String batchno;
+    private String authcode;
+    private String qr_url;
+    private String signature;
+    private String eodstatus;
+    
+    private String cardNo;
+    private String currency;
+    private String currencyDes;
+    private String txnTypeDes;
+//    private String txnTypeCode;
+//    private String transactionID;
+    private String approveCode;
+    private String traceNo;
+    private String statusDes;
+    private String mobileNo;
+//    private String invoiceNo;
+    private String load;
+    private String message;
+    private String maskedcard;
+    private String responcecodeDes;
+    private String hs_txn_cycle_status;
+    private String hs_destination_uri;
+    private String destination_service_id;
+    private String destination_service_idDes;
+    private String destination_country;
+    private String destination_countryDes;
+    private String routing_tag;
+    private String bank;
+    private String bankDes;
+    private String uritype;
+    private String uritypeDes;
+    private String sourceofincome;
+    private String sourceofincomeDes;
+    private String remit;
+    private String remitDes;
+    private String listnerconfig;
+    private String listnerconfigDes;
+    
+    private List<Status> statusList;
+    private List<ResponseCodes> responcecodeList;
+    private List<String> walletist;
+    private List<Currency> currencyList;
+   
+    private List<Transactiontype> txnTypeList;
+    private String fromdate;
+    private String todate;
+    private TransDataBean transdataBean;
+    private TxnDataBean txndataBean;
+    private TxnSearchDataBean txnSearchdataBean;
+    /*-------for access control-----------*/
+    private boolean vgenerate;
+    private boolean vsearch;
+    private boolean vviewlink;
+    private boolean search;
+    /*-------for access control-----------*/
+    /*------------------------list data table  ------------------------------*/
+    private List<TxnDataBean> gridModel;
+    private List<TxnHisDataBean> gridHisModel;
+    private Integer rows = 0;
+    private Integer page = 0;
+    private Integer total = 0;
+    private Long records = 0L;
+    private String sord;
+    private String sidx;
+    private String searchField;
+    private String searchString;
+    private String searchOper;
+    private boolean loadonce = false;
+    private long fullCount;
+    private String reporttype;
+    private ByteArrayInputStream excelStream;
+    private ByteArrayInputStream zipStream;
+
+    /*------------------------list data table  ------------------------------*/
+    
+    public List<String> getWalletist() {
+        return walletist;
+    }
+
+    public void setWalletist(List<String> walletist) {
+        this.walletist = walletist;
+    }
+
+    public String getReporttype() {
+        return reporttype;
+    }
+
+    public void setReporttype(String reporttype) {
+        this.reporttype = reporttype;
+    }
+
+    public ByteArrayInputStream getExcelStream() {
+        return excelStream;
+    }
+
+    public void setExcelStream(ByteArrayInputStream excelStream) {
+        this.excelStream = excelStream;
+    }
+
+    public ByteArrayInputStream getZipStream() {
+        return zipStream;
+    }
+
+    public void setZipStream(ByteArrayInputStream zipStream) {
+        this.zipStream = zipStream;
+    }
+
+    public String getCardNo() {
+        return cardNo;
+    }
+
+    public void setCardNo(String cardNo) {
+        this.cardNo = cardNo;
+    }
+
+//    public String getTxnTypeCode() {
+//        return txnTypeCode;
+//    }
+//
+//    public void setTxnTypeCode(String txnTypeCode) {
+//        this.txnTypeCode = txnTypeCode;
+//    }
+
+    public String getAmount() {
+        return amount;
+    }
+
+    public void setAmount(String amount) {
+        this.amount = amount;
+    }
+
+//    public String getTransactionID() {
+//        return transactionID;
+//    }
+//
+//    public void setTransactionID(String transactionID) {
+//        this.transactionID = transactionID;
+//    }
+
+    public String getApproveCode() {
+        return approveCode;
+    }
+
+    public void setApproveCode(String approveCode) {
+        this.approveCode = approveCode;
+    }
+
+    public String getRrn() {
+        return rrn;
+    }
+
+    public void setRrn(String rrn) {
+        this.rrn = rrn;
+    }
+
+    public String getTraceNo() {
+        return traceNo;
+    }
+
+    public void setTraceNo(String traceNo) {
+        this.traceNo = traceNo;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+   
+
+    public String getLoad() {
+        return load;
+    }
+
+    public void setLoad(String load) {
+        this.load = load;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public List<Status> getStatusList() {
+        return statusList;
+    }
+
+    public void setStatusList(List<Status> statusList) {
+        this.statusList = statusList;
+    }
+
+    public List<Transactiontype> getTxnTypeList() {
+        return txnTypeList;
+    }
+
+    public void setTxnTypeList(List<Transactiontype> txnTypeList) {
+        this.txnTypeList = txnTypeList;
+    }
+
+    public String getFromdate() {
+        return fromdate;
+    }
+
+    public void setFromdate(String fromdate) {
+        this.fromdate = fromdate;
+    }
+
+    public String getTodate() {
+        return todate;
+    }
+
+    public void setTodate(String todate) {
+        this.todate = todate;
+    }
+
+    public TransDataBean getTransdataBean() {
+        return transdataBean;
+    }
+
+    public void setTransdataBean(TransDataBean transdataBean) {
+        this.transdataBean = transdataBean;
+    }
+
+    public boolean isVgenerate() {
+        return vgenerate;
+    }
+
+    public void setVgenerate(boolean vgenerate) {
+        this.vgenerate = vgenerate;
+    }
+
+    public boolean isVsearch() {
+        return vsearch;
+    }
+
+    public void setVsearch(boolean vsearch) {
+        this.vsearch = vsearch;
+    }
+
+    public boolean isVviewlink() {
+        return vviewlink;
+    }
+
+    public void setVviewlink(boolean vviewlink) {
+        this.vviewlink = vviewlink;
+    }
+
+    public boolean isSearch() {
+        return search;
+    }
+
+    public void setSearch(boolean search) {
+        this.search = search;
+    }
+
+    public List<TxnDataBean> getGridModel() {
+        return gridModel;
+    }
+
+    public void setGridModel(List<TxnDataBean> gridModel) {
+        this.gridModel = gridModel;
+    }
+
+    public List<TxnHisDataBean> getGridHisModel() {
+        return gridHisModel;
+    }
+
+    public void setGridHisModel(List<TxnHisDataBean> gridHisModel) {
+        this.gridHisModel = gridHisModel;
+    }
+
+    public Integer getRows() {
+        return rows;
+    }
+
+    public void setRows(Integer rows) {
+        this.rows = rows;
+    }
+
+    public Integer getPage() {
+        return page;
+    }
+
+    public void setPage(Integer page) {
+        this.page = page;
+    }
+
+    public Integer getTotal() {
+        return total;
+    }
+
+    public void setTotal(Integer total) {
+        this.total = total;
+    }
+
+    public Long getRecords() {
+        return records;
+    }
+
+    public void setRecords(Long records) {
+        this.records = records;
+    }
+
+    public String getSord() {
+        return sord;
+    }
+
+    public void setSord(String sord) {
+        this.sord = sord;
+    }
+
+    public String getSidx() {
+        return sidx;
+    }
+
+    public void setSidx(String sidx) {
+        this.sidx = sidx;
+    }
+
+    public String getSearchField() {
+        return searchField;
+    }
+
+    public void setSearchField(String searchField) {
+        this.searchField = searchField;
+    }
+
+    public String getSearchString() {
+        return searchString;
+    }
+
+    public void setSearchString(String searchString) {
+        this.searchString = searchString;
+    }
+
+    public String getSearchOper() {
+        return searchOper;
+    }
+
+    public void setSearchOper(String searchOper) {
+        this.searchOper = searchOper;
+    }
+
+    public boolean isLoadonce() {
+        return loadonce;
+    }
+
+    public void setLoadonce(boolean loadonce) {
+        this.loadonce = loadonce;
+    }
+
+    public long getFullCount() {
+        return fullCount;
+    }
+
+    public void setFullCount(long fullCount) {
+        this.fullCount = fullCount;
+    }
+
+    public String getProcessingcode() {
+        return processingcode;
+    }
+
+    public void setProcessingcode(String processingcode) {
+        this.processingcode = processingcode;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public List<Currency> getCurrencyList() {
+        return currencyList;
+    }
+
+    public void setCurrencyList(List<Currency> currencyList) {
+        this.currencyList = currencyList;
+    }
+
+    public String getMobileNo() {
+        return mobileNo;
+    }
+
+    public void setMobileNo(String mobileNo) {
+        this.mobileNo = mobileNo;
+    }
+
+    public String getMti() {
+        return mti;
+    }
+
+    public void setMti(String mti) {
+        this.mti = mti;
+    }
+
+    public String getMaskedcard() {
+        return maskedcard;
+    }
+
+    public void setMaskedcard(String maskedcard) {
+        this.maskedcard = maskedcard;
+    }
+
+    public String getResponcecode() {
+        return responcecode;
+    }
+
+    public void setResponcecode(String responcecode) {
+        this.responcecode = responcecode;
+    }
+
+    public String getHs_txn_cycle_status() {
+        return hs_txn_cycle_status;
+    }
+
+    public void setHs_txn_cycle_status(String hs_txn_cycle_status) {
+        this.hs_txn_cycle_status = hs_txn_cycle_status;
+    }
+
+    public String getHs_destination_uri() {
+        return hs_destination_uri;
+    }
+
+    public void setHs_destination_uri(String hs_destination_uri) {
+        this.hs_destination_uri = hs_destination_uri;
+    }
+
+    public String getDestination_service_id() {
+        return destination_service_id;
+    }
+
+    public void setDestination_service_id(String destination_service_id) {
+        this.destination_service_id = destination_service_id;
+    }
+
+    public String getDestination_country() {
+        return destination_country;
+    }
+
+    public void setDestination_country(String destination_country) {
+        this.destination_country = destination_country;
+    }
+
+    
+
+    public TxnDataBean getTxndataBean() {
+        return txndataBean;
+    }
+
+    public void setTxndataBean(TxnDataBean txndataBean) {
+        this.txndataBean = txndataBean;
+    }
+
+    public String getCreatetime() {
+        return createtime;
+    }
+
+    public void setCreatetime(String createtime) {
+        this.createtime = createtime;
+    }
+
+    public TxnSearchDataBean getTxnSearchdataBean() {
+        return txnSearchdataBean;
+    }
+
+    public void setTxnSearchdataBean(TxnSearchDataBean txnSearchdataBean) {
+        this.txnSearchdataBean = txnSearchdataBean;
+    }
+
+    public String getRouting_tag() {
+        return routing_tag;
+    }
+
+    public void setRouting_tag(String routing_tag) {
+        this.routing_tag = routing_tag;
+    }
+
+    public String getStatusDes() {
+        return statusDes;
+    }
+
+    public void setStatusDes(String statusDes) {
+        this.statusDes = statusDes;
+    }
+
+    public String getResponcecodeDes() {
+        return responcecodeDes;
+    }
+
+    public void setResponcecodeDes(String responcecodeDes) {
+        this.responcecodeDes = responcecodeDes;
+    }
+
+    public String getDestination_service_idDes() {
+        return destination_service_idDes;
+    }
+
+    public void setDestination_service_idDes(String destination_service_idDes) {
+        this.destination_service_idDes = destination_service_idDes;
+    }
+
+    public String getDestination_countryDes() {
+        return destination_countryDes;
+    }
+
+    public void setDestination_countryDes(String destination_countryDes) {
+        this.destination_countryDes = destination_countryDes;
+    }
+
+    
+
+    public String getBank() {
+        return bank;
+    }
+
+    public void setBank(String bank) {
+        this.bank = bank;
+    }
+
+    public String getUritype() {
+        return uritype;
+    }
+
+    public void setUritype(String uritype) {
+        this.uritype = uritype;
+    }
+
+    public String getSourceofincome() {
+        return sourceofincome;
+    }
+
+    public void setSourceofincome(String sourceofincome) {
+        this.sourceofincome = sourceofincome;
+    }
+
+    public String getRemit() {
+        return remit;
+    }
+
+    public void setRemit(String remit) {
+        this.remit = remit;
+    }
+
+    public String getListnerconfig() {
+        return listnerconfig;
+    }
+
+    public void setListnerconfig(String listnerconfig) {
+        this.listnerconfig = listnerconfig;
+    }
+
+  
+
+    public String getCurrencyDes() {
+        return currencyDes;
+    }
+
+    public void setCurrencyDes(String currencyDes) {
+        this.currencyDes = currencyDes;
+    }
+
+    public String getBankDes() {
+        return bankDes;
+    }
+
+    public void setBankDes(String bankDes) {
+        this.bankDes = bankDes;
+    }
+
+    public String getUritypeDes() {
+        return uritypeDes;
+    }
+
+    public void setUritypeDes(String uritypeDes) {
+        this.uritypeDes = uritypeDes;
+    }
+
+    public String getSourceofincomeDes() {
+        return sourceofincomeDes;
+    }
+
+    public void setSourceofincomeDes(String sourceofincomeDes) {
+        this.sourceofincomeDes = sourceofincomeDes;
+    }
+
+    public String getRemitDes() {
+        return remitDes;
+    }
+
+    public void setRemitDes(String remitDes) {
+        this.remitDes = remitDes;
+    }
+
+    public String getListnerconfigDes() {
+        return listnerconfigDes;
+    }
+
+    public void setListnerconfigDes(String listnerconfigDes) {
+        this.listnerconfigDes = listnerconfigDes;
+    }
+
+    public List<ResponseCodes> getResponcecodeList() {
+        return responcecodeList;
+    }
+
+    public void setResponcecodeList(List<ResponseCodes> responcecodeList) {
+        this.responcecodeList = responcecodeList;
+    }
+
+    public String getTransactionid() {
+        return transactionid;
+    }
+
+    public void setTransactionid(String transactionid) {
+        this.transactionid = transactionid;
+    }
+
+    public String getTxntypecode() {
+        return txntypecode;
+    }
+
+    public void setTxntypecode(String txntypecode) {
+        this.txntypecode = txntypecode;
+    }
+
+    public String getTracenumber() {
+        return tracenumber;
+    }
+
+    public void setTracenumber(String tracenumber) {
+        this.tracenumber = tracenumber;
+    }
+
+    public String getLastupdateduser() {
+        return lastupdateduser;
+    }
+
+    public void setLastupdateduser(String lastupdateduser) {
+        this.lastupdateduser = lastupdateduser;
+    }
+
+    public String getLastupdatedtime() {
+        return lastupdatedtime;
+    }
+
+    public void setLastupdatedtime(String lastupdatedtime) {
+        this.lastupdatedtime = lastupdatedtime;
+    }
+
+    public String getLocaldate() {
+        return localdate;
+    }
+
+    public void setLocaldate(String localdate) {
+        this.localdate = localdate;
+    }
+
+    public String getLocaltime() {
+        return localtime;
+    }
+
+    public void setLocaltime(String localtime) {
+        this.localtime = localtime;
+    }
+
+    public String getPosentrymode() {
+        return posentrymode;
+    }
+
+    public void setPosentrymode(String posentrymode) {
+        this.posentrymode = posentrymode;
+    }
+
+    public String getPosconditioncode() {
+        return posconditioncode;
+    }
+
+    public void setPosconditioncode(String posconditioncode) {
+        this.posconditioncode = posconditioncode;
+    }
+
+    public String getInvoiceno() {
+        return invoiceno;
+    }
+
+    public void setInvoiceno(String invoiceno) {
+        this.invoiceno = invoiceno;
+    }
+
+    public String getNii() {
+        return nii;
+    }
+
+    public void setNii(String nii) {
+        this.nii = nii;
+    }
+
+    public String getCurrencycode() {
+        return currencycode;
+    }
+
+    public void setCurrencycode(String currencycode) {
+        this.currencycode = currencycode;
+    }
+
+    public String getTid() {
+        return tid;
+    }
+
+    public void setTid(String tid) {
+        this.tid = tid;
+    }
+
+    public String getMid() {
+        return mid;
+    }
+
+    public void setMid(String mid) {
+        this.mid = mid;
+    }
+
+    public String getListnertype() {
+        return listnertype;
+    }
+
+    public void setListnertype(String listnertype) {
+        this.listnertype = listnertype;
+    }
+
+    public String getSettlementamount() {
+        return settlementamount;
+    }
+
+    public void setSettlementamount(String settlementamount) {
+        this.settlementamount = settlementamount;
+    }
+
+    public String getSettlementtxncount() {
+        return settlementtxncount;
+    }
+
+    public void setSettlementtxncount(String settlementtxncount) {
+        this.settlementtxncount = settlementtxncount;
+    }
+
+    public String getSettlementdate() {
+        return settlementdate;
+    }
+
+    public void setSettlementdate(String settlementdate) {
+        this.settlementdate = settlementdate;
+    }
+
+    public String getBatchno() {
+        return batchno;
+    }
+
+    public void setBatchno(String batchno) {
+        this.batchno = batchno;
+    }
+
+    public String getAuthcode() {
+        return authcode;
+    }
+
+    public void setAuthcode(String authcode) {
+        this.authcode = authcode;
+    }
+
+    public String getQr_url() {
+        return qr_url;
+    }
+
+    public void setQr_url(String qr_url) {
+        this.qr_url = qr_url;
+    }
+
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
+
+    public String getEodstatus() {
+        return eodstatus;
+    }
+
+    public void setEodstatus(String eodstatus) {
+        this.eodstatus = eodstatus;
+    }
+
+    public String getTxnTypeDes() {
+        return txnTypeDes;
+    }
+
+    public void setTxnTypeDes(String txnTypeDes) {
+        this.txnTypeDes = txnTypeDes;
+    }
+ 
+}

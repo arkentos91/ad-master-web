@@ -1,0 +1,212 @@
+<%@page import="org.exolab.castor.mapping.xml.Param"%>
+<%--<%@page import="java.security.Security"%>
+<%@page import="javax.crypto.Cipher"%>
+<%@page import="javax.crypto.spec.SecretKeySpec"%>--%>
+
+
+<!DOCTYPE html>
+<!-- Template Name: Clip-One - Responsive Admin Template build with Twitter Bootstrap 3 Version: 1.0 Author: ClipTheme -->
+<!--[if IE 8]><html class="ie8 no-js" lang="en"><![endif]-->
+<!--[if IE 9]><html class="ie9 no-js" lang="en"><![endif]-->
+<!--[if !IE]><!-->
+<%@taglib uri="/struts-tags" prefix="s" %>
+<html class="no-js" lang="en"><!--<![endif]--><!-- start: HEAD -->
+
+    <head>
+        <%@include file="/stylelinks.jspf" %>
+        <!--        <script type="text/javascript">
+                            window.onload=function(){
+                   var pathArray = window.location.pathname.split('/');        
+                var version=pathArray[1].replace(/\//g, "");
+        
+                document.getElementById("versionno").innerHTML=version;
+        //        alert(secondLevelLocation);
+                }
+                    
+                </script>-->
+        <script type="text/javascript">
+            function encryp(){
+                if($('#password').val()!=""){ 
+                    var ps=$('#password').val();
+                    $('#password').val(CryptoJS.MD5(ps)); 
+                    //                    var value = '&lt;%= request.getMethod() %&gt;';
+                    //                    alert(CryptoJS.MD5(ps));
+
+                }   
+            }
+    
+        </script>
+
+
+
+        <%
+            // if (request.getMethod().equals("GET")) {
+            //String key=application.getInitParameter("key"); 
+            ////String pass=request.getParameter("username");
+            //
+            //String pass="javajavajavajava";
+            //
+            //Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+            //	 
+            //byte[] password = pass.getBytes("UTF-8");
+            //
+            //
+            //byte[] pkey = key.getBytes("UTF-8");
+            //
+            //
+            //SecretKeySpec secretKey = new SecretKeySpec(pkey, "AES");
+            //
+            //
+            //Cipher c = Cipher.getInstance("AES/ECB/NoPadding");
+            //
+            //
+            //System.out.println("User password(plaintext) : " + new String(password));
+            //
+            // byte[] cText = new byte[password.length];
+            //	 
+            //c.init(Cipher.ENCRYPT_MODE, secretKey);
+            //
+            //int ctLen = c.update(password, 0, password.length, cText, 0);
+            //
+            //ctLen += c.doFinal(cText, ctLen);
+            //
+            //System.out.println("Password encrypted: " + cText.toString().getBytes("UTF-8").toString() + " bytes: " + ctLen);
+
+
+        %>
+
+        <style type="text/css">
+/*            .imgbutton:hover{                
+                border:1px solid #f64246;
+                border-radius:6px;
+            }*/
+
+            .imgbutton:active{
+                padding-top: 1px;
+                padding-left: 1px;
+
+            }
+            .col-sm-4 {
+                width: 35%;
+                margin-top: 140px;
+            }
+            .col-sm-offset-4 {
+                margin-left: 32.5%;
+            }
+        </style>
+
+
+    </head>
+    <!-- end: HEAD -->
+    <!-- start: BODY -->
+    <body>
+        <style type="text/css">
+        </style>
+        <div class="main-login col-sm-4 col-sm-offset-4">
+            <!--            <div class="logo">RDB<i class="clip-clip"></i> SMS Banking
+                        </div>-->
+            <!-- start: LOGIN BOX -->
+
+
+
+            <form novalidate="novalidate" action="CheckUserLogin" method="post">
+
+                <div  style="background-image: url('resouces/images/login_new4.png'); 
+                      background-size: 447px 280px;
+                      background-repeat:no-repeat;
+                      height: 280px;
+                      width: 447px; 
+                      color: rgb(0, 0, 0); 
+                      /*margin-top: 0px;*/                      
+                      padding-left: 122px; 
+                      padding-top: 139.2px;
+                      margin-left: auto;
+                      margin-right: auto;"
+                      >
+
+                    <input type="text" name="username" style="background-image: 'resouces/images/login_98.gif'; width:300px; height: 27px; margin-left: -15px;" />
+                    <input type="password" id="password" name="password" style="background-image: 'resouces/images/login_98.gif'; width:300px; height: 27px; margin-top: 17px; margin-left: -15px;" autocomplete="off" /> 
+                    <input type="image" src="./resouces/images/login_99.png" alt="Submit Form" style="width: 120px; height: 30px; margin-top: 14px; margin-left: 160px; " class="imgbutton" />
+
+
+                    <!--<button type="submit"  style="background:url(./resouces/images/login_img/login_99.png) center no-repeat; background-size: 100% 100%;  width: 142px; height: 28px; margin-top: 18px; margin-left: 143px;"/>-->
+                </div>
+            </form>
+            <s:if test="hasActionErrors()">
+                <div class="error-dis">
+                    <i class="fa fa-remove-sign" style="color: red;"> <s:property default="errormessage" value="errormessage"></s:property></i>
+
+                    </div>
+            </s:if>
+            <s:if test="hasActionMessages()">
+                <!--<div class="errorHandler alert alert-danger no-display2222">-->
+                <div class="error-dis">
+                    <i class="fa fa-remove-sign" style="color: green;">   <s:property default="errormessage" value="errormessage"></s:property></i>
+                        <!--</div>-->
+                    </div>  
+            </s:if>            
+
+
+
+            <style type="text/css">
+                .error-dis{
+                    text-align: center;                   
+                }
+                .copyright{
+                    bottom: 0;
+                    left: 0;
+                    position: fixed;
+                    right: 0;
+                    z-index: 1000;
+                    border-top-width: 1px;
+                    text-align: center;
+                }
+
+            </style>
+
+        </div>
+
+        <!-- start: COPYRIGHT -->
+        <div class="copyright">
+            <!--<font id="versionno"></font>-->
+            <%
+                String param1 = application.getInitParameter("version");
+                out.println(param1);
+            %>
+
+            Copyright © 2018 <a href="http://www.epiclanka.net/">Epic Lanka (pvt) Ltd.</a> All rights reserved.
+        </div>
+        <!-- end: COPYRIGHT -->
+
+
+
+        <!-- end: FORGOT BOX -->
+
+
+
+        <!-- start: MAIN JAVASCRIPTS -->
+        <!--[if lt IE 9]>
+        <script src="assets/plugins/respond.min.js"></script>
+        <script src="assets/plugins/excanvas.min.js"></script>
+        <![endif]-->
+        <script src="resouces/js/jquery.min.js"></script>
+        <script src="resouces/js/jquery-ui-1.10.2.custom.min.js"></script>
+        <!--<script src="resouces/js/bootstrap.min.js"></script>-->
+        <script src="resouces/js/jquery.blockUI.js"></script>
+        <script src="resouces/js/jquery.icheck.min.js"></script>
+        <script src="resouces/js/jquery.mousewheel.js"></script>
+        <script src="resouces/js/perfect-scrollbar.js"></script>
+        <script src="resouces/js/less-1.5.0.min.js"></script>
+        <script src="resouces/js/jquery.cookie.js"></script>
+        <script src="resouces/js/bootstrap-colorpalette.js"></script>
+        <script src="resouces/js/main.js"></script>
+        <script src="resouces/js/md5.js"></script>
+        <!-- end: MAIN JAVASCRIPTS -->
+        <!-- start: JAVASCRIPTS REQUIRED FOR THIS PAGE ONLY -->
+        <script src="resouces/js/jquery_006.js"></script>
+        <script src="resouces/js/login.js"></script>
+        <!-- end: JAVASCRIPTS REQUIRED FOR THIS PAGE ONLY -->
+
+
+
+    </body><!-- end: BODY --></html>

@@ -1,0 +1,79 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.util.varlist;
+
+/**
+ *
+ * @author jayana_i
+ */
+public class PageVarList {
+
+    public static final String LOGIN_PAGE = "LGPG";
+    public static final String LOGIN_HISTORY = "LGHS";
+    public static final String TASK_MGT_PAGE = "UMTM";
+    public static final String PASSWORD_POLICY = "PWPM";
+    public static final String USER_ROLE_PRIVILEGE_MGT = "UMUP";
+    public static final String USER_ROLE_MGT_PAGE = "UMUR";
+    public static final String SECTION_MGT_PAGE = "UMSM";
+    public static final String PAGE_MGT_PAGE = "UMPM";
+    public static final String SYSTEM_AUDIT_PAGE = "SCSA";
+    public static final String SYSTEM_USER = "UMSU";
+    public static final String M_SERVER_CONFIG = "SCMS";
+    public static final String M_SERVER_CURRENCY = "SCMC";
+    public static final String LOG_MGT_PAGE = "LGVP";
+    public static final String COMMON_CONFIGURATION_PAGE = "SCCC";
+    public static final String WAM_CONFIGURATION_PAGE = "SCWC";
+    public static final String RISK_PROFILE_PAGE = "SCRP";
+    public static final String TXN_RISK_PROFILE_PAGE = "SCTP";
+    public static final String OTP_SERVER_CONFIGURATION_PAGE = "SCOC";
+    public static final String OTP_EMAIL_TEMPLATE_PAGE = "SCOT";
+    public static final String OTP_SMS_TEMPLATE_PAGE = "SCST";
+    public static final String TXN_EXPLORER = "RETE";
+    public static final String COMMON_FILE_PATH_PAGE = "SCCF";
+    public static final String TXN_TYPE_MGT_PAGE = "SCTT";
+    public static final String TIERBASE_FEE_PAGE = "TIBF";
+    public static final String PRODUCT_CARD_MGT_PAGE = "SCPC";
+    public static final String LISTNER_CONFIGURATION_PAGE = "SCLC";
+    public static final String CHANNEL_CONFIGUATION_PAGE = "SCCH";
+    public static final String CUSTOMER_WALLET_PAGE = "RECW";
+    public static final String OTP_POLICY_PAGE = "SCOP";
+    public static final String OTP_APPLICATION_PAGE = "OCOA";
+    public static final String SERVICE_CONFIGUATION_PAGE = "SCSC";
+    public static final String CUSTOMER_CARD_INFO_PAGE = "TCCI";
+    public static final String TXN_CURRENCY_PAGE = "SCTC";
+    public static final String CARD_PRODUCT_PAGE = "SCCP";
+    public static final String CUS_MOB_CHANGE_HISTORY_PAGE = "CMCH";
+    public static final String URI_TYPES = "SCUT";
+    public static final String COUNTRY_LIST_PAGE = "CTLT";
+    public static final String ESWITCH_CALL_PAGE = "ESWT";
+    public static final String RESPONSE_CODE_PAGE = "RESP";
+    public static final String SERVICE_SUPPORTED_URIS = "HSSU";
+    public static final String SERVICE_DETAILS = "HSSD";
+
+    public static final String VSF_CONFIGURATION_PROFILE = "SCVC";
+
+    public static final String PURPOSE_OF_REMIT = "HSPR";
+    public static final String SOURCE_OF_INCOME = "HSSI";
+    public static final String SENDER_ID_TYPES = "HSST";
+    public static final String BML_COMMISSION = "HSBC";
+    public static final String USER_PARAM = "USPA";
+    public static final String STATUS_CHECK = "HMSC";
+    
+    public static final String STATUS_MONITOR = "MTSM";
+    public static final String VSF_FIELD = "SCVF";
+    
+       
+    public static final String MERCHANT_USER = "MUSE";    
+    public static final String MERCHANT_CUSTOMERS = "MCUS";    
+    
+    public static final String ACQUIRER_RISK_PROFILE_PAGE = "AQRS";
+    public static final String ACQUIRER_RISK_PROFILE_TXN_PAGE="AQRT";
+    
+    public static final String ACQUIRER_PROMOTION_PAGE = "AQPM";
+    public static final String ACQUIRER_PROMOTION_TXN_PAGE = "AQPT";
+    public static final String TERMINAL_ORI_PAGE = "TRML";
+    public static final String MERCHANT_MGT_PAGE = "MCMG";
+
+}

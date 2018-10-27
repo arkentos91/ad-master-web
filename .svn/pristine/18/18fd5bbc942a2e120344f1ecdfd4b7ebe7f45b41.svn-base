@@ -1,0 +1,1376 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.dao.reportexplorer;
+
+import com.epic.bmlalipay.bean.reportexplorer.TransDataBean;
+import com.epic.bmlalipay.bean.reportexplorer.TxnDataBean;
+import com.epic.bmlalipay.bean.reportexplorer.TxnExplorerInputBean;
+import com.epic.bmlalipay.bean.reportexplorer.TxnHisDataBean;
+import com.epic.bmlalipay.dao.common.CommonDAO;
+import com.epic.bmlalipay.util.common.Common;
+import com.epic.bmlalipay.util.common.ExcelCommon;
+import com.epic.bmlalipay.util.common.HibernateInit;
+import com.epic.bmlalipay.util.mapping.AlipayTransaction;
+import com.epic.bmlalipay.util.mapping.Currency;
+import com.epic.bmlalipay.util.mapping.ResponseCodes;
+import com.epic.bmlalipay.util.mapping.Status;
+import com.epic.bmlalipay.util.mapping.Transactionhistory;
+import com.epic.bmlalipay.util.mapping.Transactiontype;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import org.apache.commons.io.FileUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.struts2.ServletActionContext;
+import org.hibernate.Query;
+import org.hibernate.Session;
+
+public class TransactionExplorerDAO {
+
+    private final int columnCount = 52;
+    private final int headerRowCount = 12;
+
+    private String TXN_COUNT_SQL = "select "
+            + "count(t.TRANSACTIONID) " //0            
+            + "from ALIPAY_TRANSACTION t "
+            + "left outer join status m on m.STATUSCODE = t.STATUS "
+            + "where ";
+
+    private String TXN_ORDER_BY_SQL = " order by t.CREATETIME DESC ";
+
+    
+
+    private String TXN_SQL = "select "
+            + "t.TRANSACTIONID," //1
+            + "tt.DESCRIPTION ttd," //2
+            + "t.RRN," //3
+            + "t.TRACENUMBER," //4
+            + "rc.DESCRIPTION rc," //5
+            + "s.DESCRIPTION st," //6
+            + "t.LASTUPDATEDUSER," //7
+            + "t.LASTUPDATEDTIME," //8
+            + "t.CREATETIME," //9
+            + "t.MTI," //10
+            + "t.PROCESSINGCODE," //11
+            + "t.LOCALDATE," //12
+            + "t.LOCALTIME," //13
+            + "t.POSENTRYMODE," //14
+            + "t.POSCONDITIONCODE," //15    
+            + "t.INVOICENO," //16
+            + "t.NII," //17
+            + "t.AMOUNT," //18
+            + "cu.DESCRIPTION cud," //19
+            + "t.TID," //20
+            + "t.MID," //21
+            + "t.LISTENERTYPE," //22
+            + "t.SETTLEMENTAMOUNT," //23
+            + "t.SETTLEMENTTXNCOUNT," //24
+            + "t.SETTLEMENTDATE," //25
+            + "t.BATCHNO," //26
+            + "t.AUTHCODE," //27
+            + "t.QR_URL," //28
+            + "t.SIGNATURE," //29
+            + "s.DESCRIPTION eodst " //30
+
+            + "from ALIPAY_TRANSACTION t "
+            + "left outer join status s on s.STATUSCODE = t.STATUS "
+            + "left outer join transactiontype tt on tt.TYPECODE = t.TXNTYPECODE "
+            + "left outer join response_codes rc on rc.RESPONCECODE = t.RESPONCECODE "
+            + "left outer join CURRENCY cu on cu.CURRENCYCODE = t.CURRENCYCODE "
+            + "where ";
+
+    public List<TxnDataBean> getSearchList(TxnExplorerInputBean inputBean, int max, int first, String orderBy) throws Exception {
+        List<TxnDataBean> dataList = new ArrayList<TxnDataBean>();
+        Session session = null;
+        try {
+            String where = this.makeWhereClause(inputBean);
+            long count = 0;
+
+            session = HibernateInit.sessionFactory.openSession();
+            String sqlCount = "select count(t.TRANSACTIONID) from ALIPAY_TRANSACTION t where " + where;
+            Query queryCount = session.createSQLQuery(sqlCount);
+            queryCount = setDatesToQuery(queryCount, inputBean, session);
+            System.err.println("Count SQL :" + sqlCount);
+            Iterator itCount = queryCount.list().iterator();
+
+            int count1 = Integer.parseInt(itCount.next().toString());
+            count = Long.valueOf(count1);
+            if (count > 0) {
+
+                String sqlSearch = this.TXN_SQL + where + orderBy;
+                Query querySearch = session.createSQLQuery(sqlSearch);
+                querySearch = setDatesToQuery(querySearch, inputBean, session);
+                querySearch.setMaxResults(max);
+                querySearch.setFirstResult(first);
+                System.err.println("Search SQL : " + sqlSearch);
+                List txnList = querySearch.list();
+                Iterator itr = txnList.iterator();
+
+                while (itr.hasNext()) {
+                    Object[] txnBean = (Object[]) itr.next();
+
+                    TxnDataBean dataBean = new TxnDataBean();
+
+                    try {
+                        dataBean.setTransactionid((String) txnBean[0]);
+                    } catch (NullPointerException npe) {
+                        dataBean.setTransactionid("--");
+                    }
+
+                    try {
+                        if (txnBean[1] != null) {
+                            dataBean.setTxntypecode((String) txnBean[1]);
+                        } else {
+                            dataBean.setTxntypecode("--");
+                        }
+                    } catch (Exception e) {
+                        dataBean.setTxntypecode("--");
+                    }
+
+                    if (txnBean[2] != null) {
+                        dataBean.setRrn((String) txnBean[2]);
+                    } else {
+                        dataBean.setRrn("--");
+                    }
+
+                    if (txnBean[3] != null) {
+                        dataBean.setTracenumber((String) txnBean[3]);
+                    } else {
+                        dataBean.setTracenumber("--");
+                    }
+                    if (txnBean[4] != null) {
+                        dataBean.setResponcecode((txnBean[4]).toString());
+                    } else {
+                        dataBean.setResponcecode("--");
+                    }
+                    if (txnBean[5] != null) {
+                        dataBean.setStatus((String) txnBean[5]);
+                    } else {
+                        dataBean.setStatus("--");
+                    }
+
+                    if (txnBean[6] != null) {
+                        dataBean.setLastupdateduser((String) txnBean[6]);
+                    } else {
+                        dataBean.setLastupdateduser("--");
+                    }
+
+                    if (txnBean[7] != null) {
+                        dataBean.setLastupdatedtime((txnBean[7]).toString());
+                    } else {
+                        dataBean.setLastupdatedtime("--");
+                    }
+
+                    if (txnBean[8] != null) {
+                        dataBean.setCreatetime(txnBean[8].toString());
+                    } else {
+                        dataBean.setCreatetime("--");
+                    }
+
+                    if (txnBean[9] != null) {
+                        dataBean.setMti(txnBean[9].toString());
+                    } else {
+                        dataBean.setMti("--");
+                    }
+
+                    if (txnBean[10] != null) {
+                        dataBean.setProcessingcode((String) txnBean[10]);
+                    } else {
+                        dataBean.setProcessingcode("--");
+                    }
+
+                    if (txnBean[11] != null) {
+                        dataBean.setLocaldate(txnBean[11].toString());
+                    } else {
+                        dataBean.setLocaldate("--");
+                    }
+
+                    if (txnBean[12] != null) {
+                        dataBean.setLocaltime((String) txnBean[12]);
+                    } else {
+                        dataBean.setLocaltime("--");
+                    }
+
+                    if (txnBean[13] != null) {
+                        dataBean.setPosentrymode((txnBean[13]).toString());
+                    } else {
+                        dataBean.setPosentrymode("--");
+                    }
+
+                    if (txnBean[14] != null) {
+                        dataBean.setPosconditioncode((String) txnBean[14]);
+                    } else {
+                        dataBean.setPosconditioncode("--");
+                    }
+
+                    if (txnBean[15] != null) {
+                        dataBean.setInvoiceno((String) txnBean[15]);
+                    } else {
+                        dataBean.setInvoiceno("--");
+                    }
+
+                    if (txnBean[16] != null) {
+                        dataBean.setNii((String) txnBean[16]);
+                    } else {
+                        dataBean.setNii("--");
+                    }
+
+                    if (txnBean[17] != null) {
+                        dataBean.setAmount(this.formatAmount((String) txnBean[17]));
+                    } else {
+                        dataBean.setAmount("--");
+                    }
+
+                    if (txnBean[18] != null) {
+                        dataBean.setCurrencycode((String) txnBean[18]);
+                    } else {
+                        dataBean.setCurrencycode("--");
+                    }
+
+                    if (txnBean[19] != null) {
+                        dataBean.setTid((String) txnBean[19]);
+                    } else {
+                        dataBean.setTid("--");
+                    }
+
+                    if (txnBean[20] != null) {
+                        dataBean.setMid((String) txnBean[20]);
+                    } else {
+                        dataBean.setMid("--");
+                    }
+
+                    if (txnBean[21] != null) {
+                        dataBean.setListnertype(txnBean[21].toString());
+                    } else {
+                        dataBean.setListnertype("--");
+                    }
+
+                    if (txnBean[22] != null) {
+                        dataBean.setSettlementamount(txnBean[22].toString());
+                    } else {
+                        dataBean.setSettlementamount("--");
+                    }
+
+                    if (txnBean[23] != null) {
+                        dataBean.setSettlementtxncount(txnBean[23].toString());
+                    } else {
+                        dataBean.setSettlementtxncount("--");
+                    }
+
+                    if (txnBean[24] != null) {
+                        dataBean.setSettlementdate((String) txnBean[24]);
+                    } else {
+                        dataBean.setSettlementdate("--");
+                    }
+
+                    if (txnBean[25] != null) {
+                        dataBean.setBatchno((String) txnBean[25]);
+                    } else {
+                        dataBean.setBatchno("--");
+                    }
+
+                    if (txnBean[26] != null) {
+                        dataBean.setAuthcode((String) txnBean[26]);
+                    } else {
+                        dataBean.setAuthcode("--");
+                    }
+
+                    if (txnBean[27] != null) {
+                        dataBean.setQr_url((String) txnBean[27]);
+                    } else {
+                        dataBean.setQr_url("--");
+                    }
+
+                    if (txnBean[28] != null) {
+                        dataBean.setSignature((String) txnBean[28]);
+                    } else {
+                        dataBean.setSignature("--");
+                    }
+
+                    if (txnBean[29] != null) {
+                        dataBean.setEodstatus((String) txnBean[29]);
+                    } else {
+                        dataBean.setEodstatus("--");
+                    }
+
+                    dataBean.setFullCount(count);
+
+                    dataList.add(dataBean);
+                }
+            }
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return dataList;
+    }
+
+    public List<TxnHisDataBean> getSearchHistoryList(TxnExplorerInputBean inputBean, int max, int first, String orderBy) throws Exception {
+        List<TxnHisDataBean> dataList = new ArrayList<TxnHisDataBean>();
+        Session session = null;
+        try {
+//            String where = this.makeWhereClause(inputBean);
+            long count = 0;
+
+            session = HibernateInit.sessionFactory.openSession();
+            String sqlCount = "select count(transactionhistoryid) from Transactionhistory as p where transactionid =:txnid";
+            Query queryCount = session.createQuery(sqlCount).setString("txnid", inputBean.getTransactionid());
+            queryCount = setDatesToQuery(queryCount, inputBean, session);
+
+            Iterator itCount = queryCount.iterate();
+            count = (Long) itCount.next();
+            if (count > 0) {
+
+                String sqlSearch = "From Transactionhistory as p where transactionid =:txnid " + orderBy;
+
+                Query querySearch = session.createQuery(sqlSearch).setString("txnid", inputBean.getTransactionid());
+                querySearch = setDatesToQuery(querySearch, inputBean, session);
+                querySearch.setMaxResults(max);
+                querySearch.setFirstResult(first);
+
+                List<Transactionhistory> txnhisList = querySearch.list();
+//                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+
+//                Iterator itSearch = querySearch.iterate();
+                for (Transactionhistory txnBean : txnhisList) {
+
+                    TxnHisDataBean dataBean = new TxnHisDataBean();
+
+                    if (String.valueOf(txnBean.getTransactionhistoryid()) == null || String.valueOf(txnBean.getTransactionhistoryid()).isEmpty()) {
+                        dataBean.setTransactionhistoryid("--");
+                    } else {
+                        dataBean.setTransactionhistoryid(String.valueOf(txnBean.getTransactionhistoryid()));
+                    }
+                    if (txnBean.getAlipayTransaction().getTransactionid()== null || txnBean.getAlipayTransaction().getTransactionid().isEmpty()) {
+                        dataBean.setTransactionid("--");
+                    } else {
+                        dataBean.setTransactionid(txnBean.getAlipayTransaction().getTransactionid());
+                    }
+                    if (txnBean.getStatus() == null || txnBean.getStatus().isEmpty()) {
+                        dataBean.setStatuscode("--");
+                    } else {
+                        Status st = (Status) session.get(Status.class, txnBean.getStatus());
+                        dataBean.setStatuscode(st.getDescription());
+                    }
+
+                    if (txnBean.getCreatetime() == null) {
+                        dataBean.setCreatedtime("--");
+                    } else {
+                        dataBean.setCreatedtime(String.valueOf(txnBean.getCreatetime()));
+                    }
+
+                    if (txnBean.getLastupdateduser() == null || txnBean.getLastupdateduser().isEmpty()) {
+                        dataBean.setLastupdateduser("--");
+                    } else {
+                        dataBean.setLastupdateduser(txnBean.getLastupdateduser());
+                    }
+
+                    dataBean.setFullCount(count);
+
+                    dataList.add(dataBean);
+                }
+            }
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return dataList;
+    }
+
+    public TransDataBean findTransById(String txnid) throws Exception {
+        TransDataBean transDatabean;
+
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            AlipayTransaction tranBean = (AlipayTransaction) session.get(AlipayTransaction.class, txnid);
+
+            transDatabean = new TransDataBean();
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return transDatabean;
+    }
+
+    public TransDataBean findTransactionById(String txnid) throws Exception {
+        TransDataBean transDatabean = new TransDataBean();
+
+        Session session = null;
+        try {
+
+            session = HibernateInit.sessionFactory.openSession();
+            AlipayTransaction tranBean = (AlipayTransaction) session.get(AlipayTransaction.class, txnid);
+
+            if (tranBean != null) {
+                
+                try {
+                    transDatabean.setTransactionid(tranBean.getTransactionid().toString()); //Transaction ID
+                } catch (NullPointerException npe) {
+                    transDatabean.setTransactionid("--");
+                }
+                try {
+                    Transactiontype txnType = (Transactiontype) session.get(Transactiontype.class, tranBean.getTxntypecode()); //Transaction Decision
+                    transDatabean.setTxntypecode(txnType.getDescription());
+                } catch (NullPointerException npe) {
+                    transDatabean.setTxntypecode("--");
+                } catch (Exception npe) {
+                    transDatabean.setTxntypecode("--");
+                }
+                
+                try {
+                    Status st = (Status) session.get(Status.class, tranBean.getStatus()); //Transaction Decision
+                    transDatabean.setStatus((st.getDescription()));
+                } catch (NullPointerException npe) {
+                    transDatabean.setStatus("--");
+                } catch (Exception npe) {
+                    transDatabean.setStatus("--");
+                }
+
+                try {
+                    transDatabean.setCreatetime(tranBean.getCreatetime().toString()); //Transaction Date/Time
+                } catch (NullPointerException npe) {
+                    transDatabean.setCreatetime("--");
+                }
+
+                try {
+                    ResponseCodes res = (ResponseCodes) session.get(ResponseCodes.class, tranBean.getResponcecode());
+                    transDatabean.setResponcecode(res.getDescription());
+                } catch (NullPointerException npe) {
+                    transDatabean.setResponcecode("--");
+                } catch (Exception e) {
+                    transDatabean.setResponcecode("--");
+                }
+
+//                try {
+//                    transDatabean.setTxntypecode(tranBean.getTxntypecode());
+//                } catch (NullPointerException npe) {
+//                    transDatabean.setTxntypecode("--");
+//                } catch (Exception e) {
+//                    transDatabean.setTxntypecode("--");
+//                }
+                
+                try {
+                    transDatabean.setTracenumber(tranBean.getTracenumber().toString());
+                } catch (NullPointerException npe) {
+                    transDatabean.setTracenumber("--");
+                } catch (Exception e) {
+                    transDatabean.setTracenumber("--");
+                }
+                try {
+                    transDatabean.setMti(tranBean.getMti().toString());
+                } catch (NullPointerException npe) {
+                    transDatabean.setMti("--");
+                } catch (Exception e) {
+                    transDatabean.setMti("--");
+                }
+                
+
+                try {
+                    transDatabean.setRrn(tranBean.getRrn().toString());//Recipient's mobile number
+                } catch (NullPointerException npe) {
+                    transDatabean.setRrn("--");
+
+                }
+                
+                try {
+                    transDatabean.setProcessingcode(tranBean.getProcessingcode().toString());
+                } catch (NullPointerException npe) {
+                    transDatabean.setProcessingcode("--");
+
+                }
+                
+                try {
+                    transDatabean.setLocaldate(tranBean.getLocaldate().toString());
+                } catch (NullPointerException npe) {
+                    transDatabean.setLocaldate("--");
+
+                }
+                
+                try {
+                    transDatabean.setLocaltime(tranBean.getLocaltime().toString());
+                } catch (NullPointerException npe) {
+                    transDatabean.setLocaltime("--");
+
+                }
+                
+                try {
+                    transDatabean.setInvoiceno(tranBean.getInvoiceno().toString());
+                } catch (NullPointerException npe) {
+                    transDatabean.setInvoiceno("--");
+
+                }
+                
+                try {
+                    transDatabean.setAmount(tranBean.getAmount().toString());
+                } catch (NullPointerException npe) {
+                    transDatabean.setAmount("--");
+
+                }
+                
+                try {
+                    Currency currency = (Currency) session.get(Currency.class, tranBean.getCurrencycode());
+                    transDatabean.setCurrencycode(currency.getDescription());
+                } catch (NullPointerException npe) {
+                    transDatabean.setCurrencycode("--");
+                } catch (Exception e) {
+                    transDatabean.setCurrencycode("--");
+                }
+                
+                try {
+                    transDatabean.setTid(tranBean.getTid().toString());
+                } catch (NullPointerException npe) {
+                    transDatabean.setTid("--");
+
+                }
+                
+                try {
+                    transDatabean.setMid(tranBean.getMid().toString());
+                } catch (NullPointerException npe) {
+                    transDatabean.setMid("--");
+                }
+                
+                try {
+                    transDatabean.setAuthcode(tranBean.getAuthcode().toString());
+                } catch (NullPointerException npe) {
+                    transDatabean.setAuthcode("--");
+                }
+                
+                try {
+                    transDatabean.setQr_url(tranBean.getQr_url().toString());
+                } catch (NullPointerException npe) {
+                    transDatabean.setQr_url("--");
+                }
+                
+                try {
+                    transDatabean.setSignature(tranBean.getSignature().toString());
+                } catch (NullPointerException npe) {
+                    transDatabean.setSignature("--");
+                }
+                
+                try {
+                    Status sta = (Status) session.get(Status.class, tranBean.getEodstatus());
+                    transDatabean.setEodstatus(sta.getDescription());
+                } catch (NullPointerException npe) {
+                    transDatabean.setEodstatus("--");
+                } catch (Exception e) {
+                    transDatabean.setEodstatus("--");
+                }
+            }
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return transDatabean;
+    }
+
+    private String makeWhereClause(TxnExplorerInputBean inputBean) {
+        String where = " 1=1 ";
+        if ((inputBean.getTransactionid()== null || inputBean.getMaskedcard().isEmpty())
+        && (inputBean.getTxntypecode()== null || inputBean.getTxntypecode().isEmpty())
+        && (inputBean.getRrn()== null || inputBean.getRrn().isEmpty())
+        && (inputBean.getFromdate() == null || inputBean.getFromdate().isEmpty())
+        && (inputBean.getTodate() == null || inputBean.getTodate().isEmpty())
+        && (inputBean.getTracenumber() == null || inputBean.getTracenumber().isEmpty())
+        && (inputBean.getInvoiceno() == null || inputBean.getInvoiceno().isEmpty())
+        && (inputBean.getAmount() == null || inputBean.getAmount().isEmpty())
+        && (inputBean.getTid() == null || inputBean.getTid().isEmpty())
+        && (inputBean.getMid() == null || inputBean.getMid().isEmpty())
+        && (inputBean.getCurrency()== null || inputBean.getCurrency().isEmpty())
+        && (inputBean.getTraceNo()== null || inputBean.getTraceNo().isEmpty())
+        && (inputBean.getResponcecode()== null || inputBean.getResponcecode().isEmpty())
+        && (inputBean.getStatus()== null || inputBean.getStatus().isEmpty())
+        && (inputBean.getMti()== null || inputBean.getMti().isEmpty())
+        && (inputBean.getProcessingcode() == null || inputBean.getProcessingcode().isEmpty())
+        && (inputBean.getLocaldate()== null || inputBean.getLocaldate().isEmpty())
+        && (inputBean.getLocaltime()== null || inputBean.getLocaltime().isEmpty())
+        && (inputBean.getInvoiceno()== null || inputBean.getInvoiceno().isEmpty())) {
+
+        } else {
+            if (inputBean.getFromdate() != null && !inputBean.getFromdate().isEmpty()) {
+                where += " and t.CREATETIME >= :fromdate";
+            }
+            if (inputBean.getTodate() != null && !inputBean.getTodate().isEmpty()) {
+                where += " and t.CREATETIME <= :todate";
+            }
+            if(inputBean.getTxntypecode() != null && !inputBean.getTxntypecode().isEmpty()){
+                where += " and t.TXNTYPECODE  ='" + inputBean.getTxntypecode().trim() + "'";
+            }
+            if(inputBean.getTracenumber() != null && !inputBean.getTracenumber().isEmpty()){
+                where += " and lower(t.TRACENUMBER) like lower('%"  + inputBean.getTracenumber().trim() + "%')";
+            }
+            if(inputBean.getInvoiceno() != null && !inputBean.getInvoiceno().isEmpty()){
+                where += " and lower(t.INVOICENO) like lower('%"  + inputBean.getInvoiceno().trim() + "%')";
+            }
+            if(inputBean.getAmount() != null && !inputBean.getAmount().isEmpty()){
+                where += " and lower(t.AMOUNT) like lower('%"  + inputBean.getAmount().trim() + "%')";
+            }
+            if(inputBean.getCurrency()!= null && !inputBean.getCurrency().isEmpty()){
+                where += " and t.CURRENCYCODE ='" + inputBean.getCurrency().trim() + "'";
+            }
+            if (inputBean.getResponcecode() != null && !inputBean.getResponcecode().isEmpty()) {
+                where += " and t.RESPONCECODE  ='" + inputBean.getResponcecode().trim() + "'";
+            }
+            if (inputBean.getStatus() != null && !inputBean.getStatus().isEmpty()) {
+                where += " and t.STATUS ='" + inputBean.getStatus() + "'";
+            }
+            if (inputBean.getRrn()!= null && !inputBean.getRrn().isEmpty()) {
+                where += " and lower(t.RRN) like lower('%" + inputBean.getRrn().trim() + "%')";
+            }
+            if (inputBean.getTraceNo()!= null && !inputBean.getTraceNo().isEmpty()) {
+                where += " and t.TRACENO ='" + inputBean.getTraceNo().trim() + "'";
+            }
+            if (inputBean.getMti()!= null && !inputBean.getMti().isEmpty()) {
+                where += " and t.MTI ='" + inputBean.getMti() + "'";
+            }
+            if (inputBean.getMid()!= null && !inputBean.getMid().isEmpty()) {
+                where += " and lower(t.MID) like lower('%" + inputBean.getMid().trim() + "%')";
+            }
+            if (inputBean.getTid()!= null && !inputBean.getTid().isEmpty()) {
+                where += " and lower(t.TID) like lower('%" + inputBean.getTid().trim() + "%')";
+            }
+//            if (inputBean.getInvoiceno()!= null && !inputBean.getInvoiceno().isEmpty()) {
+//                where += " and t.INVOICENO ='" + inputBean.getInvoiceno() + "'";
+//            }
+
+        }
+
+        return where;
+    }
+
+    public Query setDatesToQuery(Query sql, TxnExplorerInputBean inputBean, Session session) throws Exception {
+        if ((inputBean.getTransactionid()== null || inputBean.getTransactionid().isEmpty())
+        && (inputBean.getTxntypecode()== null || inputBean.getTxntypecode().isEmpty())
+        && (inputBean.getRrn()== null || inputBean.getRrn().isEmpty())
+        && (inputBean.getFromdate() == null || inputBean.getFromdate().isEmpty())
+        && (inputBean.getTodate() == null || inputBean.getTodate().isEmpty())
+        && (inputBean.getTraceNo()== null || inputBean.getTraceNo().isEmpty())
+        && (inputBean.getResponcecode()== null || inputBean.getResponcecode().isEmpty())
+        && (inputBean.getStatus()== null || inputBean.getStatus().isEmpty())
+        && (inputBean.getMti()== null || inputBean.getMti().isEmpty())
+        && (inputBean.getProcessingcode() == null || inputBean.getProcessingcode().isEmpty())
+        && (inputBean.getLocaldate()== null || inputBean.getLocaldate().isEmpty())
+        && (inputBean.getLocaltime()== null || inputBean.getLocaltime().isEmpty())
+        && (inputBean.getInvoiceno()== null || inputBean.getInvoiceno().isEmpty())
+                ) {
+
+        } else {
+
+            if (inputBean.getFromdate() != null && !inputBean.getFromdate().isEmpty()) {
+                if ((Common.specialStringtoDate(inputBean.getFromdate()) != null)) {
+                    sql.setDate("fromdate", Common.specialStringtoDate(inputBean.getFromdate()));
+                }
+            }
+            if (inputBean.getTodate() != null && !inputBean.getTodate().isEmpty()) {
+                if ((Common.specialStringtoDate(inputBean.getTodate()) != null)) {
+                    Date d = Common.specialStringtoDate(inputBean.getTodate());
+                    int da = d.getDate() + 1;
+                    d.setDate(da);
+                    sql.setDate("todate", d);
+
+                }
+            }
+        }
+        return sql;
+    }
+
+    public Object generateExcelReport(TxnExplorerInputBean inputBean) throws Exception {
+        Session session = null;
+        Object returnObject = null;
+        try {
+
+            String directory = ServletActionContext.getServletContext().getInitParameter("tmpreportpath");
+            File file = new File(directory);
+            if (file.exists()) {
+                FileUtils.deleteDirectory(file);
+            }
+
+            session = HibernateInit.sessionFactory.openSession();
+
+            int count = 0;
+            String where1 = this.makeWhereClause(inputBean);
+            String sqlCount = this.TXN_COUNT_SQL + where1;
+//            System.out.println(sqlCount);
+            Query queryCount = session.createSQLQuery(sqlCount);
+
+            queryCount = setDatesToQuery(queryCount, inputBean, session);
+            if (queryCount.uniqueResult() != null) {
+                count = ((Number) queryCount.uniqueResult()).intValue();
+            }
+
+            if (count > 0) {
+                long maxRow = Long.parseLong(ServletActionContext.getServletContext().getInitParameter("numberofrowsperexcel"));
+                SXSSFWorkbook workbook = this.createExcelTopSection(inputBean);
+                Sheet sheet = workbook.getSheetAt(0);
+
+                int currRow = headerRowCount;
+                int fileCount = 0;
+
+                currRow = this.createExcelTableHeaderSection(workbook, currRow);
+
+//                String sql = this.TXN_SQL + where1 + this.TXN_ORDER_BY_SQL;
+//                String sql = this.TXN_SQL_FOR_EXCEL + where1 + this.TXN_ORDER_BY_SQL;
+                String sql = this.TXN_SQL + where1 + this.TXN_ORDER_BY_SQL;
+
+                int selectRow = Integer.parseInt(ServletActionContext.getServletContext().getInitParameter("numberofselectrows"));
+                int numberOfTimes = count / selectRow;
+                if ((count % selectRow) > 0) {
+                    numberOfTimes += 1;
+                }
+                int from = 0;
+                int listrownumber = 1;
+
+                for (int i = 0; i < numberOfTimes; i++) {
+
+                    Query query = session.createSQLQuery(sql);
+                    query = setDatesToQuery(query, inputBean, session);
+                    query.setFirstResult(from);
+                    query.setMaxResults(selectRow);
+
+                    List<Object[]> objectArrList = (List<Object[]>) query.list();
+                    if (objectArrList.size() > 0) {
+
+                        for (Object[] objArr : objectArrList) {
+                            TxnDataBean dataBean = new TxnDataBean();
+
+                            try {
+                                dataBean.setTransactionid((String) objArr[0]);
+                            } catch (NullPointerException npe) {
+                                dataBean.setTransactionid("--");
+                            }
+
+                            try {
+                                if (objArr[1] != null) {
+                                    dataBean.setTxntypecode((String) objArr[1]);
+                                } else {
+                                    dataBean.setTxntypecode("--");
+                                }
+                            } catch (Exception e) {
+                                dataBean.setTxntypecode("--");
+                            }
+
+                            if (objArr[2] != null) {
+                                dataBean.setRrn((String) objArr[2]);
+                            } else {
+                                dataBean.setRrn("--");
+                            }
+
+                            if (objArr[3] != null) {
+                                dataBean.setTracenumber((String) objArr[3]);
+                            } else {
+                                dataBean.setTracenumber("--");
+                            }
+                            if (objArr[4] != null) {
+                                dataBean.setResponcecode((objArr[4]).toString());
+                            } else {
+                                dataBean.setResponcecode("--");
+                            }
+                            if (objArr[5] != null) {
+                                dataBean.setStatus((String) objArr[5]);
+                            } else {
+                                dataBean.setStatus("--");
+                            }
+
+                            if (objArr[6] != null) {
+                                dataBean.setLastupdateduser((String) objArr[6]);
+                            } else {
+                                dataBean.setLastupdateduser("--");
+                            }
+
+                            if (objArr[7] != null) {
+                                dataBean.setLastupdatedtime((objArr[7]).toString());
+                            } else {
+                                dataBean.setLastupdatedtime("--");
+                            }
+
+                            if (objArr[8] != null) {
+                                dataBean.setCreatetime(objArr[8].toString());
+                            } else {
+                                dataBean.setCreatetime("--");
+                            }
+
+                            if (objArr[9] != null) {
+                                dataBean.setMti(objArr[9].toString());
+                            } else {
+                                dataBean.setMti("--");
+                            }
+
+                            if (objArr[10] != null) {
+                                dataBean.setProcessingcode((String) objArr[10]);
+                            } else {
+                                dataBean.setProcessingcode("--");
+                            }
+
+                            if (objArr[11] != null) {
+                                dataBean.setLocaldate(objArr[11].toString());
+                            } else {
+                                dataBean.setLocaldate("--");
+                            }
+
+                            if (objArr[12] != null) {
+                                dataBean.setLocaltime((String) objArr[12]);
+                            } else {
+                                dataBean.setLocaltime("--");
+                            }
+
+                            if (objArr[13] != null) {
+                                dataBean.setPosentrymode((objArr[13]).toString());
+                            } else {
+                                dataBean.setPosentrymode("--");
+                            }
+
+                            if (objArr[14] != null) {
+                                dataBean.setPosconditioncode((String) objArr[14]);
+                            } else {
+                                dataBean.setPosconditioncode("--");
+                            }
+
+                            if (objArr[15] != null) {
+                                dataBean.setInvoiceno((String) objArr[15]);
+                            } else {
+                                dataBean.setInvoiceno("--");
+                            }
+
+                            if (objArr[16] != null) {
+                                dataBean.setNii((String) objArr[16]);
+                            } else {
+                                dataBean.setNii("--");
+                            }
+
+                            if (objArr[17] != null) {
+                                dataBean.setAmount(this.formatAmount((String) objArr[17]));
+                            } else {
+                                dataBean.setAmount("--");
+                            }
+
+                            if (objArr[18] != null) {
+                                dataBean.setCurrencycode((String) objArr[18]);
+                            } else {
+                                dataBean.setCurrencycode("--");
+                            }
+
+                            if (objArr[19] != null) {
+                                dataBean.setTid((String) objArr[19]);
+                            } else {
+                                dataBean.setTid("--");
+                            }
+
+                            if (objArr[20] != null) {
+                                dataBean.setMid((String) objArr[20]);
+                            } else {
+                                dataBean.setMid("--");
+                            }
+
+                            if (objArr[21] != null) {
+                                dataBean.setListnertype(objArr[21].toString());
+                            } else {
+                                dataBean.setListnertype("--");
+                            }
+
+                            if (objArr[22] != null) {
+                                dataBean.setSettlementamount(objArr[22].toString());
+                            } else {
+                                dataBean.setSettlementamount("--");
+                            }
+
+                            if (objArr[23] != null) {
+                                dataBean.setSettlementtxncount(objArr[23].toString());
+                            } else {
+                                dataBean.setSettlementtxncount("--");
+                            }
+
+                            if (objArr[24] != null) {
+                                dataBean.setSettlementdate((String) objArr[24]);
+                            } else {
+                                dataBean.setSettlementdate("--");
+                            }
+
+                            if (objArr[25] != null) {
+                                dataBean.setBatchno((String) objArr[25]);
+                            } else {
+                                dataBean.setBatchno("--");
+                            }
+
+                            if (objArr[26] != null) {
+                                dataBean.setAuthcode((String) objArr[26]);
+                            } else {
+                                dataBean.setAuthcode("--");
+                            }
+
+                            if (objArr[27] != null) {
+                                dataBean.setQr_url((String) objArr[27]);
+                            } else {
+                                dataBean.setQr_url("--");
+                            }
+
+                            if (objArr[28] != null) {
+                                dataBean.setSignature((String) objArr[28]);
+                            } else {
+                                dataBean.setSignature("--");
+                            }
+
+                            if (objArr[29] != null) {
+                                dataBean.setEodstatus((String) objArr[29]);
+                            } else {
+                                dataBean.setEodstatus("--");
+                            }
+
+                            dataBean.setFullCount(count);
+
+                            if (currRow + 1 > maxRow) {
+                                fileCount++;
+                                this.writeTemporaryFile(workbook, fileCount, directory);
+                                workbook = this.createExcelTopSection(inputBean);
+                                sheet = workbook.getSheetAt(0);
+                                currRow = headerRowCount;
+                                this.createExcelTableHeaderSection(workbook, currRow);
+                            }
+                            currRow = this.createExcelTableBodySection(workbook, dataBean, currRow, listrownumber);
+                            listrownumber++;
+                            if (currRow % 100 == 0) {
+                                ((SXSSFSheet) sheet).flushRows(100); // retain 100 last rows and flush all others
+
+                                // ((SXSSFSheet)sh).flushRows() is a shortcut for ((SXSSFSheet)sh).flushRows(0),
+                                // this method flushes all rows
+                            }
+                        }
+                    }
+                    from = from + selectRow;
+                }
+
+                Date createdTime = CommonDAO.getSystemDate(session);
+                this.createExcelBotomSection(workbook, currRow, count, createdTime);
+
+                if (fileCount > 0) {
+                    fileCount++;
+                    this.writeTemporaryFile(workbook, fileCount, directory);
+                    ByteArrayOutputStream outputStream = Common.zipFiles(file.listFiles());
+                    returnObject = outputStream;
+                    workbook.dispose();
+                } else {
+                    for (int i = 0; i < columnCount; i++) {
+                        //to auto size all column in the sheet
+                        sheet.autoSizeColumn(i);
+                    }
+
+                    returnObject = workbook;
+                }
+            }
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+        return returnObject;
+    }
+
+    private SXSSFWorkbook createExcelTopSection(TxnExplorerInputBean inputBean) throws Exception {
+
+        SXSSFWorkbook workbook = new SXSSFWorkbook(-1);
+        Sheet sheet = workbook.createSheet("Transaction Explorer Report");
+
+        CellStyle fontBoldedUnderlinedCell = ExcelCommon.getFontBoldedUnderlinedCell(workbook);
+
+        Row row = sheet.createRow(0);
+        Cell cell = row.createCell(0);
+        cell.setCellValue("Bank of Maldives Plc");
+        cell.setCellStyle(fontBoldedUnderlinedCell);
+
+        row = sheet.createRow(2);
+        cell = row.createCell(0);
+        cell.setCellValue("Transaction Explorer Report");
+        cell.setCellStyle(fontBoldedUnderlinedCell);
+
+        row = sheet.createRow(4);
+        cell = row.createCell(0);
+        cell.setCellValue("From Date");
+        cell = row.createCell(1);
+        cell.setCellValue(Common.replaceEmptyorNullStringToNA(inputBean.getFromdate()));
+        cell.setCellStyle(ExcelCommon.getAligneCell(workbook, null, XSSFCellStyle.ALIGN_RIGHT));
+
+        cell = row.createCell(3);
+        cell.setCellValue("To Date");
+        cell = row.createCell(4);
+        cell.setCellValue(Common.replaceEmptyorNullStringToNA(inputBean.getTodate()));
+        cell.setCellStyle(ExcelCommon.getAligneCell(workbook, null, XSSFCellStyle.ALIGN_RIGHT));
+
+        row = sheet.createRow(5);
+        cell = row.createCell(0);
+        cell.setCellValue("Transaction Type");
+        cell = row.createCell(1);
+        cell.setCellValue(Common.replaceEmptyorNullStringToNA(inputBean.getTxnTypeDes()));
+        cell.setCellStyle(ExcelCommon.getAligneCell(workbook, null, XSSFCellStyle.ALIGN_RIGHT));
+
+        cell = row.createCell(3);
+        cell.setCellValue("RRN");
+        cell = row.createCell(4);
+        cell.setCellValue(Common.replaceEmptyorNullStringToNA(inputBean.getRrn()));
+        cell.setCellStyle(ExcelCommon.getAligneCell(workbook, null, XSSFCellStyle.ALIGN_RIGHT));
+
+        row = sheet.createRow(6);
+        cell = row.createCell(0);
+        cell.setCellValue("Response Code");
+        cell = row.createCell(1);
+        cell.setCellValue(Common.replaceEmptyorNullStringToNA(inputBean.getResponcecodeDes()));
+        cell.setCellStyle(ExcelCommon.getAligneCell(workbook, null, XSSFCellStyle.ALIGN_RIGHT));
+
+        cell = row.createCell(3);
+        cell.setCellValue("Trace Number");
+        cell = row.createCell(4);
+        cell.setCellValue(Common.replaceEmptyorNullStringToNA(inputBean.getTracenumber()));
+        cell.setCellStyle(ExcelCommon.getAligneCell(workbook, null, XSSFCellStyle.ALIGN_RIGHT));
+
+        row = sheet.createRow(7);
+        cell = row.createCell(0);
+        cell.setCellValue("Status");
+        cell = row.createCell(1);
+        cell.setCellValue(Common.replaceEmptyorNullStringToNA(inputBean.getStatusDes()));
+        cell.setCellStyle(ExcelCommon.getAligneCell(workbook, null, XSSFCellStyle.ALIGN_RIGHT));
+
+        cell = row.createCell(3);
+        cell.setCellValue("Invoice Number");
+        cell = row.createCell(4);
+        cell.setCellValue(Common.replaceEmptyorNullStringToNA(inputBean.getInvoiceno()));
+        cell.setCellStyle(ExcelCommon.getAligneCell(workbook, null, XSSFCellStyle.ALIGN_RIGHT));
+
+        row = sheet.createRow(8);
+        cell = row.createCell(0);
+        cell.setCellValue("Amount");
+        cell = row.createCell(1);
+        cell.setCellValue(Common.replaceEmptyorNullStringToNA(inputBean.getAmount()));
+        cell.setCellStyle(ExcelCommon.getAligneCell(workbook, null, XSSFCellStyle.ALIGN_RIGHT));
+
+        cell = row.createCell(3);
+        cell.setCellValue("Currency");
+        cell = row.createCell(4);
+        cell.setCellValue(Common.replaceEmptyorNullStringToNA(inputBean.getCurrencyDes()));
+        cell.setCellStyle(ExcelCommon.getAligneCell(workbook, null, XSSFCellStyle.ALIGN_RIGHT));
+
+        row = sheet.createRow(9);
+        cell = row.createCell(0);
+        cell.setCellValue("Tid");
+        cell = row.createCell(1);
+        cell.setCellValue(Common.replaceEmptyorNullStringToNA(inputBean.getTid()));
+        cell.setCellStyle(ExcelCommon.getAligneCell(workbook, null, XSSFCellStyle.ALIGN_RIGHT));
+
+        cell = row.createCell(3);
+        cell.setCellValue("Mid");
+        cell = row.createCell(4);
+        cell.setCellValue(Common.replaceEmptyorNullStringToNA(inputBean.getMid()));
+        cell.setCellStyle(ExcelCommon.getAligneCell(workbook, null, XSSFCellStyle.ALIGN_RIGHT));
+
+//        row = sheet.createRow(10);
+//        cell = row.createCell(0);
+//        cell.setCellValue("Delivery Method");
+//        cell = row.createCell(1);
+//        cell.setCellValue(Common.replaceEmptyorNullStringToNA(inputBean.getUritypeDes()));
+//        cell.setCellStyle(ExcelCommon.getAligneCell(workbook, null, XSSFCellStyle.ALIGN_RIGHT));
+//
+//        cell = row.createCell(3);
+//        cell.setCellValue("Source of Transaction");
+//        cell = row.createCell(4);
+//        cell.setCellValue(Common.replaceEmptyorNullStringToNA(inputBean.getListnerconfigDes()));
+//        cell.setCellStyle(ExcelCommon.getAligneCell(workbook, null, XSSFCellStyle.ALIGN_RIGHT));
+
+        return workbook;
+    }
+
+    private int createExcelTableHeaderSection(SXSSFWorkbook workbook, int currrow) throws Exception {
+        CellStyle columnHeaderCell = ExcelCommon.getColumnHeadeCell(workbook);
+        Sheet sheet = workbook.getSheetAt(0);
+        Row row = sheet.createRow(currrow++);
+
+        Cell cell = row.createCell(0);
+        cell.setCellValue("No");
+        cell.setCellStyle(columnHeaderCell);
+
+        cell = row.createCell(1);
+        cell.setCellValue("Transaction ID");
+        cell.setCellStyle(columnHeaderCell);
+
+        cell = row.createCell(2);
+        cell.setCellValue("Transaction Type");
+        cell.setCellStyle(columnHeaderCell);
+
+        cell = row.createCell(3);
+        cell.setCellValue("RRN");
+        cell.setCellStyle(columnHeaderCell);
+
+        cell = row.createCell(4);
+        cell.setCellValue("Trace Number");
+        cell.setCellStyle(columnHeaderCell);
+
+        cell = row.createCell(5);
+        cell.setCellValue("Response");
+        cell.setCellStyle(columnHeaderCell);
+
+        cell = row.createCell(6);
+        cell.setCellValue("Status");
+        cell.setCellStyle(columnHeaderCell);
+
+        cell = row.createCell(7);
+        cell.setCellValue("Created Time");
+        cell.setCellStyle(columnHeaderCell);
+
+        cell = row.createCell(8);
+        cell.setCellValue("MTI");
+        cell.setCellStyle(columnHeaderCell);
+
+        cell = row.createCell(9);
+        cell.setCellValue("Processing Code");
+        cell.setCellStyle(columnHeaderCell);
+
+        cell = row.createCell(10);
+        cell.setCellValue("Local Date");
+        cell.setCellStyle(columnHeaderCell);
+
+        cell = row.createCell(11);
+        cell.setCellValue("Local Time");
+        cell.setCellStyle(columnHeaderCell);
+
+        cell = row.createCell(12);
+        cell.setCellValue("Invoice Number");
+        cell.setCellStyle(columnHeaderCell);
+
+        cell = row.createCell(13);
+        cell.setCellValue("Amount");
+        cell.setCellStyle(columnHeaderCell);
+
+        cell = row.createCell(14);
+        cell.setCellValue("Currency");
+        cell.setCellStyle(columnHeaderCell);
+
+        cell = row.createCell(15);
+        cell.setCellValue("TID");
+        cell.setCellStyle(columnHeaderCell);
+
+        cell = row.createCell(16);
+        cell.setCellValue("MID");
+        cell.setCellStyle(columnHeaderCell);
+
+        cell = row.createCell(17);
+        cell.setCellValue("Auth Code");
+        cell.setCellStyle(columnHeaderCell);
+
+        cell = row.createCell(18);
+        cell.setCellValue("QR URL");
+        cell.setCellStyle(columnHeaderCell);
+
+        cell = row.createCell(19);
+        cell.setCellValue("Signature");
+        cell.setCellStyle(columnHeaderCell);
+
+        cell = row.createCell(20);
+        cell.setCellValue("EOD Status");
+        cell.setCellStyle(columnHeaderCell);
+
+        
+
+        return currrow;
+    }
+
+    private void writeTemporaryFile(SXSSFWorkbook workbook, int fileCount, String directory) throws Exception {
+        File file;
+        FileOutputStream outputStream = null;
+        try {
+            Sheet sheet = workbook.getSheetAt(0);
+            for (int i = 0; i < columnCount; i++) {
+                //to auto size all column in the sheet
+                //                sheet.autoSizeColumn(i);
+            }
+
+            file = new File(directory);
+            if (!file.exists()) {
+                System.out.println("Directory created or not : " + file.mkdirs());
+            }
+
+            if (fileCount > 0) {
+                file = new File(directory + File.separator + "Login History Report_" + fileCount + ".xlsx");
+            } else {
+                file = new File(directory + File.separator + "Login History Report.xlsx");
+            }
+            outputStream = new FileOutputStream(file);
+            workbook.write(outputStream);
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            if (outputStream != null) {
+                outputStream.flush();
+                outputStream.close();
+            }
+        }
+    }
+
+    private int createExcelTableBodySection(SXSSFWorkbook workbook, TxnDataBean dataBean, int currrow, int rownumber) throws Exception {
+        Sheet sheet = workbook.getSheetAt(0);
+        CellStyle rowColumnCell = ExcelCommon.getRowColumnCell(workbook);
+        Row row = sheet.createRow(currrow++);
+
+        Cell cell = row.createCell(0);
+        cell.setCellValue(rownumber);
+        cell.setCellStyle(rowColumnCell);
+
+        cell = row.createCell(1);
+        cell.setCellValue(dataBean.getTransactionid());
+        cell.setCellStyle(rowColumnCell);
+
+        cell = row.createCell(2);
+        cell.setCellValue(dataBean.getTxntypecode());
+        cell.setCellStyle(rowColumnCell);
+
+        cell = row.createCell(3);
+        cell.setCellValue(dataBean.getRrn());
+        cell.setCellStyle(rowColumnCell);
+
+        cell = row.createCell(4);
+        cell.setCellValue(dataBean.getTracenumber());
+        cell.setCellStyle(rowColumnCell);
+
+        cell = row.createCell(5);
+        cell.setCellValue(dataBean.getResponcecode());
+        cell.setCellStyle(rowColumnCell);
+
+        cell = row.createCell(6);
+        cell.setCellValue(dataBean.getStatus());
+        cell.setCellStyle(rowColumnCell);
+
+        cell = row.createCell(7);
+        cell.setCellValue(dataBean.getCreatetime());
+        cell.setCellStyle(rowColumnCell);
+
+        cell = row.createCell(8);
+        cell.setCellValue(dataBean.getMti());
+        cell.setCellStyle(rowColumnCell);
+
+        cell = row.createCell(9);
+        cell.setCellValue(dataBean.getProcessingcode());
+        cell.setCellStyle(rowColumnCell);
+
+        cell = row.createCell(10);
+        cell.setCellValue(dataBean.getLocaldate());
+        cell.setCellStyle(rowColumnCell);
+
+        cell = row.createCell(11);
+        cell.setCellValue(dataBean.getLocaltime());
+        cell.setCellStyle(rowColumnCell);
+
+        cell = row.createCell(12);
+        cell.setCellValue(dataBean.getInvoiceno());
+        cell.setCellStyle(rowColumnCell);
+
+        cell = row.createCell(13);
+        cell.setCellValue(dataBean.getAmount());
+        cell.setCellStyle(rowColumnCell);
+
+        cell = row.createCell(14);
+        cell.setCellValue(dataBean.getCurrencycode());
+        cell.setCellStyle(rowColumnCell);
+
+        cell = row.createCell(15);
+        cell.setCellValue(dataBean.getTid());
+        cell.setCellStyle(rowColumnCell);
+
+        cell = row.createCell(16);
+        cell.setCellValue(dataBean.getMid());
+        cell.setCellStyle(rowColumnCell);
+
+        cell = row.createCell(17);
+        cell.setCellValue(dataBean.getAuthcode());
+        cell.setCellStyle(rowColumnCell);
+
+        cell = row.createCell(18);
+        cell.setCellValue(dataBean.getQr_url());
+        cell.setCellStyle(rowColumnCell);
+
+        cell = row.createCell(19);
+        cell.setCellValue(dataBean.getSignature());
+        cell.setCellStyle(rowColumnCell);
+
+        cell = row.createCell(20);
+        cell.setCellValue(dataBean.getEodstatus());
+        cell.setCellStyle(rowColumnCell);
+
+        
+        return currrow;
+    }
+
+    private void createExcelBotomSection(SXSSFWorkbook workbook, int currrow, long count, Date date) throws Exception {
+
+        CellStyle fontBoldedCell = ExcelCommon.getFontBoldedCell(workbook);
+        Sheet sheet = workbook.getSheetAt(0);
+
+        currrow++;
+        Row row = sheet.createRow(currrow++);
+        Cell cell = row.createCell(0);
+        cell.setCellValue("Summary");
+        cell.setCellStyle(fontBoldedCell);
+
+        row = sheet.createRow(currrow++);
+        cell = row.createCell(0);
+        cell.setCellValue("Total Record Count");
+        cell = row.createCell(1);
+        cell.setCellValue(count);
+        cell.setCellStyle(ExcelCommon.getAligneCell(workbook, null, XSSFCellStyle.ALIGN_RIGHT));
+
+        row = sheet.createRow(currrow++);
+        cell = row.createCell(0);
+        cell.setCellValue("Report Created Time");
+        cell = row.createCell(1);
+        cell.setCellValue(date.toString());
+        cell.setCellStyle(ExcelCommon.getAligneCell(workbook, null, XSSFCellStyle.ALIGN_RIGHT));
+    }
+
+    private String formatAmount(String amount) {
+        try {
+            amount = amount.replaceFirst("^0+(?!$)", "");
+            float n = Float.valueOf(amount);
+            return String.format("%.2f", n);
+        } catch (Exception e) {
+            return "--";
+        }  
+    }
+
+}

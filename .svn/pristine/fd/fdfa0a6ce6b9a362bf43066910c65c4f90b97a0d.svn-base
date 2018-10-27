@@ -1,0 +1,745 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.dao.controlpanel.acquirer;
+
+import com.epic.bmlalipay.bean.controlpanel.acquirer.AcqRiskProfileBean;
+import com.epic.bmlalipay.bean.controlpanel.acquirer.AcqRiskProfileInputBean;
+import com.epic.bmlalipay.bean.controlpanel.acquirer.AcqRiskProfileTxnBean;
+import com.epic.bmlalipay.dao.common.CommonDAO;
+import com.epic.bmlalipay.util.common.Common;
+import com.epic.bmlalipay.util.common.HibernateInit;
+import com.epic.bmlalipay.util.mapping.AcquirerRiskprofile;
+import com.epic.bmlalipay.util.mapping.AcquirerRiskprofileCurrency;
+import com.epic.bmlalipay.util.mapping.AcquirerRiskprofileId;
+import com.epic.bmlalipay.util.mapping.AcquirerRiskprofileTxn;
+import com.epic.bmlalipay.util.mapping.AcquirerRiskprofileTxnId;
+import com.epic.bmlalipay.util.mapping.AcquirerRiskprofileType;
+import com.epic.bmlalipay.util.mapping.Currency;
+import com.epic.bmlalipay.util.mapping.Status;
+import com.epic.bmlalipay.util.mapping.Systemaudit;
+import com.epic.bmlalipay.util.varlist.CommonVarList;
+import com.epic.bmlalipay.util.varlist.MessageVarList;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import org.hibernate.Criteria;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
+
+/**
+ *
+ * @author asitha_l
+ */
+public class AcquirerRiskProfileDAO {
+
+    public AcquirerRiskprofileCurrency findRiskProfileById(String riskProfileCode, String riskprofilecurrency) throws Exception {
+        AcquirerRiskprofileCurrency riskprofile = null;
+        Session session = null;
+
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+
+            String sql = "from AcquirerRiskprofileCurrency as u where u.id.profilecode=:profilecode and u.id.currencycode=:currencycode";
+            Query query = session.createQuery(sql).setString("profilecode", riskProfileCode.trim()).setString("currencycode", riskprofilecurrency.trim());
+            riskprofile = (AcquirerRiskprofileCurrency) query.list().get(0);
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return riskprofile;
+
+    }
+
+    public String deleteRiskProfile(AcqRiskProfileInputBean inputBean, Systemaudit audit) throws Exception {
+        Session session = null;
+        Transaction txn = null;
+        String message = "";
+        AcquirerRiskprofileCurrency riskprofile = null;
+        long flag = 0;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            txn = session.beginTransaction();
+            Date sysDate = CommonDAO.getSystemDate(session);
+
+            String sql1 = "from AcquirerRiskprofileCurrency as u where u.id.profilecode=:profilecode and u.id.currencycode=:currencycode";
+            Query query1 = session.createQuery(sql1)
+                    .setString("profilecode", inputBean.getProfileCode())
+                    .setString("currencycode", inputBean.getRiskprofilecurrency());
+            if (!query1.list().isEmpty()) {
+                riskprofile = (AcquirerRiskprofileCurrency) query1.list().get(0);
+                String sqllist = "from AcquirerRiskprofileTxn as u where u.id.profilecode=:profilecode and u.id.currencycode=:currencycode";
+                Query querylist = session.createQuery(sqllist)
+                        .setString("profilecode", inputBean.getProfileCode().trim())
+                        .setString("currencycode", inputBean.getRiskprofilecurrency().trim());
+                List<AcquirerRiskprofileTxn> txns = querylist.list();
+
+                for (AcquirerRiskprofileTxn f : txns) {
+                    session.delete(f);
+                }
+                String sql = "select count(art.id.profilecode) from AcquirerRiskprofileTxn as art where art.id.profilecode=:profilecode and art.id.currencycode=:currencycode";
+                Query query = session.createQuery(sql)
+                        .setString("profilecode", inputBean.getProfileCode().trim())
+                        .setString("currencycode", inputBean.getRiskprofilecurrency().trim());
+                
+                Iterator itCount1 = query.iterate();
+                flag = (Long) itCount1.next();
+
+                if (flag > 0) {
+                    message = MessageVarList.COMMON_ALREADY_IN_USE;
+                } else {
+                    audit.setCreatetime(sysDate);
+                    audit.setLastupdatedtime(sysDate);
+
+                    session.save(audit);
+                    session.delete(riskprofile);
+                    String sqlCount = "select count(profilecode) from AcquirerRiskprofileCurrency as u where u.id.profilecode=:profilecode";
+                    Query queryCount = session.createQuery(sqlCount).setString("profilecode", inputBean.getProfileCode().trim());
+                    Iterator itCount = queryCount.iterate();
+                    Long count = (Long) itCount.next();
+                    if(count==0){
+                        AcquirerRiskprofile pro = (AcquirerRiskprofile) session.get(AcquirerRiskprofile.class, inputBean.getProfileCode().trim());
+                        session.delete(pro);
+                    }
+                    txn.commit();
+                }
+
+            } else {
+                message = MessageVarList.COMMON_NOT_EXISTS;
+            }
+        } catch (Exception e) {
+            if (txn != null) {
+                txn.rollback();
+            }
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return message;
+    }
+
+    public List<AcqRiskProfileBean> getSearchList(AcqRiskProfileInputBean inputBean, int rows, int from, String sortIndex, String sortOrder) throws Exception {
+
+        Session session = null;
+        List<AcqRiskProfileBean> dataBeanList = null;
+        List<AcquirerRiskprofileCurrency> searchList = null;
+        long fullCount = 0;
+        if ("".equals(sortIndex.trim())) {
+            sortIndex = null;
+        }
+        try {
+
+            session = HibernateInit.sessionFactory.openSession();
+            session.beginTransaction();
+            Criteria criteria = session.createCriteria(AcquirerRiskprofileCurrency.class);
+            criteria.createAlias("status", "status");
+            this.makeWhereClause(inputBean, criteria);
+
+            criteria.addOrder(Order.desc("createtime"));
+            criteria.add(Restrictions.ne("status.statuscode", CommonVarList.STATUS_DELETE));
+
+            fullCount = criteria.list().size();
+
+            criteria.setFirstResult(from);
+            criteria.setMaxResults(rows);
+
+            searchList = criteria.list();
+            dataBeanList = new ArrayList<AcqRiskProfileBean>();
+
+            for (AcquirerRiskprofileCurrency user : searchList) {
+
+                AcqRiskProfileBean systemUser = new AcqRiskProfileBean();
+
+                try {
+                    systemUser.setProfilecode(user.getId().getProfilecode());
+                } catch (NullPointerException npe) {
+                    systemUser.setProfilecode("--");
+                }
+                try {
+                    String currencycode = user.getId().getCurrencycode();
+                    Currency currency = (Currency) session.get(Currency.class, currencycode.trim());
+                    systemUser.setRiskprofilecurrency(currency.getDescription());
+                    systemUser.setCurrencycode(currencycode);
+
+                } catch (NullPointerException npe) {
+                    systemUser.setRiskprofilecurrency("--");
+                    systemUser.setCurrencycode("--");
+                }
+                try {
+                    systemUser.setAcquirerRiskprofileType(user.getAcquirerRiskprofileType().getDescription());
+                } catch (NullPointerException npe) {
+                    systemUser.setAcquirerRiskprofileType("--");
+                }
+                try {
+                    systemUser.setStatus(user.getStatus().getDescription());
+                } catch (NullPointerException npe) {
+                    systemUser.setStatus("--");
+                }
+                try {
+                    systemUser.setDescription(user.getDescription());
+                } catch (NullPointerException npe) {
+                    systemUser.setDescription("--");
+                }
+
+                systemUser.setFullCount(fullCount);
+
+                dataBeanList.add(systemUser);
+            }
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return dataBeanList;
+    }
+
+    private void makeWhereClause(AcqRiskProfileInputBean inputBean, Criteria criteria) throws Exception {
+
+        criteria.createAlias("acquirerRiskprofileType", "acquirerRiskprofileType");
+        System.out.println("'%" + inputBean.getS_currency() + "%'");
+        if ((inputBean.getS_profileCode() == null || inputBean.getS_profileCode().isEmpty())
+                && (inputBean.getS_description() == null || inputBean.getS_description().isEmpty())
+                && (inputBean.getS_status() == null || inputBean.getS_status().isEmpty())
+                && (inputBean.getS_riskprofileType() == null || inputBean.getS_riskprofileType().isEmpty())
+                && (inputBean.getS_currency() == null || inputBean.getS_currency().isEmpty())) {
+
+        } else {
+
+            if (inputBean.getS_profileCode() != null && !inputBean.getS_profileCode().trim().isEmpty()) {
+                criteria.add(Restrictions.like("id.profilecode", "%" + inputBean.getS_profileCode().trim() + "%"));
+            }
+            if (inputBean.getS_currency() != null || !inputBean.getS_currency().trim().isEmpty()) {
+                criteria.add(Restrictions.like("id.currencycode", "%" + inputBean.getS_currency().trim() + "%"));
+            }
+            if (inputBean.getS_description() != null && !inputBean.getS_description().trim().isEmpty()) {
+                criteria.add(Restrictions.like("description", "%" + inputBean.getS_description().trim() + "%"));
+            }
+            if (inputBean.getS_status() != null && !inputBean.getS_status().isEmpty()) {
+                criteria.add(Restrictions.eq("status.statuscode", inputBean.getS_status()));
+            }
+            if (inputBean.getS_riskprofileType() != null && !inputBean.getS_riskprofileType().isEmpty()) {
+                criteria.add(Restrictions.eq("acquirerRiskprofileType.profileType", inputBean.getS_riskprofileType()));
+            }
+
+        }
+    }
+
+    public String insertAcquirerRisk(AcqRiskProfileInputBean inputBean, List<AcqRiskProfileTxnBean> txnRiskList, Systemaudit audit) throws Exception {
+        Session session = null;
+        Transaction txn = null;
+
+        String newValue = "";
+        String newValuetmp = "";
+
+        String message = "";
+        try {
+
+            CommonDAO commonDao = new CommonDAO();
+
+            session = HibernateInit.sessionFactory.openSession();
+            Date sysDate = commonDao.getSystemDate(session);
+            txn = session.beginTransaction();
+
+            Status st = (Status) session.get(Status.class, inputBean.getStatus().trim());
+            Status defaultst = (Status) session.get(Status.class, CommonVarList.STATUS_NO);
+            AcquirerRiskprofileType profileType = (AcquirerRiskprofileType) session.get(AcquirerRiskprofileType.class, inputBean.getRiskprofileType().trim());
+
+            AcquirerRiskprofile acqRisk = new AcquirerRiskprofile();
+            acqRisk.setProfilecode(inputBean.getProfileCode());
+            acqRisk.setStatus(st);
+            acqRisk.setStatusByDefaultStatus(defaultst);
+            acqRisk.setAcquirerRiskprofileType(profileType);
+            acqRisk.setDescription(inputBean.getDescription());
+            acqRisk.setCreatetime(sysDate);
+            acqRisk.setLastupdatedtime(sysDate);
+            acqRisk.setLastupdateduser(audit.getLastupdateduser());
+            session.saveOrUpdate(acqRisk);
+
+            List<Currency> currentList = new ArrayList<Currency>();
+            currentList = commonDao.getCurrencyList();
+            for (Iterator<Currency> it = currentList.iterator(); it.hasNext();) {
+
+                Currency currency = it.next();
+                inputBean.setRiskprofilecurrency(currency.getCurrencycode());
+
+                if (txnRiskList != null && !txnRiskList.isEmpty()) {
+                    String sql = "from AcquirerRiskprofileCurrency as u where u.id.profilecode=:profilecode and u.id.currencycode=:currencycode";
+                    Query query = session.createQuery(sql)
+                            .setString("profilecode", inputBean.getProfileCode())
+                            .setString("currencycode", inputBean.getRiskprofilecurrency());
+
+                    if (query.list().isEmpty()) {
+
+                        AcquirerRiskprofileId id = new AcquirerRiskprofileId();
+                        id.setProfilecode(inputBean.getProfileCode());
+                        id.setCurrencycode(inputBean.getRiskprofilecurrency());
+
+                        AcquirerRiskprofileCurrency profile = new AcquirerRiskprofileCurrency();
+                        profile.setId(id);
+                        profile.setDescription(inputBean.getDescription().trim());
+
+                        profile.setStatus(st);
+                        profile.setStatusByDefaultStatus(defaultst);
+                        profile.setAcquirerRiskprofileType(profileType);
+
+                        profile.setCreatetime(sysDate);
+                        profile.setLastupdatedtime(sysDate);
+                        profile.setLastupdateduser(audit.getLastupdateduser());
+
+                        newValue = profile.getId().getProfilecode()
+                                + "|" + profile.getDescription()
+                                + "|" + profile.getAcquirerRiskprofileType().getDescription()
+                                + "|" + profile.getStatus().getDescription()
+                                + "|" + profile.getId().getCurrencycode();
+
+                        session.save(profile);
+
+                        for (AcqRiskProfileTxnBean acqRiskBean : txnRiskList) {
+                            AcquirerRiskprofileTxn acqTxn = new AcquirerRiskprofileTxn();
+
+                            acqRiskBean.setMinAmount(acqRiskBean.getMinAmount().replace(",", ""));
+                            acqRiskBean.setMaxAmount(acqRiskBean.getMaxAmount().replace(",", ""));
+                            acqRiskBean.setDailyAmount(acqRiskBean.getDailyAmount().replace(",", ""));
+
+                            AcquirerRiskprofileTxnId acqTxnId = new AcquirerRiskprofileTxnId();
+                            acqTxnId.setProfilecode(inputBean.getProfileCode().trim());
+                            acqTxnId.setTxntypecode(acqRiskBean.getTxnType());
+                            acqTxnId.setCurrencycode(inputBean.getRiskprofilecurrency());
+
+                            acqTxn.setId(acqTxnId);
+                            acqTxn.setDaillyCount(new BigDecimal(acqRiskBean.getDailyCount()));
+                            acqTxn.setDaillyAmount(new BigDecimal(acqRiskBean.getDailyAmount()));
+                            acqTxn.setMaxAmount(new BigDecimal(acqRiskBean.getMaxAmount()));
+                            acqTxn.setMinAmount(new BigDecimal(acqRiskBean.getMinAmount()));
+                            acqTxn.setCreatetime(sysDate);
+                            acqTxn.setLastupdatedtime(sysDate);
+                            acqTxn.setLastupdateduser(audit.getLastupdateduser());
+
+                            newValuetmp = "|" + inputBean.getProfileCode()
+                                    + "|" + commonDao.getDescriptionByTxnCode(acqRiskBean.getTxnType())
+                                    + "|" + inputBean.getCurrency()
+                                    + "|" + acqTxn.getMinAmount().toString()
+                                    + "|" + acqTxn.getMaxAmount().toString()
+                                    + "|" + acqTxn.getDaillyCount().toString()
+                                    + "|" + acqTxn.getDaillyAmount().toString();
+
+                            newValue = newValue + newValuetmp;
+
+                            session.save(acqTxn);
+                        }
+
+                        audit.setNewvalue(newValue);
+                        audit.setCreatetime(sysDate);
+                        audit.setLastupdatedtime(sysDate);
+
+                        session.save(audit);
+
+                    } else {
+                        message = MessageVarList.COMMON_ALREADY_EXISTS;
+                    }
+                } else {
+                    message = MessageVarList.ACQUIRER_TXN_RISK_PROFILE_TXN_EMPTY;
+                }
+            }
+
+            txn.commit();
+        } catch (Exception e) {
+            if (txn != null) {
+                txn.rollback();
+            }
+            System.out.println(e);
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return message;
+    }
+
+    public String updateAcquirerRisk(AcqRiskProfileInputBean inputBean, Systemaudit audit) throws Exception {
+
+        Session session = null;
+        Transaction txn = null;
+
+        String oldValue = "";
+        String oldValuetmp = "";
+        String oldValuetmptemp = "";
+        String newValue = "";
+        String newValuetmp = "";
+
+        String message = "";
+
+        try {
+            CommonDAO commonDao = new CommonDAO();
+
+            session = HibernateInit.sessionFactory.openSession();
+            txn = session.beginTransaction();
+
+            Date sysDate = commonDao.getSystemDate(session);
+
+            AcquirerRiskprofileCurrency u = (AcquirerRiskprofileCurrency) session.get(AcquirerRiskprofileCurrency.class, inputBean.getProfileCode().trim());
+
+            if (u != null) {
+
+                /**
+                 * for audit
+                 */
+                oldValue = u.getId().getProfilecode() + "|"
+                        + u.getDescription() + "|"
+                        + u.getAcquirerRiskprofileType().getDescription() + "|"
+                        + u.getStatus().getDescription() + "|"
+                        + oldValuetmp;
+
+                u.setDescription(inputBean.getDescription().trim());
+
+                Status st = (Status) session.get(Status.class, inputBean.getStatus().trim());
+                u.setStatus(st);
+
+                AcquirerRiskprofileType profileType = (AcquirerRiskprofileType) session.get(AcquirerRiskprofileType.class, inputBean.getRiskprofileType().trim());
+                u.setAcquirerRiskprofileType(profileType);
+
+                /**
+                 * for audit
+                 */
+                newValue = u.getId().getProfilecode() + "|"
+                        + u.getDescription() + "|"
+                        + u.getAcquirerRiskprofileType().getDescription() + "|"
+                        + u.getStatus().getDescription() + "|";
+
+                audit.setOldvalue(oldValue);
+                audit.setNewvalue(newValue);
+                audit.setCreatetime(sysDate);
+                audit.setLastupdatedtime(sysDate);
+
+                session.save(audit);
+                session.update(u);
+
+                txn.commit();
+
+            } else {
+                message = MessageVarList.COMMON_NOT_EXISTS;
+            }
+
+        } catch (Exception e) {
+            if (txn != null) {
+                txn.rollback();
+            }
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return message;
+    }
+
+    private AcquirerRiskprofileCurrency findstatusUsingRiskProfileType(String profileType, Session session) throws Exception {
+        AcquirerRiskprofileCurrency profile = null;
+
+        try {
+            String sql = "from AcquirerRiskprofileCurrency as u where u.defaultStatus='YES' and u.acquirerRiskprofileType.profileType=:profileType ";
+            Query query = session.createQuery(sql).setString("profileType", profileType);
+            profile = (AcquirerRiskprofileCurrency) query.list().get(0);
+
+        } catch (Exception ex) {
+            throw ex;
+        }
+        return profile;
+    }
+
+    private boolean isDefaultStatusupdateYes(String code, String profileType, Session session) throws Exception {
+        boolean status = false;
+
+        List<AcquirerRiskprofileCurrency> list;
+        try {
+            String sql = "from AcquirerRiskprofileCurrency as u where u.defaultStatus='YES' and u.acquirerRiskprofileType.profileType=:profileType ";
+            Query query = session.createQuery(sql).setString("profileType", profileType);
+            list = (List<AcquirerRiskprofileCurrency>) query.list();
+
+            if (list.size() > 0 && list.get(0).getId().getProfilecode().equals(code)) {
+                status = true;
+            }
+        } catch (Exception ex) {
+            throw ex;
+        }
+        return status;
+    }
+
+    private boolean isDefaultStatusNo(String code, Session session) throws Exception {
+        boolean status = false;
+
+        List<AcquirerRiskprofileCurrency> list;
+        try {
+            String sql = "from AcquirerRiskprofileCurrency as u where u.defaultStatus='NO' and u.profilecode=:profilecode";
+            Query query = session.createQuery(sql).setString("profilecode", code);
+            list = (List<AcquirerRiskprofileCurrency>) query.list();
+
+            if (list.size() > 0) {
+                status = true;
+            }
+        } catch (Exception ex) {
+            throw ex;
+        }
+        return status;
+    }
+
+    private boolean isDefaultStatusYes(String code) throws Exception {
+        boolean status = false;
+        Session session = null;
+
+        List<AcquirerRiskprofileCurrency> list;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            String sql = "from AcquirerRiskprofileCurrency as u where u.defaultStatus='YES' and u.profilecode=:profilecode";
+            Query query = session.createQuery(sql).setString("profilecode", code);
+            list = (List<AcquirerRiskprofileCurrency>) query.list();
+
+            if (list.size() > 0) {
+                status = true;
+            }
+        } catch (Exception ex) {
+            throw ex;
+        } finally {
+            session.flush();
+            session.close();
+        }
+        return status;
+    }
+
+    public List<AcqRiskProfileTxnBean> getTxnSearchList(AcqRiskProfileInputBean inputBean, List<AcqRiskProfileTxnBean> dataList) throws Exception {
+
+        try {
+
+            CommonDAO dao = new CommonDAO();
+            AcqRiskProfileTxnBean riskprofile = new AcqRiskProfileTxnBean();
+
+            if (inputBean.getTransactiontype() != null && !inputBean.getTransactiontype().isEmpty()) {
+                riskprofile.setTxnType(inputBean.getTransactiontype());
+                riskprofile.setTxnTypeDes(dao.getDescriptionByTxnCode(inputBean.getTransactiontype()));
+            } else {
+                riskprofile.setTxnType("--");
+                riskprofile.setTxnTypeDes("--");
+            }
+            if (inputBean.getDaillyAmount() != null && !inputBean.getDaillyAmount().isEmpty()) {
+                riskprofile.setDailyAmount(inputBean.getDaillyAmount());
+            } else {
+                riskprofile.setDailyAmount("--");
+            }
+            if (inputBean.getDaillyCount() != null && !inputBean.getDaillyCount().isEmpty()) {
+                riskprofile.setDailyCount(inputBean.getDaillyCount());
+            } else {
+                riskprofile.setDailyCount("--");
+            }
+            if (inputBean.getMaxAmount() != null && !inputBean.getMaxAmount().isEmpty()) {
+                riskprofile.setMaxAmount(inputBean.getMaxAmount());
+            } else {
+                riskprofile.setMaxAmount("--");
+            }
+            if (inputBean.getMinAmount() != null && !inputBean.getMinAmount().isEmpty()) {
+                riskprofile.setMinAmount(inputBean.getMinAmount());
+            } else {
+                riskprofile.setMinAmount("--");
+            }
+            if (inputBean.getCurrency() != null && !inputBean.getCurrency().isEmpty()) {
+                riskprofile.setCurrency(inputBean.getCurrency());
+            } else {
+                riskprofile.setCurrency("--");
+            }
+            dataList.add(riskprofile);
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return dataList;
+    }
+
+    public String updateAcquirerRisk(AcqRiskProfileInputBean inputBean, List<AcqRiskProfileTxnBean> txnRiskList, Systemaudit audit) throws Exception {
+
+        Session session = null;
+        Transaction txn = null;
+
+        String oldValue = "";
+        String oldValuetmp = "";
+        String oldValuetmptemp = "";
+        String newValue = "";
+        String newValuetmp = "";
+
+        String message = "";
+
+        try {
+            CommonDAO commonDao = new CommonDAO();
+
+            session = HibernateInit.sessionFactory.openSession();
+            txn = session.beginTransaction();
+
+            Date sysDate = commonDao.getSystemDate(session);
+
+            String sql1 = "from AcquirerRiskprofileCurrency as u where u.id.profilecode=:profilecode and u.id.currencycode=:currencycode";
+            Query query1 = session.createQuery(sql1)
+                    .setString("profilecode", inputBean.getProfileCode())
+                    .setString("currencycode", inputBean.getRiskprofilecurrency());
+            AcquirerRiskprofileCurrency u = (AcquirerRiskprofileCurrency) query1.list().get(0);
+
+            if (txnRiskList != null && !txnRiskList.isEmpty()) {
+                String sql = "from AcquirerRiskprofileTxn as u where u.id.profilecode=:profilecode and u.id.currencycode=:currencycode";
+                Query query = session.createQuery(sql)
+                        .setString("profilecode", inputBean.getProfileCode().trim())
+                        .setString("currencycode", inputBean.getRiskprofilecurrency().trim());
+                List<AcquirerRiskprofileTxn> txns = query.list();
+
+                for (AcquirerRiskprofileTxn f : txns) {
+
+                    oldValuetmptemp = "|" + inputBean.getProfileCode()
+                            + "|" + commonDao.getDescriptionByTxnCode(f.getId().getTxntypecode())
+                            + "|" + f.getId().getCurrencycode()
+                            + "|" + Common.toCurrencyFormat(f.getMinAmount().toString())
+                            + "|" + Common.toCurrencyFormat(f.getMaxAmount().toString())
+                            + "|" + f.getDaillyCount().toString()
+                            + "|" + Common.toCurrencyFormat(f.getDaillyAmount().toString());
+
+                    oldValuetmp = oldValuetmp + oldValuetmptemp;
+
+                    session.delete(f);
+                }
+
+                if (u != null) {
+                    AcquirerRiskprofileType profileType = (AcquirerRiskprofileType) session.get(AcquirerRiskprofileType.class, inputBean.getRiskprofileType().trim());
+                    Status st = (Status) session.get(Status.class, inputBean.getStatus().trim());
+
+                    AcquirerRiskprofile acqRisk_u = (AcquirerRiskprofile) session.get(AcquirerRiskprofile.class, inputBean.getProfileCode().trim());
+                    acqRisk_u.setDescription(inputBean.getDescription().trim());
+                    acqRisk_u.setAcquirerRiskprofileType(profileType);
+
+                    oldValue = u.getId().getProfilecode() + "|"
+                            + u.getId().getCurrencycode() + "|"
+                            + u.getDescription() + "|"
+                            + u.getAcquirerRiskprofileType().getDescription() + "|"
+                            + u.getStatus().getDescription() + "|"
+                            + oldValuetmp;
+
+                    u.setDescription(inputBean.getDescription().trim());
+
+                    u.setStatus(st);
+
+                    u.setAcquirerRiskprofileType(profileType);
+
+                    newValue = u.getId().getProfilecode() + "|"
+                            + u.getId().getCurrencycode() + "|"
+                            + u.getDescription() + "|"
+                            + u.getAcquirerRiskprofileType().getDescription() + "|"
+                            + u.getStatus().getDescription() + "|";
+
+                    List<Currency> currentList = new ArrayList<Currency>();
+                    currentList = commonDao.getCurrencyList();
+                    for (Iterator<Currency> it = currentList.iterator(); it.hasNext();) {
+
+                        Currency currency = it.next();
+                        
+                        AcquirerRiskprofileId desUid = new AcquirerRiskprofileId();
+                        desUid.setProfilecode(inputBean.getProfileCode());
+                        desUid.setCurrencycode(currency.getCurrencycode());
+                        AcquirerRiskprofileCurrency desU = (AcquirerRiskprofileCurrency) session.get(AcquirerRiskprofileCurrency.class,desUid);
+                        desU.setAcquirerRiskprofileType(profileType);
+                        desU.setDescription(inputBean.getDescription());
+                    }
+
+                    for (AcqRiskProfileTxnBean acqRiskBean : txnRiskList) {
+                        AcquirerRiskprofileTxn acqTxn = new AcquirerRiskprofileTxn();
+
+                        acqRiskBean.setMinAmount(acqRiskBean.getMinAmount().replace(",", ""));
+                        acqRiskBean.setMaxAmount(acqRiskBean.getMaxAmount().replace(",", ""));
+                        acqRiskBean.setDailyAmount(acqRiskBean.getDailyAmount().replace(",", ""));
+
+                        AcquirerRiskprofileTxnId acqTxnId = new AcquirerRiskprofileTxnId();
+                        acqTxnId.setProfilecode(inputBean.getProfileCode().trim());
+                        acqTxnId.setTxntypecode(acqRiskBean.getTxnType());
+                        acqTxnId.setCurrencycode(inputBean.getRiskprofilecurrency().trim());
+
+                        acqTxn.setId(acqTxnId);
+                        acqTxn.setDaillyCount(new BigDecimal(acqRiskBean.getDailyCount()));
+                        acqTxn.setDaillyAmount(new BigDecimal(acqRiskBean.getDailyAmount()));
+                        acqTxn.setMaxAmount(new BigDecimal(acqRiskBean.getMaxAmount()));
+                        acqTxn.setMinAmount(new BigDecimal(acqRiskBean.getMinAmount()));
+                        acqTxn.setCreatetime(sysDate);
+                        acqTxn.setLastupdatedtime(sysDate);
+                        acqTxn.setLastupdateduser(audit.getLastupdateduser());
+
+                        newValuetmp = "|" + inputBean.getProfileCode()
+                                + "|" + commonDao.getDescriptionByTxnCode(acqRiskBean.getTxnType())
+                                + "|" + inputBean.getRiskprofilecurrency().trim()
+                                + "|" + Common.toCurrencyFormat(acqTxn.getMinAmount().toString())
+                                + "|" + Common.toCurrencyFormat(acqTxn.getMaxAmount().toString())
+                                + "|" + acqTxn.getDaillyCount().toString()
+                                + "|" + Common.toCurrencyFormat(acqTxn.getDaillyAmount().toString());
+
+                        newValue = newValue + newValuetmp;
+                        session.save(acqTxn);
+                    }
+
+                    audit.setOldvalue(oldValue);
+                    audit.setNewvalue(newValue);
+                    audit.setCreatetime(sysDate);
+                    audit.setLastupdatedtime(sysDate);
+
+                    session.save(audit);
+                    session.update(u);
+
+                    txn.commit();
+
+                } else {
+                    message = MessageVarList.COMMON_NOT_EXISTS;
+                }
+            } else {
+                message = MessageVarList.ACQUIRER_TXN_RISK_PROFILE_TXN_EMPTY;
+            }
+        } catch (Exception e) {
+            if (txn != null) {
+                txn.rollback();
+            }
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return message;
+    }
+}

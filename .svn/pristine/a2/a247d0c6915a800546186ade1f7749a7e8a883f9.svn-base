@@ -1,0 +1,851 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.action.controlpanel.acquirer;
+
+import com.epic.bmlalipay.dao.controlpanel.acquirer.AcquirerRiskProfileTxnDAO;
+import com.epic.bmlalipay.bean.controlpanel.acquirer.AcqRiskProfileBean;
+import com.epic.bmlalipay.bean.controlpanel.acquirer.AcqRiskProfileInputBean;
+import com.epic.bmlalipay.bean.controlpanel.acquirer.AcqRiskProfileTxnBean;
+import com.epic.bmlalipay.dao.common.CommonDAO;
+import com.epic.bmlalipay.dao.controlpanel.acquirer.AcquirerRiskProfileDAO;
+import com.epic.bmlalipay.util.common.AccessControlService;
+import com.epic.bmlalipay.util.common.Common;
+import com.epic.bmlalipay.util.common.Validation;
+import com.epic.bmlalipay.util.mapping.AcquirerRiskprofileCurrency;
+import com.epic.bmlalipay.util.mapping.Systemaudit;
+import com.epic.bmlalipay.util.mapping.Task;
+import com.epic.bmlalipay.util.varlist.CommonVarList;
+import com.epic.bmlalipay.util.varlist.MessageVarList;
+import com.epic.bmlalipay.util.varlist.OracleMessage;
+import com.epic.bmlalipay.util.varlist.PageVarList;
+import com.epic.bmlalipay.util.varlist.SectionVarList;
+import com.epic.bmlalipay.util.varlist.SessionVarlist;
+import com.epic.bmlalipay.util.varlist.TaskVarList;
+import com.opensymphony.xwork2.ActionSupport;
+import com.opensymphony.xwork2.ModelDriven;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import org.apache.struts2.ServletActionContext;
+
+public class AcquirerRiskProfileAction extends ActionSupport implements ModelDriven<Object>, AccessControlService {
+
+    AcqRiskProfileInputBean inputBean = new AcqRiskProfileInputBean();
+
+    @Override
+    public String execute() throws Exception {
+        System.out.println("called AcquirerRiskProfileAction : execute");
+        return SUCCESS;
+    }
+
+    public Object getModel() {
+        return inputBean;
+    }
+
+    public boolean checkAccess(String method, String userRole) {
+        boolean status = false;
+        String page = PageVarList.ACQUIRER_RISK_PROFILE_PAGE;
+        String task = null;
+        if ("view".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("list".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("find".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("load".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("delete".equals(method)) {
+            task = TaskVarList.DELETE_TASK;
+        } else if ("assign".equals(method)) {
+            task = TaskVarList.ADD_TASK;
+        } else if ("remove".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("viewPopup".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("setmessage".equals(method)) {
+            task = TaskVarList.ADD_TASK;
+        } else if ("findtxn".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("add".equals(method)) {
+            task = TaskVarList.ADD_TASK;
+        } else if ("update".equals(method)) {
+            task = TaskVarList.UPDATE_TASK;
+        } else if ("reset".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("detail".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        } else if ("load".equals(method)) {
+            task = TaskVarList.VIEW_TASK;
+        }
+        if ("execute".equals(method)) {
+            status = true;
+        } else {
+            HttpServletRequest request = ServletActionContext.getRequest();
+            status = new Common().checkMethodAccess(task, page, userRole, request);
+        }
+        return status;
+    }
+
+    public String view() throws Exception {
+        System.out.println("called AcquirerRiskProfileAction :view");
+        String result = "view";
+        try {
+            HttpSession session = ServletActionContext.getRequest().getSession(false);
+            if (this.applyUserPrivileges()) {
+                CommonDAO dao = new CommonDAO();
+                inputBean.setStatusList(dao.getDefultStatusList(CommonVarList.STATUS_CATEGORY_GENERAL));
+                inputBean.setAcquirerRiskprofileTypeList(dao.getAcquirerRiskProfileTypeList());
+                inputBean.setCurrencyList(dao.getCurrencyList());
+                session.setAttribute(SessionVarlist.TXN_CURRENCY, null);
+            } else {
+                result = "loginpage";
+            }
+
+            if (session.getAttribute(SessionVarlist.MIN_PASSWORD_CHANGE_PERIOD) != null && session.getAttribute(SessionVarlist.ONLY_SHOW_ONTIME) != null) {
+                if ((Integer) session.getAttribute(SessionVarlist.ONLY_SHOW_ONTIME) == 0) {
+                    session.setAttribute(SessionVarlist.ONLY_SHOW_ONTIME, 1);
+                    addActionError((String) session.getAttribute(SessionVarlist.MIN_PASSWORD_CHANGE_PERIOD));
+                }
+            }
+
+        } catch (Exception ex) {
+            addActionError("Risk profile " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(AcquirerRiskProfileAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public String load() {
+        System.out.println("called AcquirerRiskProfileAction : load");
+        String result = "load";
+        try {
+            HttpServletRequest request = ServletActionContext.getRequest();
+            AcquirerRiskProfileDAO dao = new AcquirerRiskProfileDAO();
+            String message = "";
+
+            if (!message.isEmpty()) {
+                inputBean.setProfileCode(message);
+            } else {
+                inputBean.setMessage(message);
+            }
+
+        } catch (Exception ex) {
+            inputBean.setMessage("Risk profile " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(AcquirerRiskProfileAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public String add() {
+
+        System.out.println("called AcquirerRiskProfileAction : Add");
+        String result = "message";
+        List<AcqRiskProfileTxnBean> tmpDataList = null;
+        try {
+            HttpServletRequest request = ServletActionContext.getRequest();
+            AcquirerRiskProfileDAO dao = new AcquirerRiskProfileDAO();
+            inputBean.setMinAmount(inputBean.getMinAmount().replace(",", ""));
+            inputBean.setMaxAmount(inputBean.getMaxAmount().replace(",", ""));
+            inputBean.setDaillyAmount(inputBean.getDaillyAmount().replace(",", ""));
+
+            String message = this.validateAssignInputs();
+
+            if (message.isEmpty()) {
+
+                HttpSession session = ServletActionContext.getRequest().getSession(false);
+                tmpDataList = (List<AcqRiskProfileTxnBean>) session.getAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST);
+
+                String newV = inputBean.getProfileCode() + "|" + inputBean.getRiskprofileType() + "|" + inputBean.getDescription() + "|" + inputBean.getStatus() + "|" + inputBean.getRiskprofilecurrency();
+                Systemaudit audit = Common.makeAudittrace(request, TaskVarList.ADD_TASK, PageVarList.ACQUIRER_RISK_PROFILE_PAGE, SectionVarList.ACQUIERERMANAGEMENT, "Acquirer risk profile code " + inputBean.getProfileCode() + " added", null, null, newV);
+                message = dao.insertAcquirerRisk(inputBean, tmpDataList, audit);
+
+                if (message.isEmpty()) {
+                    addActionMessage("Risk Profile " + MessageVarList.COMMON_SUCC_INSERT);
+                    session.setAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST, null);
+                } else {
+                    addActionError(message);
+                }
+            } else {
+                addActionError(message);
+            }
+
+        } catch (Exception ex) {
+            addActionError("Risk Profile Code " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(AcquirerRiskProfileAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public String list() {
+        System.out.println("called AcquirerRiskProfileAction : list");
+        String result = "list";
+        try {
+            int rows = inputBean.getRows();
+            int page = inputBean.getPage();
+            int to = (rows * page);
+            int from = to - rows;
+            long records = 0;
+
+            String sortIndex = "";
+            String sortOrder = "";
+
+            if (!inputBean.getSidx().isEmpty()) {
+                sortIndex = inputBean.getSidx();
+                sortOrder = inputBean.getSord();
+            }
+            
+            AcquirerRiskProfileDAO dao = new AcquirerRiskProfileDAO();
+            List<AcqRiskProfileBean> dataList = dao.getSearchList(inputBean, rows, from, sortIndex, sortOrder);
+            if (!dataList.isEmpty()) {
+                records = dataList.get(0).getFullCount();
+                inputBean.setRecords(records);
+                inputBean.setGridModel(dataList);
+                int total = (int) Math.ceil((double) records / (double) rows);
+                inputBean.setTotal(total);
+            } else {
+                inputBean.setRecords(0L);
+                inputBean.setTotal(0);
+            }
+
+        } catch (Exception e) {
+            Logger.getLogger(AcquirerRiskProfileAction.class.getName()).log(Level.SEVERE, null, e);
+            addActionError("Risk profile " + MessageVarList.COMMON_ERROR_PROCESS);
+        }
+        return result;
+    }
+
+    public String find() {
+         System.out.println("called AcquirerRiskProfileAction : Find");
+        AcquirerRiskprofileCurrency ar = null;
+        try {
+            if (inputBean.getProfileCode() != null && !inputBean.getProfileCode().isEmpty()) {
+                if (inputBean.getRiskprofilecurrency()!= null && !inputBean.getRiskprofilecurrency().isEmpty()) {
+                    int rows = inputBean.getRows();
+                    int page = inputBean.getPage();
+                    int to = (rows * page);
+                    int from = to - rows;
+                    long records = 0;
+
+                    AcquirerRiskProfileTxnDAO dao1 = new AcquirerRiskProfileTxnDAO();
+                    AcquirerRiskProfileDAO dao = new AcquirerRiskProfileDAO();
+
+                    ar = dao.findRiskProfileById(inputBean.getProfileCode(),inputBean.getRiskprofilecurrency());
+
+                    inputBean.setProfileCode(ar.getId().getProfilecode());
+                    inputBean.setRiskprofilecurrency(ar.getId().getCurrencycode());
+                    inputBean.setDescription(ar.getDescription());
+                    inputBean.setStatus(ar.getStatus().getStatuscode());
+                    inputBean.setRiskprofileType(ar.getAcquirerRiskprofileType().getProfileType());
+
+                    List<AcqRiskProfileTxnBean> dataList = dao1.findTxnRiskProfileListByProfileCode(inputBean.getProfileCode(),inputBean.getRiskprofilecurrency());
+
+                    HttpSession session = ServletActionContext.getRequest().getSession(false);
+                    session.setAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST, dataList);
+
+                    if (!dataList.isEmpty()) {
+                        records = new Long(dataList.size());
+                        inputBean.setRecords(records);
+                        inputBean.setGridModelTxn(dataList);
+                        int total = (int) Math.ceil((double) records / (double) rows);
+                        inputBean.setTotal(total);
+                    } else {
+                        inputBean.setRecords(0L);
+                        inputBean.setTotal(0);
+                    }
+
+                    inputBean.setOldvalue(inputBean.getProfileCode() + "|" + inputBean.getDescription() + "|" + inputBean.getStatus() + "|" + inputBean.getRiskprofileType());
+
+                }else{
+                    inputBean.setMessage("Empty Acquirer Risk Profile Currency");
+                }
+
+                
+            } else {
+                inputBean.setMessage("Empty Acquirer Risk Profile Code");
+            }
+        } catch (Exception ex) {
+            inputBean.setMessage("Acquirer Risk Profile  " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(AcquirerRiskProfileAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return "find";
+
+    }
+
+    public String update() {
+
+      System.out.println("called AcquirerRiskProfileAction : Update");
+        String retType = "message";
+
+        try {
+            if (inputBean.getProfileCode() != null && !inputBean.getProfileCode().isEmpty()) {
+                if (inputBean.getRiskprofilecurrency()!= null && !inputBean.getRiskprofilecurrency().isEmpty()) {
+                    inputBean.setMinAmount(inputBean.getMinAmount().replace(",", ""));
+                    inputBean.setMaxAmount(inputBean.getMaxAmount().replace(",", ""));
+                    inputBean.setDaillyAmount(inputBean.getDaillyAmount().replace(",", ""));
+                    String message = this.validateUpdateInputs();
+
+                    if (message.isEmpty()) {
+
+                        HttpSession session = ServletActionContext.getRequest().getSession(false);
+                        List<AcqRiskProfileTxnBean> tmpDataList = (List<AcqRiskProfileTxnBean>) session.getAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST);
+
+                        HttpServletRequest request = ServletActionContext.getRequest();
+                        AcquirerRiskProfileDAO dao = new AcquirerRiskProfileDAO();
+
+                        String newV = inputBean.getProfileCode() + "|" + inputBean.getDescription() + "|" + inputBean.getStatus() + "|" + inputBean.getTransactiontype() + "|" + inputBean.getRiskprofilecurrency();
+                        Systemaudit audit = Common.makeAudittrace(request, TaskVarList.UPDATE_TASK, PageVarList.ACQUIRER_RISK_PROFILE_PAGE, SectionVarList.ACQUIERERMANAGEMENT, "Risk profile code " + inputBean.getProfileCode() + " updated", null, inputBean.getOldvalue(), newV);
+                        message = dao.updateAcquirerRisk(inputBean, tmpDataList, audit);
+
+                        if (message.isEmpty()) {
+                            addActionMessage("Acquirer Risk Profile " + MessageVarList.COMMON_SUCC_UPDATE);
+                        } else {
+                            addActionError(message);
+                        }
+
+                    } else {
+                        addActionError(message);
+                    } 
+                }else{
+                   addActionError("Empty Acquirer Risk Profile Currency");
+                }
+                
+            }else{
+                 addActionError("Empty Acquirer Risk Profile code");
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(AcquirerRiskProfileAction.class.getName()).log(Level.SEVERE, null, ex);
+            addActionError("Acquirer Risk Profile " + MessageVarList.COMMON_ERROR_UPDATE);
+        }
+        return retType;
+    }
+
+    public String delete() {
+        System.out.println("called AcquirerRiskProfileAction : Delete");
+        String message = null;
+        String result = "delete";
+        try {
+            HttpServletRequest request = ServletActionContext.getRequest();
+            AcquirerRiskProfileDAO dao = new AcquirerRiskProfileDAO();
+            Systemaudit audit = Common.makeAudittrace(request, TaskVarList.DELETE_TASK, PageVarList.ACQUIRER_RISK_PROFILE_PAGE, SectionVarList.SYSTEM_CONFIG, "Risk profile " + inputBean.getProfileCode() + " deleted", null);
+            message = dao.deleteRiskProfile(inputBean, audit);
+            if (message.isEmpty()) {
+                message = "Risk profile " + MessageVarList.COMMON_SUCC_DELETE;
+            }
+            inputBean.setMessage(message);
+        } catch (Exception e) {
+            Logger.getLogger(AcquirerRiskProfileAction.class.getName()).log(Level.SEVERE, null, e);
+            inputBean.setMessage(OracleMessage.getMessege(e.getMessage()));
+        }
+        return result;
+    }
+    
+    public String viewPopup(){
+        String result = "viewpopup";
+        System.out.println("called AcquirerRiskProfileAction : ViewPopup");
+        try {
+            if (this.applyUserPrivileges()) {
+
+                CommonDAO dao = new CommonDAO();
+                inputBean.setCurrencyList(dao.getCurrencyList());
+                inputBean.setStatusList(dao.getDefultStatusList(CommonVarList.STATUS_CATEGORY_GENERAL));
+                inputBean.setAcquirerRiskprofileTypeList(dao.getAcquirerRiskProfileTypeList());
+                inputBean.setTransactiontypeList(dao.getActiveTxnTypeListByAcqRiskRequired(CommonVarList.STATUS_ACTIVE, CommonVarList.STATUS_YES));
+
+                HttpSession session = ServletActionContext.getRequest().getSession(false);
+                session.setAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST, null);
+                inputBean.setIsAssign("init");
+
+            } else {
+                result = "loginpage";
+            }
+
+            HttpSession session = ServletActionContext.getRequest().getSession(false);
+            if (session.getAttribute(SessionVarlist.MIN_PASSWORD_CHANGE_PERIOD) != null && session.getAttribute(SessionVarlist.ONLY_SHOW_ONTIME) != null) {
+                if ((Integer) session.getAttribute(SessionVarlist.ONLY_SHOW_ONTIME) == 0) {
+                    session.setAttribute(SessionVarlist.ONLY_SHOW_ONTIME, 1);
+                    addActionError((String) session.getAttribute(SessionVarlist.MIN_PASSWORD_CHANGE_PERIOD));
+                }
+            }
+
+        } catch (Exception ex) {
+            addActionError("AcquirerRiskProfile " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(AcquirerRiskProfileAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+    
+    public String assign() {
+        System.out.println("called AcquirerRiskProfileAction : assign");
+        String result = "list";
+        List<AcqRiskProfileTxnBean> tmpDataList = null;
+        try {
+            HttpSession session = ServletActionContext.getRequest().getSession(false);
+
+            if (inputBean.getIsAssign() == null || inputBean.getIsAssign().equals("init")) {
+
+                System.out.println("called RiskProfileAction : assign - init");
+                int rows = inputBean.getRows();
+                int page = inputBean.getPage();
+                int to = (rows * page);
+                int from = to - rows;
+                long records = 0;
+
+                List<AcqRiskProfileTxnBean> fullList = (List<AcqRiskProfileTxnBean>) session.getAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST);
+                if (fullList != null && !fullList.isEmpty()) {
+                    tmpDataList = pageData(fullList, from, to);
+                    session.setAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST, fullList);
+
+                    if (tmpDataList != null && !tmpDataList.isEmpty()) {
+                        records = new Long(fullList.size());
+                        inputBean.setRecords(records);
+                        inputBean.setGridModelTxn(tmpDataList);
+                        int total = (int) Math.ceil((double) records / (double) rows);
+                        inputBean.setTotal(total);
+                    } else {
+                        inputBean.setRecords(0L);
+                        inputBean.setTotal(0);
+
+                    }
+                } else {
+                    inputBean.setRecords(0L);
+                    inputBean.setTotal(0);
+                }
+
+            } else if (inputBean.getIsAssign().equals("remove")) {
+
+                System.out.println("called RiskProfileAction : assign - remove");
+
+                int rows = inputBean.getRows();
+                int page = inputBean.getPage();
+                int to = (rows * page);
+                int from = to - rows;
+                long records = 0;
+
+                if (session.getAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST) != null) {
+                    tmpDataList = (List<AcqRiskProfileTxnBean>) session.getAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST);
+                } else {
+                    tmpDataList = new ArrayList<AcqRiskProfileTxnBean>();
+                }
+
+                AcquirerRiskProfileDAO dao = new AcquirerRiskProfileDAO();
+                List<AcqRiskProfileTxnBean> dataListRemoved = new ArrayList<AcqRiskProfileTxnBean>();
+
+                for (AcqRiskProfileTxnBean acqTxnRiskBean : tmpDataList) {
+                    if (!acqTxnRiskBean.getTxnType().equals(inputBean.getTransactiontype())) {
+                        dataListRemoved.add(acqTxnRiskBean);
+                    }
+                }
+
+                session.setAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST, null);
+                session.setAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST, dataListRemoved);
+
+                if (!dataListRemoved.isEmpty()) {
+                    records = new Long(dataListRemoved.size());
+                    inputBean.setRecords(records);
+                    inputBean.setGridModelTxn(dataListRemoved);
+                    int total = (int) Math.ceil((double) records / (double) rows);
+                    inputBean.setTotal(total);
+                } else {
+                    inputBean.setRecords(0L);
+                    inputBean.setTotal(0);
+
+                }
+            } else if (inputBean.getIsAssign().equals("update")) {
+
+                System.out.println("called RiskProfileAction : assign - update");
+                int rows = inputBean.getRows();
+                int page = inputBean.getPage();
+                int to = (rows * page);
+                int from = to - rows;
+                long records = 0;
+                inputBean.setMinAmount(inputBean.getMinAmount().replace(",", ""));
+                inputBean.setMaxAmount(inputBean.getMaxAmount().replace(",", ""));
+                inputBean.setDaillyAmount(inputBean.getDaillyAmount().replace(",", ""));
+                String message = this.validateTxnRiskInputs();
+
+                if (message.isEmpty()) {
+                    if (session.getAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST) != null) {
+                        tmpDataList = (List<AcqRiskProfileTxnBean>) session.getAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST);
+                    } else {
+                        tmpDataList = new ArrayList<AcqRiskProfileTxnBean>();
+                    }
+
+                    CommonDAO commonDao = new CommonDAO();
+                    List<AcqRiskProfileTxnBean> dataListUpdated = new ArrayList<AcqRiskProfileTxnBean>();
+
+                    for (AcqRiskProfileTxnBean acqTxnRiskBean : tmpDataList) {
+                        if (!acqTxnRiskBean.getTxnType().equals(inputBean.getTransactiontype())) {
+                            dataListUpdated.add(acqTxnRiskBean);
+                        }
+                    }
+
+                    AcqRiskProfileTxnBean updated = new AcqRiskProfileTxnBean();
+                    updated.setTxnType(inputBean.getTransactiontype());
+                    updated.setTxnTypeDes(commonDao.getDescriptionByTxnCode(inputBean.getTransactiontype()));
+                    updated.setDailyCount(inputBean.getDaillyCount());
+                    updated.setDailyAmount(Common.toCurrencyFormat(inputBean.getDaillyAmount()));
+                    updated.setMaxAmount(Common.toCurrencyFormat(inputBean.getMaxAmount()));
+                    updated.setMinAmount(Common.toCurrencyFormat(inputBean.getMinAmount()));
+                    updated.setCurrency(inputBean.getCurrency());
+
+                    dataListUpdated.add(updated);
+
+                    session.setAttribute(SessionVarlist.ACQ_VALIDATE_MSG, null);
+                    session.setAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST, null);
+                    session.setAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST, dataListUpdated);
+
+                    List<AcqRiskProfileTxnBean> dataListUpdatednew = pageData(dataListUpdated, from, to);
+                    if (!dataListUpdated.isEmpty()) {
+                        records = new Long(dataListUpdated.size());
+                        inputBean.setRecords(records);
+                        inputBean.setGridModelTxn(dataListUpdatednew);
+                        int total = (int) Math.ceil((double) records / (double) rows);
+                        inputBean.setTotal(total);
+                    } else {
+                        inputBean.setRecords(0L);
+                        inputBean.setTotal(0);
+
+                    }
+                } else {
+                    result = "message";
+                    addActionError(message);
+                    session.setAttribute(SessionVarlist.ACQ_VALIDATE_MSG, message);
+                }
+            } else if (inputBean.getIsAssign().equals("assign")) {
+
+                System.out.println("called RiskProfileAction : assign - assign");
+
+                int rows = inputBean.getRows();
+                int page = inputBean.getPage();
+                int to = (rows * page);
+                int from = to - rows;
+                long records = 0;
+                inputBean.setMinAmount(inputBean.getMinAmount().replace(",", ""));
+                inputBean.setMaxAmount(inputBean.getMaxAmount().replace(",", ""));
+                inputBean.setDaillyAmount(inputBean.getDaillyAmount().replace(",", ""));
+                String message = this.validateTxnRiskInputs();
+                inputBean.setMinAmount(Common.toCurrencyFormat(inputBean.getMinAmount()));
+                inputBean.setMaxAmount(Common.toCurrencyFormat(inputBean.getMaxAmount()));
+                inputBean.setDaillyAmount(Common.toCurrencyFormat(inputBean.getDaillyAmount()));
+
+                if (message.isEmpty()) {
+
+                    if (session.getAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST) != null) {
+                        tmpDataList = (List<AcqRiskProfileTxnBean>) session.getAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST);
+                    } else {
+                        tmpDataList = new ArrayList<AcqRiskProfileTxnBean>();
+                    }
+
+                    AcquirerRiskProfileDAO dao = new AcquirerRiskProfileDAO();
+
+                    int count = 0;
+                    for (AcqRiskProfileTxnBean bean : tmpDataList) {
+                        if (bean.getTxnType().equals(inputBean.getTransactiontype())) {
+                            count++;
+                        }
+                    }
+
+                    if (count == 0) {
+
+                        List<AcqRiskProfileTxnBean> dataList = dao.getTxnSearchList(inputBean, tmpDataList);
+
+                        session.setAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST, dataList);
+                        session.setAttribute(SessionVarlist.ACQ_VALIDATE_MSG, null);
+
+                        List<AcqRiskProfileTxnBean> pagelList = pageData(dataList, from, to);
+
+                        if (!dataList.isEmpty()) {
+                            records = new Long(dataList.size());
+                            inputBean.setRecords(records);
+                            inputBean.setGridModelTxn(pagelList);
+                            int total = (int) Math.ceil((double) records / (double) rows);
+                            inputBean.setTotal(total);
+                        } else {
+                            inputBean.setRecords(0L);
+                            inputBean.setTotal(0);
+                        }
+
+                    } else {
+                        List<AcqRiskProfileTxnBean> pagelList = pageData(tmpDataList, from, to);
+                        if (!tmpDataList.isEmpty()) {
+                            records = new Long(tmpDataList.size());
+                            inputBean.setRecords(records);
+                            inputBean.setGridModelTxn(pagelList);
+                            int total = (int) Math.ceil((double) records / (double) rows);
+                            inputBean.setTotal(total);
+                        } else {
+                            inputBean.setRecords(0L);
+                            inputBean.setTotal(0);
+                        }
+                        addActionError("Transaction Type already exist");
+                        session.setAttribute(SessionVarlist.ACQ_VALIDATE_MSG, "Transaction Type already exist");
+                    }
+
+                } else {
+                    result = "message";
+                    inputBean.setMessage(message);
+                    addActionError(message);
+                    session.setAttribute(SessionVarlist.ACQ_VALIDATE_MSG, message);
+
+                }
+            } else if (inputBean.getIsAssign().equals("clear")) {
+                session.setAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST, null);
+            }
+        } catch (Exception e) {
+            Logger.getLogger(AcquirerRiskProfileAction.class.getName()).log(Level.SEVERE, null, e);
+            addActionError("Acquirer Txn Risk profile " + MessageVarList.COMMON_ERROR_PROCESS);
+        }
+        return result;
+    }
+
+    private boolean applyUserPrivileges() {
+        HttpServletRequest request = ServletActionContext.getRequest();
+        List<Task> tasklist = new Common().getUserTaskListByPage(PageVarList.ACQUIRER_RISK_PROFILE_PAGE, request);
+
+        inputBean.setVadd(true);
+        inputBean.setVdelete(true);
+        inputBean.setVupdatelink(true);
+        inputBean.setVremovelink(true);
+        inputBean.setVsearch(true);
+
+        if (tasklist != null && tasklist.size() > 0) {
+            for (Task task : tasklist) {
+                if (task.getTaskcode().toString().equalsIgnoreCase(TaskVarList.ADD_TASK)) {
+                    inputBean.setVadd(false);
+                    inputBean.setVremovelink(false);
+                } else if (task.getTaskcode().toString().equalsIgnoreCase(TaskVarList.LOGIN_TASK)) {
+                } else if (task.getTaskcode().toString().equalsIgnoreCase(TaskVarList.DELETE_TASK)) {
+                    inputBean.setVdelete(false);
+                } else if (task.getTaskcode().toString().equalsIgnoreCase(TaskVarList.UPDATE_TASK)) {
+                    inputBean.setVupdatelink(false);
+                } else if (task.getTaskcode().toString().equalsIgnoreCase(TaskVarList.SEARCH_TASK)) {
+                    inputBean.setVsearch(false);
+                }
+            }
+        }
+        inputBean.setVupdatebutt(true);
+
+        return true;
+    }
+
+    private String validateAssignInputs() throws Exception {
+        AcquirerRiskProfileDAO dao = new AcquirerRiskProfileDAO();
+        String message = "";
+
+        try {
+            if (inputBean.getProfileCode() == null || inputBean.getProfileCode().trim().isEmpty()) {
+                message = MessageVarList.RISK_PROFILE_EMPTY_RISK_PROFILE_CODE;
+
+            } else if (inputBean.getDescription() == null || inputBean.getDescription().trim().isEmpty()) {
+                message = MessageVarList.RISK_PROFILE_EMPTY_DESCRIPTION;
+
+            } else if (inputBean.getRiskprofileType()== null || inputBean.getRiskprofileType().trim().isEmpty()) {
+                message = MessageVarList.RISK_PROFILE_EMPTY_TYPE;
+                
+            } else if (inputBean.getStatus() == null || inputBean.getStatus().isEmpty()) {
+                message = MessageVarList.RISK_PROFILE_EMPTY_STATUS;
+
+            }  
+
+        } catch (Exception e) {
+            throw e;
+        }
+
+        return message;
+    }
+
+    private String validateUpdateInputs() throws Exception {
+
+        String message = "";
+
+        try {
+
+            if (inputBean.getDescription() == null || inputBean.getDescription().trim().isEmpty()) {
+                message = MessageVarList.RISK_PROFILE_EMPTY_DESCRIPTION;
+            
+            } else if (inputBean.getRiskprofileType()== null || inputBean.getRiskprofileType().trim().isEmpty()) {
+                message = MessageVarList.RISK_PROFILE_EMPTY_TYPE;
+                
+            } else if (inputBean.getStatus() == null || inputBean.getStatus().isEmpty()) {
+                message = MessageVarList.RISK_PROFILE_EMPTY_STATUS;
+
+            }
+
+        } catch (Exception e) {
+            throw e;
+        }
+
+        return message;
+
+    }
+    
+    private List<AcqRiskProfileTxnBean> pageData(List<AcqRiskProfileTxnBean> list, int start, int end) {
+        List<AcqRiskProfileTxnBean> newList = new ArrayList<AcqRiskProfileTxnBean>();
+        for (int i = start; i < end && i < list.size(); i++) {
+            newList.add(list.get(i));
+        }
+
+        return newList;
+    }
+    
+    private String validateTxnRiskInputs() {
+        String message = "";
+        if (inputBean.getTransactiontype() == null || inputBean.getTransactiontype().trim().isEmpty()) {
+            message = MessageVarList.RISK_PROFILE_EMPTY_TXN_TYPE;
+        } else if (inputBean.getMinAmount() != null && inputBean.getMinAmount().isEmpty()) {
+            message = MessageVarList.RISK_PROFILE_EMPTY_MIN_AMOUNT;
+        } else if (!Validation.isNumeric(inputBean.getMinAmount())) {
+            message = MessageVarList.RISK_PROFILE_INVALID_MIN_AMOUNT;
+        } else if (inputBean.getMaxAmount() != null && inputBean.getMaxAmount().isEmpty()) {
+            message = MessageVarList.RISK_PROFILE_EMPTY_MAX_AMOUNT;
+        } else if (!Validation.isNumeric(inputBean.getMaxAmount())) {
+            message = MessageVarList.RISK_PROFILE_INVALID_MAX_AMOUNT;
+        } else if (inputBean.getDaillyCount() == null || inputBean.getDaillyCount().trim().isEmpty()) {
+            message = MessageVarList.RISK_PROFILE_EMPTY_DAILY_COUNT;
+        } else if (inputBean.getDaillyAmount() == null || inputBean.getDaillyAmount().trim().isEmpty()) {
+            message = MessageVarList.RISK_PROFILE_EMPTY_DAILY_AMOUNT;
+        } else if (!Validation.isNumeric(inputBean.getDaillyAmount())) {
+            message = MessageVarList.RISK_PROFILE_INVALID_DAILY_AMOUNT;
+        } else if (Double.parseDouble(inputBean.getMinAmount()) > Double.parseDouble(inputBean.getMaxAmount())) {
+            message = MessageVarList.RISK_PROFILE_INVALID_MIN_MAX_TRANSACTION_AMOUNT;
+        } else if (Double.parseDouble(inputBean.getDaillyAmount()) > (Double.parseDouble(inputBean.getMaxAmount())*Double.parseDouble(inputBean.getDaillyCount()))) {
+            message = MessageVarList.RISK_PROFILE_INVALID_DAILY_MAX_COUNT_AMOUNT;
+        }
+
+        return message;
+    }
+    
+    public String setmessage() {
+        System.out.println("called AcquirerRiskProfileAction : setmessage");
+
+        String message = null;
+        String result = "delete";
+        try {
+            Thread.sleep(500);
+
+            HttpSession session = ServletActionContext.getRequest().getSession(false);
+            message = (String) session.getAttribute(SessionVarlist.ACQ_VALIDATE_MSG);
+            if (message != null && !message.isEmpty()) {
+                inputBean.setMessage(message);
+            } else {
+                inputBean.setMessage(null);
+            }
+
+        } catch (Exception e) {
+            Logger.getLogger(AcquirerRiskProfileAction.class
+                    .getName()).log(Level.SEVERE, null, e);
+            inputBean.setMessage(OracleMessage.getMessege(e.getMessage()));
+        }
+        return result;
+    }
+    
+    public String findtxn() {
+        System.out.println("called AcquirerRiskProfileAction : Findtxn");
+        AcquirerRiskprofileCurrency ar = null;
+        List<AcqRiskProfileTxnBean> tmpDataList = null;
+        try {
+            if (inputBean.getTransactiontype() != null && !inputBean.getTransactiontype().isEmpty()) {
+
+                HttpSession session = ServletActionContext.getRequest().getSession(false);
+                if (session.getAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST) != null) {
+                    tmpDataList = (List<AcqRiskProfileTxnBean>) session.getAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST);
+                } else {
+                    tmpDataList = new ArrayList<AcqRiskProfileTxnBean>();
+                }
+
+                List<AcqRiskProfileTxnBean> dataListRemoved = new ArrayList<AcqRiskProfileTxnBean>();
+
+                for (AcqRiskProfileTxnBean acqTxnRiskBean : tmpDataList) {
+                    if (acqTxnRiskBean.getTxnType().equals(inputBean.getTransactiontype())) {
+                        inputBean.setTransactiontype(acqTxnRiskBean.getTxnType());
+                        inputBean.setDaillyCount(acqTxnRiskBean.getDailyCount());
+                        inputBean.setCurrency(acqTxnRiskBean.getCurrency());
+                        
+                        inputBean.setDaillyAmount(Common.toCurrencyFormat(acqTxnRiskBean.getDailyAmount().replace(",", "")));
+                        inputBean.setMaxAmount(Common.toCurrencyFormat(acqTxnRiskBean.getMaxAmount().replace(",", "")));
+                        inputBean.setMinAmount(Common.toCurrencyFormat(acqTxnRiskBean.getMinAmount().replace(",", "")));
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            inputBean.setMessage("Acquirer Risk Profile  " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(AcquirerRiskProfileAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return "find";
+    }
+    
+    public String detail() {
+        System.out.println("called AcquirerRiskProfileAction : detail");
+        AcquirerRiskprofileCurrency ar = null;
+
+        try {
+            if (inputBean.getProfileCode() != null && !inputBean.getProfileCode().isEmpty()) {
+                
+                if (inputBean.getRiskprofilecurrency()!= null && !inputBean.getRiskprofilecurrency().isEmpty()) {
+                    int rows = inputBean.getRows();
+                    int page = inputBean.getPage();
+                    int to = (rows * page);
+                    int from = to - rows;
+                    long records = 0;
+
+                    AcquirerRiskProfileTxnDAO dao1 = new AcquirerRiskProfileTxnDAO();
+                    AcquirerRiskProfileDAO dao = new AcquirerRiskProfileDAO();
+
+                    CommonDAO commonDAO = new CommonDAO();
+                    inputBean.setCurrencyList(commonDAO.getCurrencyList());
+                    inputBean.setStatusList(commonDAO.getDefultStatusList(CommonVarList.STATUS_CATEGORY_GENERAL));
+                    inputBean.setAcquirerRiskprofileTypeList(commonDAO.getAcquirerRiskProfileTypeList());
+                    inputBean.setTransactiontypeList(commonDAO.getActiveTxnTypeListByAcqRiskRequired(CommonVarList.STATUS_ACTIVE, CommonVarList.STATUS_YES));
+
+                    ar = dao.findRiskProfileById(inputBean.getProfileCode(),inputBean.getRiskprofilecurrency());
+
+                    inputBean.setProfileCode(ar.getId().getProfilecode());
+                    inputBean.setRiskprofilecurrency(ar.getId().getCurrencycode());
+                    inputBean.setDescription(ar.getDescription());
+                    inputBean.setStatus(ar.getStatus().getStatuscode());
+                    inputBean.setRiskprofileType(ar.getAcquirerRiskprofileType().getProfileType());
+
+                    List<AcqRiskProfileTxnBean> dataList = dao1.findTxnRiskProfileListByProfileCode(inputBean.getProfileCode(),inputBean.getRiskprofilecurrency());
+
+                    HttpSession session = ServletActionContext.getRequest().getSession(false);
+                    session.setAttribute(SessionVarlist.ACQUIRER_TXN_RISK_LIST, dataList);
+
+                    if (!dataList.isEmpty()) {
+                        records = new Long(dataList.size());
+                        inputBean.setRecords(records);
+                        inputBean.setGridModelTxn(dataList);
+                        int total = (int) Math.ceil((double) records / (double) rows);
+                        inputBean.setTotal(total);
+                    } else {
+                        inputBean.setRecords(0L);
+                        inputBean.setTotal(0);
+
+                    }
+
+                    inputBean.setOldvalue(inputBean.getProfileCode() + "|" + inputBean.getDescription() + "|" + inputBean.getStatus() + "|" + inputBean.getTransactiontype());
+
+                }else{
+                    inputBean.setMessage("Empty Acquirer Risk Profile Currency");
+                }
+                
+            } else {
+                inputBean.setMessage("Empty AcquirerRiskProfile id.");
+            }
+        } catch (Exception ex) {
+            inputBean.setMessage("AcquirerRiskProfile id  " + MessageVarList.COMMON_ERROR_PROCESS);
+            Logger.getLogger(AcquirerRiskProfileAction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return "detail";
+
+    }
+
+}

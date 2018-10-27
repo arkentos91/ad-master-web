@@ -1,0 +1,17 @@
+<div class="footer-fixed">
+    <div class="footer">
+			<div class="footer-inner">
+                                <!--<font id="versionno"></font>-->
+                                <%
+                                    String param1 = application.getInitParameter("version");
+                                    out.println(param1);
+                                %>
+				Copyright © 2018 <a href="http://www.epiclanka.net/"> Epic Lanka (pvt) Ltd.</a> All rights reserved.
+			</div>
+			<div class="footer-items">
+				<span class="go-top">
+                                    <i class="clip-chevron-up"></i>
+                                </span>
+			</div>
+		</div>
+    </div>

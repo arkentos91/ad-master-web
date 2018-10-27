@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+  <session-factory>
+    <property name="hibernate.dialect">org.hibernate.dialect.SQLServerDialect</property>
+<<<<<<< .mine
+    <property name="hibernate.connection.driver_class">com.microsoft.sqlserver.jdbc.SQLServerDriver</property>
+    <property name="hibernate.connection.url">jdbc:sqlserver://192.168.1.73:1433;databaseName=ALIPAY_QA</property>
+    <property name="hibernate.connection.username">sa</property>
+    <property name="hibernate.connection.password">Password@123</property>
+    <!--<property name="hibernate.connection.datasource">java:/ALIPAY_JNDI</property>-->
+=======
+
+    <property name="hibernate.connection.driver_class">com.microsoft.sqlserver.jdbc.SQLServerDriver</property>
+    <property name="hibernate.connection.url">jdbc:sqlserver://192.168.1.73:1433;databaseName=ALIPAY</property>
+    <!--<property name="hibernate.connection.url">jdbc:sqlserver://192.168.1.220:1433;databaseName=ALIPAY</property>-->
+    <property name="hibernate.connection.username">sa</property>
+    <property name="hibernate.connection.password">Password@123</property>
+    <!--<property name="hibernate.connection.password">1qaz@WSX</property>-->
+    <!--<property name="hibernate.connection.datasource">java:/AP_JNDI</property>-->
+
+    <!--<property name="hibernate.connection.datasource">java:/ALIPAY_JNDI</property>-->
+
+>>>>>>> .r575
+    <property name="hibernate.connection.autocommit">false</property>
+    <property name="hibernate.cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+    <!-- Enable Hibernate's automatic session context management, in this case the session will be close after each 
+        transaction! -->
+    <property name="current_session_context_class">thread</property>
+    <property name="show_sql">false</property>
+    <!-- auto create tables -->
+    <mapping class="com.epic.bmlalipay.util.mapping.TxncurrencyId"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.UserpasswordId"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.MerchantOriTransactionId"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.Status"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.AcquirerRiskprofile"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.AcquirerRiskprofileCurrency"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.Pagetask"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.Currency"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.Passwordpolicy"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.MerchantOri"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.Systemuser"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.Systemaudit"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.MccOri"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.TerminalOriTransactionId"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.TerminalOriTransaction"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.MercustomersOriTransaction"/>
+    <!--<mapping class="com.epic.bmlalipay.util.mapping.AcquirerCommision"/>-->
+    <mapping class="com.epic.bmlalipay.util.mapping.AcquirerPromotionTxn"/>
+
+    <!--<mapping class="com.epic.bmlalipay.util.mapping.RisktransactionprofileId"/>-->
+    <!--<mapping class="com.epic.bmlalipay.util.mapping.BmlTransaction"/>-->
+
+    <mapping class="com.epic.bmlalipay.util.mapping.RisktransactionprofileId"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.AlipayTransaction"/>
+
+    <mapping class="com.epic.bmlalipay.util.mapping.Userpassword"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.MercustomersOri"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.SectionpageId"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.PagetaskId"/>
+    <!--<mapping class="com.epic.bmlalipay.util.mapping.RiskcurrencyprofileId"/>-->
+    <mapping class="com.epic.bmlalipay.util.mapping.MerchantOriCommision"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.Statuscategory"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.Task"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.MerchantOriCurrency"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.MercustomersOriCurrencyId"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.Transactiontype"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.Userrole"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.Sectionpage"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.UserrolesectionId"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.AcquirerPromotion"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.AcquirerRiskprofileType"/>
+    <!--<mapping class="com.epic.bmlalipay.util.mapping.MerchantTxnType"/>-->
+    <mapping class="com.epic.bmlalipay.util.mapping.Transactionhistory"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.Txncurrency"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.AcquirerRiskprofileTxnId"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.Risktransactionprofile"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.TerminalOri"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.Page"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.Userrolesection"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.MerchantOriCurrencyId"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.TerminalBatchHistory"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.Userlevel"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.Section"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.AcquirerPromotionTxnId"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.MercustomersOriTransactionId"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.MerchantOriCommisionId"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.MerchantOriTransaction"/>
+    <!--<mapping class="com.epic.bmlalipay.util.mapping.Riskcurrencyprofile"/>-->
+    <mapping class="com.epic.bmlalipay.util.mapping.AcquirerRiskprofileTxn"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.MercustomersOriCurrency"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.AcquirerRiskprofileId"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.AcquirerPromotionId"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.AcquirerPromotionCurrency"/>
+    <mapping class="com.epic.bmlalipay.util.mapping.ResponseCodes"/>
+  </session-factory>
+</hibernate-configuration>

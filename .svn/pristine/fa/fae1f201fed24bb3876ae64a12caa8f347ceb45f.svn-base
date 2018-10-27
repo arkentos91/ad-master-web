@@ -1,0 +1,818 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.bean.controlpanel.acquirer;
+
+import com.epic.bmlalipay.util.mapping.AcquirerRiskprofile;
+import com.epic.bmlalipay.util.mapping.AcquirerRiskprofileCurrency;
+import com.epic.bmlalipay.util.mapping.Currency;
+import com.epic.bmlalipay.util.mapping.MccOri;
+import com.epic.bmlalipay.util.mapping.MerchantOri;
+import com.epic.bmlalipay.util.mapping.Status;
+import com.epic.bmlalipay.util.mapping.TerminalOri;
+import com.epic.bmlalipay.util.mapping.Userlevel;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ *
+ * @author jayana_i
+ */
+public class TerminalORIInputBean {
+
+    private String id;
+    private String acquirerRiskprofile;
+    private String acquirerRiskprofileDes;
+    private String status;
+    private String statusDes;
+    private String merchantOri;
+    private String merchantOriDes;
+    private String currency;
+    private String currencyDes;
+    private String mccOri;
+    private String mccOriDes;
+    private String terminalname;
+    private String serialno;
+    private String manufacturer;
+    private String model;
+    private String dateinstalled;
+    private String terminalcategory;
+    private List<TerminalORICatBean> terminalcategoryList;
+    private List<TerminalORIStatusBean> terstatusList;
+    private String mobile;
+    private String lastupdateduser;
+    private String lastupdatedtime;
+    private String createdtime;
+    private long fullCount;
+    private String SearchAudit;
+
+    private String defaultStatus;
+    private List<Currency> currencyList;
+    private List<Status> statusList;
+//    private List<TerminalOri> currentList;
+    private List<MerchantOri> midList;
+    private List<MerchantOri> midListView;
+    private List<AcquirerRiskprofile> acquirerriskprofileList;
+    private List<AcquirerRiskprofileCurrency> acquirerriskprofileListView;
+    private List<MccOri> mccList;
+    private List<MccOri> mccListView;
+
+    
+    
+    private String merchantOriedit;
+    
+    private String s_id;
+    private String s_acquirerRiskprofile;
+    private String s_status;
+    private String s_merchantOri;
+    private String s_currency;
+    private String s_mccOri;
+    private String s_terminalname;
+    private String s_serialno;
+    private String s_manufacturer;
+    private String s_model;
+    private String s_lastupdateduser;
+    private String s_lastupdatedtime;
+    private String s_createdtime;
+    private String s_dateinstalled;
+    private String s_terminalcategory;
+    private String s_mobile;
+
+    private String oldvalue;
+    private String width;
+    private String height;
+    private String newvalue;
+    private String message;
+
+    /*-------for access control-----------*/
+    private boolean vadd;
+    private boolean vspanshow;
+    private boolean vsearch;
+    private boolean vupdatebutt;
+    private boolean vupdatelink;
+    private boolean listnerconfigid;
+
+    private List<String> newBox;
+    private List<String> newBoxadd;
+    private List<String> currentBox;
+    private List<String> currentBoxadd;
+    private Map<String, String> currentList = new HashMap<String, String>();
+    private Map<String, String> currentList2 = new HashMap<String, String>();
+    private Map<String, String> newList = new HashMap<String, String>();
+
+    private boolean vdelete;
+    /*------------------------list data table  ------------------------------*/
+    private List<TerminalORIBean> gridModel;
+    private Integer rows = 0;
+    private Integer page = 0;
+    private Integer total = 0;
+    private Long records = 0L;
+    private String sord;
+    private String sidx;
+    private String searchField;
+    private String searchString;
+    private String searchOper;
+    private boolean loadonce = false;
+
+    private List<Userlevel> userRoleLevelList;
+    public String defaultUser;
+    public String midEdit;
+    private boolean search;
+    private boolean vreset;
+
+    public String getMerchantOriedit() {
+        return merchantOriedit;
+    }
+
+    public void setMerchantOriedit(String merchantOriedit) {
+        this.merchantOriedit = merchantOriedit;
+    }
+
+    
+    
+    public boolean isVreset() {
+        return vreset;
+    }
+
+    public void setVreset(boolean vreset) {
+        this.vreset = vreset;
+    }
+
+    public List<TerminalORICatBean> getTerminalcategoryList() {
+        return terminalcategoryList;
+    }
+
+    public void setTerminalcategoryList(List<TerminalORICatBean> terminalcategoryList) {
+        this.terminalcategoryList = terminalcategoryList;
+    }
+
+    public List<TerminalORIStatusBean> getTerstatusList() {
+        return terstatusList;
+    }
+
+    public void setTerstatusList(List<TerminalORIStatusBean> terstatusList) {
+        this.terstatusList = terstatusList;
+    }
+
+    
+    public boolean isSearch() {
+        return search;
+    }
+
+    public void setSearch(boolean search) {
+        this.search = search;
+    }
+
+    public boolean isVspanshow() {
+        return vspanshow;
+    }
+
+    public void setVspanshow(boolean vspanshow) {
+        this.vspanshow = vspanshow;
+    }
+
+    public String getTerminalcategory() {
+        return terminalcategory;
+    }
+
+    public void setTerminalcategory(String terminalcategory) {
+        this.terminalcategory = terminalcategory;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
+
+    public String getS_terminalcategory() {
+        return s_terminalcategory;
+    }
+
+    public void setS_terminalcategory(String s_terminalcategory) {
+        this.s_terminalcategory = s_terminalcategory;
+    }
+
+    public String getS_mobile() {
+        return s_mobile;
+    }
+
+    public void setS_mobile(String s_mobile) {
+        this.s_mobile = s_mobile;
+    }
+
+    public boolean isVsearch() {
+        return vsearch;
+    }
+
+    public void setVsearch(boolean vsearch) {
+        this.vsearch = vsearch;
+    }
+
+    public String getAcquirerRiskprofileDes() {
+        return acquirerRiskprofileDes;
+    }
+
+    public void setAcquirerRiskprofileDes(String acquirerRiskprofileDes) {
+        this.acquirerRiskprofileDes = acquirerRiskprofileDes;
+    }
+
+    public String getStatusDes() {
+        return statusDes;
+    }
+
+    public void setStatusDes(String statusDes) {
+        this.statusDes = statusDes;
+    }
+
+    public String getMerchantOriDes() {
+        return merchantOriDes;
+    }
+
+    public void setMerchantOriDes(String merchantOriDes) {
+        this.merchantOriDes = merchantOriDes;
+    }
+
+    public String getCurrencyDes() {
+        return currencyDes;
+    }
+
+    public void setCurrencyDes(String currencyDes) {
+        this.currencyDes = currencyDes;
+    }
+
+    public String getMccOriDes() {
+        return mccOriDes;
+    }
+
+    public void setMccOriDes(String mccOriDes) {
+        this.mccOriDes = mccOriDes;
+    }
+
+    public List<String> getNewBoxadd() {
+        return newBoxadd;
+    }
+
+    public void setNewBoxadd(List<String> newBoxadd) {
+        this.newBoxadd = newBoxadd;
+    }
+
+    public List<String> getCurrentBoxadd() {
+        return currentBoxadd;
+    }
+
+    public void setCurrentBoxadd(List<String> currentBoxadd) {
+        this.currentBoxadd = currentBoxadd;
+    }
+
+    public String getMidEdit() {
+        return midEdit;
+    }
+
+    public void setMidEdit(String midEdit) {
+        this.midEdit = midEdit;
+    }
+
+    public Map<String, String> getCurrentList2() {
+        return currentList2;
+    }
+
+    public void setCurrentList2(Map<String, String> currentList2) {
+        this.currentList2 = currentList2;
+    }
+
+    public List<String> getNewBox() {
+        return newBox;
+    }
+
+    public void setNewBox(List<String> newBox) {
+        this.newBox = newBox;
+    }
+
+    public List<String> getCurrentBox() {
+        return currentBox;
+    }
+
+    public void setCurrentBox(List<String> currentBox) {
+        this.currentBox = currentBox;
+    }
+
+    public List<MerchantOri> getMidList() {
+        return midList;
+    }
+
+    public void setMidList(List<MerchantOri> midList) {
+        this.midList = midList;
+    }
+
+    public List<AcquirerRiskprofile> getAcquirerriskprofileList() {
+        return acquirerriskprofileList;
+    }
+
+    public void setAcquirerriskprofileList(List<AcquirerRiskprofile> acquirerriskprofileList) {
+        this.acquirerriskprofileList = acquirerriskprofileList;
+    }
+
+    public List<MccOri> getMccList() {
+        return mccList;
+    }
+
+    public void setMccList(List<MccOri> mccList) {
+        this.mccList = mccList;
+    }
+
+    public Map<String, String> getCurrentList() {
+        return currentList;
+    }
+
+    public void setCurrentList(Map<String, String> currentList) {
+        this.currentList = currentList;
+    }
+
+    public Map<String, String> getNewList() {
+        return newList;
+    }
+
+    public void setNewList(Map<String, String> newList) {
+        this.newList = newList;
+    }
+
+    public List<Userlevel> getUserRoleLevelList() {
+        return userRoleLevelList;
+    }
+
+    public void setUserRoleLevelList(List<Userlevel> userRoleLevelList) {
+        this.userRoleLevelList = userRoleLevelList;
+    }
+
+    public String getDefaultUser() {
+        return defaultUser;
+    }
+
+    public void setDefaultUser(String defaultUser) {
+        this.defaultUser = defaultUser;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getAcquirerRiskprofile() {
+        return acquirerRiskprofile;
+    }
+
+    public void setAcquirerRiskprofile(String acquirerRiskprofile) {
+        this.acquirerRiskprofile = acquirerRiskprofile;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getMerchantOri() {
+        return merchantOri;
+    }
+
+    
+    public void setMerchantOri(String merchantOri) {
+        this.merchantOri = merchantOri;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public String getMccOri() {
+        return mccOri;
+    }
+
+    public void setMccOri(String mccOri) {
+        this.mccOri = mccOri;
+    }
+
+    public String getTerminalname() {
+        return terminalname;
+    }
+
+    public void setTerminalname(String terminalname) {
+        this.terminalname = terminalname;
+    }
+
+    public String getSerialno() {
+        return serialno;
+    }
+
+    public void setSerialno(String serialno) {
+        this.serialno = serialno;
+    }
+
+    public String getManufacturer() {
+        return manufacturer;
+    }
+
+    public void setManufacturer(String manufacturer) {
+        this.manufacturer = manufacturer;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public String getLastupdateduser() {
+        return lastupdateduser;
+    }
+
+    public void setLastupdateduser(String lastupdateduser) {
+        this.lastupdateduser = lastupdateduser;
+    }
+
+    public String getLastupdatedtime() {
+        return lastupdatedtime;
+    }
+
+    public void setLastupdatedtime(String lastupdatedtime) {
+        this.lastupdatedtime = lastupdatedtime;
+    }
+
+    public String getCreatedtime() {
+        return createdtime;
+    }
+
+    public void setCreatedtime(String createdtime) {
+        this.createdtime = createdtime;
+    }
+
+    public String getDateinstalled() {
+        return dateinstalled;
+    }
+
+    public void setDateinstalled(String dateinstalled) {
+        this.dateinstalled = dateinstalled;
+    }
+
+    public long getFullCount() {
+        return fullCount;
+    }
+
+    public void setFullCount(long fullCount) {
+        this.fullCount = fullCount;
+    }
+
+    public String getDefaultStatus() {
+        return defaultStatus;
+    }
+
+    public void setDefaultStatus(String defaultStatus) {
+        this.defaultStatus = defaultStatus;
+    }
+
+    public List<Currency> getCurrencyList() {
+        return currencyList;
+    }
+
+    public void setCurrencyList(List<Currency> currencyList) {
+        this.currencyList = currencyList;
+    }
+
+    public List<Status> getStatusList() {
+        return statusList;
+    }
+
+    public void setStatusList(List<Status> statusList) {
+        this.statusList = statusList;
+    }
+
+    public String getS_id() {
+        return s_id;
+    }
+
+    public void setS_id(String s_id) {
+        this.s_id = s_id;
+    }
+
+    public String getS_acquirerRiskprofile() {
+        return s_acquirerRiskprofile;
+    }
+
+    public void setS_acquirerRiskprofile(String s_acquirerRiskprofile) {
+        this.s_acquirerRiskprofile = s_acquirerRiskprofile;
+    }
+
+    public String getS_status() {
+        return s_status;
+    }
+
+    public void setS_status(String s_status) {
+        this.s_status = s_status;
+    }
+
+    public String getS_merchantOri() {
+        return s_merchantOri;
+    }
+
+    public void setS_merchantOri(String s_merchantOri) {
+        this.s_merchantOri = s_merchantOri;
+    }
+
+    public String getS_currency() {
+        return s_currency;
+    }
+
+    public void setS_currency(String s_currency) {
+        this.s_currency = s_currency;
+    }
+
+    public String getS_mccOri() {
+        return s_mccOri;
+    }
+
+    public void setS_mccOri(String s_mccOri) {
+        this.s_mccOri = s_mccOri;
+    }
+
+    public String getS_terminalname() {
+        return s_terminalname;
+    }
+
+    public void setS_terminalname(String s_terminalname) {
+        this.s_terminalname = s_terminalname;
+    }
+
+    public String getS_serialno() {
+        return s_serialno;
+    }
+
+    public void setS_serialno(String s_serialno) {
+        this.s_serialno = s_serialno;
+    }
+
+    public String getS_manufacturer() {
+        return s_manufacturer;
+    }
+
+    public void setS_manufacturer(String s_manufacturer) {
+        this.s_manufacturer = s_manufacturer;
+    }
+
+    public String getS_model() {
+        return s_model;
+    }
+
+    public void setS_model(String s_model) {
+        this.s_model = s_model;
+    }
+
+    public String getS_lastupdateduser() {
+        return s_lastupdateduser;
+    }
+
+    public void setS_lastupdateduser(String s_lastupdateduser) {
+        this.s_lastupdateduser = s_lastupdateduser;
+    }
+
+    public String getS_lastupdatedtime() {
+        return s_lastupdatedtime;
+    }
+
+    public void setS_lastupdatedtime(String s_lastupdatedtime) {
+        this.s_lastupdatedtime = s_lastupdatedtime;
+    }
+
+    public String getS_createdtime() {
+        return s_createdtime;
+    }
+
+    public void setS_createdtime(String s_createdtime) {
+        this.s_createdtime = s_createdtime;
+    }
+
+    public String getS_dateinstalled() {
+        return s_dateinstalled;
+    }
+
+    public void setS_dateinstalled(String s_dateinstalled) {
+        this.s_dateinstalled = s_dateinstalled;
+    }
+
+    public String getOldvalue() {
+        return oldvalue;
+    }
+
+    public void setOldvalue(String oldvalue) {
+        this.oldvalue = oldvalue;
+    }
+
+    public String getWidth() {
+        return width;
+    }
+
+    public void setWidth(String width) {
+        this.width = width;
+    }
+
+    public String getHeight() {
+        return height;
+    }
+
+    public void setHeight(String height) {
+        this.height = height;
+    }
+
+    public String getNewvalue() {
+        return newvalue;
+    }
+
+    public void setNewvalue(String newvalue) {
+        this.newvalue = newvalue;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public boolean isVadd() {
+        return vadd;
+    }
+
+    public void setVadd(boolean vadd) {
+        this.vadd = vadd;
+    }
+
+    public boolean isVupdatebutt() {
+        return vupdatebutt;
+    }
+
+    public void setVupdatebutt(boolean vupdatebutt) {
+        this.vupdatebutt = vupdatebutt;
+    }
+
+    public boolean isVupdatelink() {
+        return vupdatelink;
+    }
+
+    public void setVupdatelink(boolean vupdatelink) {
+        this.vupdatelink = vupdatelink;
+    }
+
+    public boolean isListnerconfigid() {
+        return listnerconfigid;
+    }
+
+    public void setListnerconfigid(boolean listnerconfigid) {
+        this.listnerconfigid = listnerconfigid;
+    }
+
+    public boolean isVdelete() {
+        return vdelete;
+    }
+
+    public void setVdelete(boolean vdelete) {
+        this.vdelete = vdelete;
+    }
+
+    public List<TerminalORIBean> getGridModel() {
+        return gridModel;
+    }
+
+    public void setGridModel(List<TerminalORIBean> gridModel) {
+        this.gridModel = gridModel;
+    }
+
+    public Integer getRows() {
+        return rows;
+    }
+
+    public void setRows(Integer rows) {
+        this.rows = rows;
+    }
+
+    public Integer getPage() {
+        return page;
+    }
+
+    public void setPage(Integer page) {
+        this.page = page;
+    }
+
+    public Integer getTotal() {
+        return total;
+    }
+
+    public void setTotal(Integer total) {
+        this.total = total;
+    }
+
+    public Long getRecords() {
+        return records;
+    }
+
+    public void setRecords(Long records) {
+        this.records = records;
+    }
+
+    public String getSord() {
+        return sord;
+    }
+
+    public void setSord(String sord) {
+        this.sord = sord;
+    }
+
+    public String getSidx() {
+        return sidx;
+    }
+
+    public void setSidx(String sidx) {
+        this.sidx = sidx;
+    }
+
+    public String getSearchField() {
+        return searchField;
+    }
+
+    public void setSearchField(String searchField) {
+        this.searchField = searchField;
+    }
+
+    public String getSearchString() {
+        return searchString;
+    }
+
+    public void setSearchString(String searchString) {
+        this.searchString = searchString;
+    }
+
+    public String getSearchOper() {
+        return searchOper;
+    }
+
+    public void setSearchOper(String searchOper) {
+        this.searchOper = searchOper;
+    }
+
+    public boolean isLoadonce() {
+        return loadonce;
+    }
+
+    public void setLoadonce(boolean loadonce) {
+        this.loadonce = loadonce;
+    }
+
+    public String getSearchAudit() {
+        return SearchAudit;
+    }
+
+    public void setSearchAudit(String SearchAudit) {
+        this.SearchAudit = SearchAudit;
+    }
+
+    public List<MerchantOri> getMidListView() {
+        return midListView;
+    }
+
+    public void setMidListView(List<MerchantOri> midListView) {
+        this.midListView = midListView;
+    }
+
+    public List<AcquirerRiskprofileCurrency> getAcquirerriskprofileListView() {
+        return acquirerriskprofileListView;
+    }
+
+    public void setAcquirerriskprofileListView(List<AcquirerRiskprofileCurrency> acquirerriskprofileListView) {
+        this.acquirerriskprofileListView = acquirerriskprofileListView;
+    }
+
+    public List<MccOri> getMccListView() {
+        return mccListView;
+    }
+
+    public void setMccListView(List<MccOri> mccListView) {
+        this.mccListView = mccListView;
+    }
+
+}

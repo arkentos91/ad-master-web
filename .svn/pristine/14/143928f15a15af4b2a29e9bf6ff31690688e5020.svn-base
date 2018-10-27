@@ -1,0 +1,296 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.bean.reportexplorer;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+public class TxnDataBean {
+
+    private String transactionid;
+    private String txntypecode;
+    private String rrn;
+    private String tracenumber;
+    private String responcecode;
+    private String status;
+    private String lastupdateduser;
+    private String lastupdatedtime;
+    private String createtime;
+    private String mti;
+    private String processingcode;
+    private String localdate;
+    private String localtime;
+    private String posentrymode;
+    private String posconditioncode;
+    private String invoiceno;
+    private String nii;
+    private String amount;
+    private String currencycode;
+    private String tid;
+    private String mid;
+    private String listnertype;
+    private String settlementamount;
+    private String settlementtxncount;
+    private String settlementdate;
+    private String batchno;
+    private String authcode;
+    private String qr_url;
+    private String signature;
+    private String eodstatus;
+
+    private long fullCount;
+
+
+    public String getTransactionid() {
+        return transactionid;
+    }
+
+    public void setTransactionid(String transactionid) {
+        this.transactionid = transactionid;
+    }
+
+    public String getTxntypecode() {
+        return txntypecode;
+    }
+
+    public void setTxntypecode(String txntypecode) {
+        this.txntypecode = txntypecode;
+    }
+
+    public String getRrn() {
+        return rrn;
+    }
+
+    public void setRrn(String rrn) {
+        this.rrn = rrn;
+    }
+
+    public String getTracenumber() {
+        return tracenumber;
+    }
+
+    public void setTracenumber(String tracenumber) {
+        this.tracenumber = tracenumber;
+    }
+
+    public String getResponcecode() {
+        return responcecode;
+    }
+
+    public void setResponcecode(String responcecode) {
+        this.responcecode = responcecode;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getLastupdateduser() {
+        return lastupdateduser;
+    }
+
+    public void setLastupdateduser(String lastupdateduser) {
+        this.lastupdateduser = lastupdateduser;
+    }
+
+    public String getLastupdatedtime() {
+        return lastupdatedtime;
+    }
+
+    public void setLastupdatedtime(String lastupdatedtime) {
+        this.lastupdatedtime = lastupdatedtime;
+    }
+
+    public String getCreatetime() {
+        return createtime;
+    }
+
+    public void setCreatetime(String createtime) {
+        this.createtime = createtime;
+    }
+
+    public String getMti() {
+        return mti;
+    }
+
+    public void setMti(String mti) {
+        this.mti = mti;
+    }
+
+    public String getProcessingcode() {
+        return processingcode;
+    }
+
+    public void setProcessingcode(String processingcode) {
+        this.processingcode = processingcode;
+    }
+
+    public String getLocaldate() {
+        return localdate;
+    }
+
+    public void setLocaldate(String localdate) {
+        this.localdate = localdate;
+    }
+
+    public String getLocaltime() {
+        return localtime;
+    }
+
+    public void setLocaltime(String localtime) {
+        this.localtime = localtime;
+    }
+
+    public String getPosentrymode() {
+        return posentrymode;
+    }
+
+    public void setPosentrymode(String posentrymode) {
+        this.posentrymode = posentrymode;
+    }
+
+    public String getPosconditioncode() {
+        return posconditioncode;
+    }
+
+    public void setPosconditioncode(String posconditioncode) {
+        this.posconditioncode = posconditioncode;
+    }
+
+    public String getInvoiceno() {
+        return invoiceno;
+    }
+
+    public void setInvoiceno(String invoiceno) {
+        this.invoiceno = invoiceno;
+    }
+
+    public String getNii() {
+        return nii;
+    }
+
+    public void setNii(String nii) {
+        this.nii = nii;
+    }
+
+    public String getAmount() {
+        return amount;
+    }
+
+    public void setAmount(String amount) {
+        this.amount = amount;
+    }
+
+    public String getCurrencycode() {
+        return currencycode;
+    }
+
+    public void setCurrencycode(String currencycode) {
+        this.currencycode = currencycode;
+    }
+
+    public String getTid() {
+        return tid;
+    }
+
+    public void setTid(String tid) {
+        this.tid = tid;
+    }
+
+    public String getMid() {
+        return mid;
+    }
+
+    public void setMid(String mid) {
+        this.mid = mid;
+    }
+
+    public String getListnertype() {
+        return listnertype;
+    }
+
+    public void setListnertype(String listnertype) {
+        this.listnertype = listnertype;
+    }
+
+    public String getSettlementamount() {
+        return settlementamount;
+    }
+
+    public void setSettlementamount(String settlementamount) {
+        this.settlementamount = settlementamount;
+    }
+
+    public String getSettlementtxncount() {
+        return settlementtxncount;
+    }
+
+    public void setSettlementtxncount(String settlementtxncount) {
+        this.settlementtxncount = settlementtxncount;
+    }
+
+    public String getSettlementdate() {
+        return settlementdate;
+    }
+
+    public void setSettlementdate(String settlementdate) {
+        this.settlementdate = settlementdate;
+    }
+
+    public String getBatchno() {
+        return batchno;
+    }
+
+    public void setBatchno(String batchno) {
+        this.batchno = batchno;
+    }
+
+    public String getAuthcode() {
+        return authcode;
+    }
+
+    public void setAuthcode(String authcode) {
+        this.authcode = authcode;
+    }
+
+    public String getQr_url() {
+        return qr_url;
+    }
+
+    public void setQr_url(String qr_url) {
+        this.qr_url = qr_url;
+    }
+
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
+
+    public String getEodstatus() {
+        return eodstatus;
+    }
+
+    public void setEodstatus(String eodstatus) {
+        this.eodstatus = eodstatus;
+    }
+
+    public long getFullCount() {
+        return fullCount;
+    }
+
+    public void setFullCount(long fullCount) {
+        this.fullCount = fullCount;
+    }
+
+
+}

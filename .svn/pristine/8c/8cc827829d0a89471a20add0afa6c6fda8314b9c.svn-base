@@ -1,0 +1,375 @@
+<%-- 
+    Document   : transactiontype
+    Created on : Feb 3, 2016, 4:10:07 PM
+    Author     : chathuri_t
+--%>
+
+<%@page import="com.epic.bmlalipay.util.varlist.CommonVarList"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="/struts-tags" prefix="s" %>
+<%@taglib  uri="/struts-jquery-tags" prefix="sj"%>
+<%@taglib prefix="sjg" uri="/struts-jquery-grid-tags"%>
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+
+        <%@include file="/stylelinks.jspf" %>
+
+        <script type="text/javascript">
+
+            window.onload = function () {
+                $("#transactiontypecode").css("color", "black");
+            }
+
+            function editformatter(cellvalue, options, rowObject) {
+                a = $("#addButton").is(':disabled');
+                u = $("#updateButton").is(':disabled');
+                return "<a href='#' title='Edit' onClick='javascript:editTransactionType(&#34;" + cellvalue + "&#34;)'><img class='ui-icon ui-icon-pencil' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+
+            function deleteformatter(cellvalue, options, rowObject) {
+                return "<a href='#/' title='Delete' onClick='javascript:deleteTransactionTypeInit(&#34;" + cellvalue + "&#34;)'><img class='ui-icon ui-icon-trash' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+
+
+            function editTransactionType(keyval) {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/FindTransactionType.action',
+                    data: {transactiontypecode: keyval},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        $('#divmsg').empty();
+                        var msg = data.message;
+                        if (msg) {
+                            $('#transactiontypecode').val("");
+                            $('#transactiontypecode').attr('readOnly', false);
+                            $("#transactiontypecode").css("color", "black");
+                            $('#description').val("");
+                            $('#sortkey').val("");
+                            $('#status').val('<s:property value="defaultStatus" />');
+                            $('#status').prop('disabled', true);
+                            $('#OTPReqStatus').val("");
+                            $('#RiskReqStatus').val("");
+//                           
+                            $('#OTPReqStatus').val('<s:property value="defaultOTPReqStatus" />');
+                            $('#RiskReqStatus').val('<s:property value="defaultRiskReqStatus" />');
+//                            
+                            $('#divmsg').text("");
+                            $('#updateButton').button("disable");
+
+                            var startStatus = <s:property value="vadd" />;
+                            if (startStatus) {
+                                $('#addButton').button("disable");
+                            } else {
+                                $('#addButton').button("enable");
+                            }
+                        }
+                        else {
+                            $('#oldvalue').val(data.oldvalue);
+                            $('#transactiontypecode').val(data.transactiontypecode);
+                            $('#transactiontypecode').attr('readOnly', true);
+                            $("#transactiontypecode").css("color", "#858585");
+                            $('#description').val(data.description);
+                            $('#status').prop('disabled', false);
+                            $('#status').val(data.status);
+                            $('#OTPReqStatus').val(data.OTPReqStatus);
+                            $('#RiskReqStatus').val(data.riskReqStatus);
+
+
+
+                            $('#addButton').button("disable");
+                            $('#updateButton').button("enable");
+                        }
+                    },
+                    error: function (data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            function deleteTransactionTypeInit(keyval) {
+                $('#divmsg').empty();
+
+                $("#deletedialog").data('keyval', keyval).dialog('open');
+                $("#deletedialog").html('Are you sure you want to delete transaction type ' + keyval + ' ?');
+                return false;
+            }
+
+            function deleteTransactionType(keyval) {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/DeleteTransactionType.action',
+                    data: {transactiontypecode: keyval},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        $("#deletesuccdialog").dialog('open');
+                        $("#deletesuccdialog").html(data.message);
+                        resetFieldData();
+                    },
+                    error: function (data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            function resetAllData() {
+                a = $("#addButton").is(':disabled');
+                u = $("#updateButton").is(':disabled');
+
+                if (a == true && u == true) {
+                    editTransactionType(null);
+                    //                        $('#transactiontypecode').val("");
+                    //                        $('#transactiontypecode').attr('readOnly',false);
+                    //                        $('#description').val("");
+                    //                        $('#sortkey').val("");                        
+                    //                        $('#status').val('<s:property value="defaultStatus" />');
+                    //                        $('#status').prop('disabled', true);
+                    //                        $('#divmsg').text("");
+                    //                        $('#addButton').button("disable");
+                    //                        $('#updateButton').button("disable");
+                } else if (a == true && u == false) {
+                    var transactiontypecode = $('#transactiontypecode').val();
+                    $('#transactiontypecode').attr('readOnly', true);
+                    editTransactionType(transactiontypecode);
+                } else if (a == false && u == true) {
+                    editTransactionType(null);
+                    //                        $('#transactiontypecode').val("");
+                    //                        $('#transactiontypecode').attr('readOnly',false);
+                    //                        $('#description').val("");
+                    //                        $('#sortkey').val("");
+                    //                        $('#status').val('<s:property value="defaultStatus" />');
+                    //                        $('#status').prop('disabled', true);
+                    //                        $('#divmsg').text("");
+                    //                        $('#addButton').button("enable");
+                    //                        $('#updateButton').button("disable");  
+                }
+            }
+
+            function resetFieldData() {
+
+                a = $("#addButton").is(':disabled');
+                u = $("#updateButton").is(':disabled');
+
+                var startStatus = '<s:property value="vadd" />'
+                $('#transactiontypecode').val("");
+                $('#transactiontypecode').attr('readOnly', false);
+                $("#transactiontypecode").css("color", "black");
+                $('#description').val("");
+                $('#status').val('<s:property value="defaultStatus" />');
+                $('#status').prop('disabled', true);
+
+                $('#OTPReqStatus').val("");
+                $('#RiskReqStatus').val("");
+
+
+                if (a == true && u == true) {
+                    $('#addButton').button("disable");
+                    $('#updateButton').button("disable");
+                } else if (a == true && u == false && startStatus == 'false') {
+                    $('#addButton').button("enable");
+                    $('#updateButton').button("disable");
+                } else if (a == true && u == false && startStatus == 'true') {
+                    $('#addButton').button("disable");
+                    $('#updateButton').button("disable");
+                } else if (a == false && u == true) {
+                    $('#addButton').button("enable");
+                    $('#updateButton').button("disable");
+                }
+                jQuery("#gridtable").trigger("reloadGrid");
+            }
+
+            function cancelAllData() {
+                editTransactionType(null);
+            }
+        </script>
+
+    </head>
+
+    <body style="">
+        <jsp:include page="/header.jsp"/>
+
+        <div class="main-container">
+
+
+            <jsp:include page="/leftmenu.jsp"/>
+
+            <div class="main-content">
+
+                <div class="container" style="min-height: 760px;">
+
+
+                    <!-- start: PAGE NAVIGATION BAR -->
+                    <jsp:include page="/navbar.jsp"/>
+                    <!-- end: NAVIGATION BAR -->
+
+                    <div class="row">
+
+
+                        <div id="content1">
+
+
+                            <s:div id="divmsg">
+
+                                <s:actionerror theme="jquery"/>
+                                <s:actionmessage theme="jquery"/>
+                            </s:div>
+
+                            <s:set id="vadd" var="vadd"><s:property value="vadd" default="true"/></s:set>
+                            <s:set var="vupdatebutt"><s:property value="vupdatebutt" default="true"/></s:set>
+                            <s:set var="vupdatelink"><s:property value="vupdatelink" default="true"/></s:set>
+                            <s:set var="vdelete"><s:property value="vdelete" default="true"/></s:set>
+
+                                <div id="formstyle">
+                                <s:form id="transactiontypeadd" method="post" action="TransactionType" theme="simple" >
+
+
+                                    <s:hidden id="oldvalue" name="oldvalue" ></s:hidden>
+
+                                        <div class="row row_1">
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Transaction Type Code</label>
+                                                <s:textfield  cssClass="form-control" name="transactiontypecode" id="transactiontypecode" maxLength="3" onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^a-zA-Z0-9]/g,''))"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red">*</span><label>Description</label>
+                                                <s:textfield cssClass="form-control"  name="description" id="description" maxLength="64" onkeyup="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))"/>
+                                            </div>
+
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red">*</span><label>Status</label>
+                                                <s:select  cssClass="form-control" id="status" list="%{statusList}"  name="status" listKey="statuscode" listValue="description" value="defaultStatus" disabled="true" cssStyle="width: 153px"/>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <s:url var="addurl" action="AddTransactionType"/>
+                                    <s:url var="updateurl" action="UpdateTransactionType"/>
+                                    <div class="row row_popup form-inline">
+                                        <div class="col-sm-9">
+                                            <div class="form-group">
+                                                <span class="mandatoryfield">Mandatory fields are marked with *</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row row_1 form-inline">
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <sj:submit button="true" href="%{addurl}" value="Add" targets="divmsg" id="addButton"  disabled="#vadd"
+                                                           cssClass="form-control btn_normal"
+                                                           cssStyle="border-radius: 12px;background-color:#969595;color:white;"/>
+                                            </div>
+                                            <div class="form-group">
+                                                <sj:submit button="true" href="%{updateurl}" value="Update" targets="divmsg"   disabled="#vupdatebutt" id="updateButton"
+                                                           cssClass="form-control btn_normal"
+                                                           cssStyle="border-radius: 12px;background-color:#969595;color:white;"/>
+                                            </div>
+                                            <div class="form-group">
+                                                <sj:submit button="true" value="Reset" name="reset" onClick="resetAllData()" 
+                                                           cssClass="form-control btn_normal"
+                                                           cssStyle="border-radius: 12px;"/>
+                                            </div>
+                                            <div class="form-group">
+                                                <sj:submit button="true" value="Cancel" name="cancel" onClick="cancelAllData()"
+                                                           cssClass="form-control btn_normal"
+                                                           cssStyle="border-radius: 12px;"/>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </s:form>
+                        </div>
+
+                        <!-- Start delete confirm dialog box -->
+                        <sj:dialog 
+                            id="deletedialog" 
+                            buttons="{ 
+                            'OK':function() { deleteTransactionType($(this).data('keyval'));$( this ).dialog( 'close' ); },
+                            'Cancel':function() { $( this ).dialog( 'close' );} 
+                            }" 
+                            autoOpen="false" 
+                            modal="true" 
+                            title="Delete Transaction Type"                            
+                            />
+                        <!-- Start delete process dialog box -->
+                        <sj:dialog 
+                            id="deletesuccdialog" 
+                            buttons="{
+                            'OK':function() { $( this ).dialog( 'close' );}
+                            }"  
+                            autoOpen="false" 
+                            modal="true" 
+                            title="Deleting Process." 
+                            />
+                        <!-- Start delete error dialog box -->
+                        <sj:dialog 
+                            id="deleteerrordialog" 
+                            buttons="{
+                            'OK':function() { $( this ).dialog( 'close' );}                                    
+                            }" 
+                            autoOpen="false" 
+                            modal="true" 
+                            title="Delete error."
+                            />                          
+
+                        <div id="tablediv">
+                            <s:url var="listurl" action="ListTransactionType"/>
+                            <sjg:grid
+                                id="gridtable"
+                                caption="Transaction Type"
+                                dataType="json"
+                                href="%{listurl}"
+                                pager="true"
+                                gridModel="gridModel"
+                                rowList="10,15,20"
+                                rowNum="10"
+                                autowidth="true"
+                                rownumbers="true"
+                                onCompleteTopics="completetopics"
+                                rowTotal="false"
+                                viewrecords="true"
+                                >
+                                <sjg:gridColumn name="transactiontypecode" index="u.typecode" title="Edit" width="25" align="center" formatter="editformatter" hidden="#vupdatelink"/>
+                                <sjg:gridColumn name="transactiontypecode" index="u.typecode" title="Delete" width="25" align="center" formatter="deleteformatter" hidden="#vdelete"/>  
+                                <sjg:gridColumn name="transactiontypecode" index="u.typecode" title="Transaction Type Code"  sortable="true"/>
+                                <sjg:gridColumn name="description" index="u.description" title="Description"  sortable="true"/>
+                                <sjg:gridColumn name="status" index="u.status.description" title="Status"  sortable="true"/>
+                                <%--<sjg:gridColumn name="OTPReqStatus" index="u.otpRequired" title="OTP Required Status"  sortable="true"/>--%>
+                                <%--<sjg:gridColumn name="riskReqStatus" index="u.riskRequired" title="Risk Required Status"  sortable="true"/>--%>
+                            </sjg:grid> 
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+
+                <!-- end: PAGE CONTENT-->
+            </div>
+        </div>
+        <!-- end: PAGE -->
+        </div>
+        <!-- end: MAIN CONTAINER -->
+        <!-- start: FOOTER -->
+        <jsp:include page="/footer.jsp"/>
+        <!-- end: FOOTER -->
+
+
+
+        <!-- end: BODY -->
+    </body>
+</html>
+

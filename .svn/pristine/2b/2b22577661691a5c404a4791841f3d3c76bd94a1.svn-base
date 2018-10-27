@@ -1,0 +1,766 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.bean.controlpanel.acquirer;
+
+import com.epic.bmlalipay.util.mapping.Status;
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.codec.binary.Base64;
+
+/**
+ *
+ * @author jayana_i
+ */
+public class MerchantCustomerInputBean {
+    private String mid;
+    private String filename;
+    private String status;
+    private String name;
+    private String email1;
+    private String email2;
+    private List<Status> StatusList;
+
+    /*-- upload logo image and edit image --*/
+    private File logoImg;
+    private File logowebImg;
+    private String logoImgContentType;
+    private String logowebImgContentType;
+    private String logoImgFileName;
+    private String logowebImgFileName;
+
+    private byte[] editLogo;
+    private byte[] editLogoweb;
+    private String editLogoImg;
+    private String editLogowebImg;
+    /*--------------------*/
+
+    private String message;
+    private String oldvalue;
+    private String hiddenId;
+    private String hiddenIdEdit;
+
+    private boolean vadd;
+    private boolean vdelete;
+    private boolean vupdatebutt;
+    private boolean vupdatelink;
+    private boolean vsearch;
+    private boolean vupload;
+    private boolean vuserpassgen;
+    
+
+    private List<MerchantCustomerDataBean> gridModel;
+    private Integer rows = 0;
+    private Integer page = 0;
+    private Integer total = 0;
+    private Long records = 0L;
+    private String sord;
+    private String sidx;
+    private String searchField;
+    private String searchString;
+    private String searchOper;
+    private boolean loadonce = false;
+
+    private String s_mid;
+    private String s_name;
+    private String s_status;
+    private String oldV_currency;
+    private List<String> old_cur;
+    private List<String> old_mcc;
+    private List<String> old_tra;
+    private String oldV_mcc;
+    private String oldV_tran;
+
+    private String username;
+    private String password;
+
+    private Map<String, String> currentList = new HashMap<String, String>();
+    private Map<String, String> currentListTran = new HashMap<String, String>();
+    private Map<String, String> currentListMcc = new HashMap<String, String>();
+    private Map<String, String> currentListedit = new HashMap<String, String>();
+    private Map<String, String> currentListTranedit = new HashMap<String, String>();
+    private Map<String, String> currentListMccedit = new HashMap<String, String>();
+
+    private Map<String, String> newListedit = new HashMap<String, String>();
+    private Map<String, String> newListTranedit = new HashMap<String, String>();
+    private Map<String, String> newListMccedit = new HashMap<String, String>();
+    private Map<String, String> newList = new HashMap<String, String>();
+    private Map<String, String> newListTran = new HashMap<String, String>();
+    private Map<String, String> newListMcc = new HashMap<String, String>();
+
+    private String midCurrency;
+    private String midTran;
+    private String midMcc;
+
+    private List<String> newBox;
+    private List<String> newBoxTran;
+    private List<String> newBoxMcc;
+    private List<String> newBoxedit;
+    private List<String> newBoxTranedit;
+    private List<String> newBoxMccedit;
+
+    private List<String> currentBox;
+    private List<String> currentBoxTran;
+    private List<String> currentBoxMcc;
+    private List<String> currentBoxedit;
+    private List<String> currentBoxTranedit;
+    private List<String> currentBoxMccedit;
+
+    private String SearchAudit;
+    private boolean search;
+
+    public String getEmail1() {
+        return email1;
+    }
+
+    public void setEmail1(String email1) {
+        this.email1 = email1;
+    }
+
+    public String getEmail2() {
+        return email2;
+    }
+
+    public void setEmail2(String email2) {
+        this.email2 = email2;
+    }
+
+    
+    
+    public File getLogowebImg() {
+        return logowebImg;
+    }
+
+    public void setLogowebImg(File logowebImg) {
+        this.logowebImg = logowebImg;
+    }
+
+    public String getLogowebImgContentType() {
+        return logowebImgContentType;
+    }
+
+    public void setLogowebImgContentType(String logowebImgContentType) {
+        this.logowebImgContentType = logowebImgContentType;
+    }
+
+    public String getLogowebImgFileName() {
+        return logowebImgFileName;
+    }
+
+    public void setLogowebImgFileName(String logowebImgFileName) {
+        this.logowebImgFileName = logowebImgFileName;
+    }
+
+    public byte[] getEditLogoweb() {
+        return editLogoweb;
+    }
+
+    public void setEditLogoweb(byte[] editLogoweb) {
+        this.editLogoweb = editLogoweb;
+    }
+
+    public String getEditLogowebImg() {
+
+        try {
+            byte[] blobAsBytes = getEditLogoweb();
+            blobAsBytes = Base64.encodeBase64(blobAsBytes);
+            this.editLogowebImg = new String(blobAsBytes);
+        } catch (Exception e) {
+            this.editLogowebImg = "";
+        }
+        return editLogowebImg;
+    }
+
+    public void setEditLogowebImg(String editLogowebImg) {
+        this.editLogowebImg = editLogowebImg;
+    }
+
+    public List<String> getOld_cur() {
+        return old_cur;
+    }
+
+    public void setOld_cur(List<String> old_cur) {
+        this.old_cur = old_cur;
+    }
+
+    public List<String> getOld_mcc() {
+        return old_mcc;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    public void setOld_mcc(List<String> old_mcc) {
+        this.old_mcc = old_mcc;
+    }
+
+    public List<String> getOld_tra() {
+        return old_tra;
+    }
+
+    public void setOld_tra(List<String> old_tra) {
+        this.old_tra = old_tra;
+    }
+
+    public String getOldV_currency() {
+        return oldV_currency;
+    }
+
+    public void setOldV_currency(String oldV_currency) {
+        this.oldV_currency = oldV_currency;
+    }
+
+    public String getOldV_mcc() {
+        return oldV_mcc;
+    }
+
+    public void setOldV_mcc(String oldV_mcc) {
+        this.oldV_mcc = oldV_mcc;
+    }
+
+    public String getOldV_tran() {
+        return oldV_tran;
+    }
+
+    public void setOldV_tran(String oldV_tran) {
+        this.oldV_tran = oldV_tran;
+    }
+
+    public boolean isSearch() {
+        return search;
+    }
+
+    public void setSearch(boolean search) {
+        this.search = search;
+    }
+
+    public boolean isVupload() {
+        return vupload;
+    }
+
+    public void setVupload(boolean vupload) {
+        this.vupload = vupload;
+    }
+
+    public String getHiddenId() {
+        return hiddenId;
+    }
+
+    public void setHiddenId(String hiddenId) {
+        this.hiddenId = hiddenId;
+    }
+
+    public boolean isVsearch() {
+        return vsearch;
+    }
+
+    public void setVsearch(boolean vsearch) {
+        this.vsearch = vsearch;
+    }
+
+    public String getHiddenIdEdit() {
+        return hiddenIdEdit;
+    }
+
+    public void setHiddenIdEdit(String hiddenIdEdit) {
+        this.hiddenIdEdit = hiddenIdEdit;
+    }
+
+    public String getMidCurrency() {
+        return midCurrency;
+    }
+
+    public void setMidCurrency(String midCurrency) {
+        this.midCurrency = midCurrency;
+    }
+
+    public Map<String, String> getCurrentList() {
+        return currentList;
+    }
+
+    public void setCurrentList(Map<String, String> currentList) {
+        this.currentList = currentList;
+    }
+
+    public Map<String, String> getNewList() {
+        return newList;
+    }
+
+    public void setNewList(Map<String, String> newList) {
+        this.newList = newList;
+    }
+
+    public String getMid() {
+        return mid;
+    }
+
+    public void setMid(String mid) {
+        this.mid = mid;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<Status> getStatusList() {
+        return StatusList;
+    }
+
+    public void setStatusList(List<Status> StatusList) {
+        this.StatusList = StatusList;
+    }
+
+    public boolean isVadd() {
+        return vadd;
+    }
+
+    public void setVadd(boolean vadd) {
+        this.vadd = vadd;
+    }
+
+    public boolean isVdelete() {
+        return vdelete;
+    }
+
+    public void setVdelete(boolean vdelete) {
+        this.vdelete = vdelete;
+    }
+
+    public boolean isVupdatebutt() {
+        return vupdatebutt;
+    }
+
+    public void setVupdatebutt(boolean vupdatebutt) {
+        this.vupdatebutt = vupdatebutt;
+    }
+
+    public boolean isVupdatelink() {
+        return vupdatelink;
+    }
+
+    public void setVupdatelink(boolean vupdatelink) {
+        this.vupdatelink = vupdatelink;
+    }
+
+    public Integer getRows() {
+        return rows;
+    }
+
+    public void setRows(Integer rows) {
+        this.rows = rows;
+    }
+
+    public Integer getPage() {
+        return page;
+    }
+
+    public void setPage(Integer page) {
+        this.page = page;
+    }
+
+    public Integer getTotal() {
+        return total;
+    }
+
+    public void setTotal(Integer total) {
+        this.total = total;
+    }
+
+    public Long getRecords() {
+        return records;
+    }
+
+    public void setRecords(Long records) {
+        this.records = records;
+    }
+
+    public String getSord() {
+        return sord;
+    }
+
+    public void setSord(String sord) {
+        this.sord = sord;
+    }
+
+    public String getSidx() {
+        return sidx;
+    }
+
+    public void setSidx(String sidx) {
+        this.sidx = sidx;
+    }
+
+    public String getSearchField() {
+        return searchField;
+    }
+
+    public void setSearchField(String searchField) {
+        this.searchField = searchField;
+    }
+
+    public String getSearchString() {
+        return searchString;
+    }
+
+    public void setSearchString(String searchString) {
+        this.searchString = searchString;
+    }
+
+    public String getSearchOper() {
+        return searchOper;
+    }
+
+    public void setSearchOper(String searchOper) {
+        this.searchOper = searchOper;
+    }
+
+    public boolean isLoadonce() {
+        return loadonce;
+    }
+
+    public void setLoadonce(boolean loadonce) {
+        this.loadonce = loadonce;
+    }
+
+    public List<MerchantCustomerDataBean> getGridModel() {
+        return gridModel;
+    }
+
+    public void setGridModel(List<MerchantCustomerDataBean> gridModel) {
+        this.gridModel = gridModel;
+    }
+
+    public String getOldvalue() {
+        return oldvalue;
+    }
+
+    public void setOldvalue(String oldvalue) {
+        this.oldvalue = oldvalue;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getS_mid() {
+        return s_mid;
+    }
+
+    public void setS_mid(String s_mid) {
+        this.s_mid = s_mid;
+    }
+
+    public String getS_name() {
+        return s_name;
+    }
+
+    public void setS_name(String s_name) {
+        this.s_name = s_name;
+    }
+
+    public String getS_status() {
+        return s_status;
+    }
+
+    public void setS_status(String s_status) {
+        this.s_status = s_status;
+    }
+
+    public File getLogoImg() {
+        return logoImg;
+    }
+
+    public void setLogoImg(File logoImg) {
+        this.logoImg = logoImg;
+    }
+
+    public String getLogoImgContentType() {
+        return logoImgContentType;
+    }
+
+    public void setLogoImgContentType(String logoImgContentType) {
+        this.logoImgContentType = logoImgContentType;
+    }
+
+    public String getLogoImgFileName() {
+        return logoImgFileName;
+    }
+
+    public void setLogoImgFileName(String logoImgFileName) {
+        this.logoImgFileName = logoImgFileName;
+    }
+
+    public byte[] getEditLogo() {
+        return this.editLogo;
+    }
+
+    public void setEditLogo(byte[] editLogo) {
+        this.editLogo = editLogo;
+    }
+
+    public String getEditLogoImg() {
+        try {
+            byte[] blobAsBytes = getEditLogo();
+            blobAsBytes = Base64.encodeBase64(blobAsBytes);
+            this.editLogoImg = new String(blobAsBytes);
+        } catch (Exception e) {
+            this.editLogoImg = "";
+        }
+        return editLogoImg;
+    }
+
+    public void setEditLogoImg(String editLogoImg) {
+        this.editLogoImg = editLogoImg;
+    }
+
+    public List<String> getNewBox() {
+        return newBox;
+    }
+
+    public void setNewBox(List<String> newBox) {
+        this.newBox = newBox;
+    }
+
+    public List<String> getCurrentBox() {
+        return currentBox;
+    }
+
+    public void setCurrentBox(List<String> currentBox) {
+        this.currentBox = currentBox;
+    }
+
+    public List<String> getNewBoxTran() {
+        return newBoxTran;
+    }
+
+    public void setNewBoxTran(List<String> newBoxTran) {
+        this.newBoxTran = newBoxTran;
+    }
+
+    public List<String> getCurrentBoxTran() {
+        return currentBoxTran;
+    }
+
+    public void setCurrentBoxTran(List<String> currentBoxTran) {
+        this.currentBoxTran = currentBoxTran;
+    }
+
+    public Map<String, String> getCurrentListTran() {
+        return currentListTran;
+    }
+
+    public void setCurrentListTran(Map<String, String> currentListTran) {
+        this.currentListTran = currentListTran;
+    }
+
+    public Map<String, String> getNewListTran() {
+        return newListTran;
+    }
+
+    public void setNewListTran(Map<String, String> newListTran) {
+        this.newListTran = newListTran;
+    }
+
+    public Map<String, String> getCurrentListMcc() {
+        return currentListMcc;
+    }
+
+    public void setCurrentListMcc(Map<String, String> currentListMcc) {
+        this.currentListMcc = currentListMcc;
+    }
+
+    public Map<String, String> getNewListMcc() {
+        return newListMcc;
+    }
+
+    public void setNewListMcc(Map<String, String> newListMcc) {
+        this.newListMcc = newListMcc;
+    }
+
+    public String getMidTran() {
+        return midTran;
+    }
+
+    public void setMidTran(String midTran) {
+        this.midTran = midTran;
+    }
+
+    public String getMidMcc() {
+        return midMcc;
+    }
+
+    public void setMidMcc(String midMcc) {
+        this.midMcc = midMcc;
+    }
+
+    public List<String> getNewBoxMcc() {
+        return newBoxMcc;
+    }
+
+    public void setNewBoxMcc(List<String> newBoxMcc) {
+        this.newBoxMcc = newBoxMcc;
+    }
+
+    public List<String> getCurrentBoxMcc() {
+        return currentBoxMcc;
+    }
+
+    public void setCurrentBoxMcc(List<String> currentBoxMcc) {
+        this.currentBoxMcc = currentBoxMcc;
+    }
+
+    public List<String> getNewBoxedit() {
+        return newBoxedit;
+    }
+
+    public void setNewBoxedit(List<String> newBoxedit) {
+        this.newBoxedit = newBoxedit;
+    }
+
+    public List<String> getNewBoxTranedit() {
+        return newBoxTranedit;
+    }
+
+    public void setNewBoxTranedit(List<String> newBoxTranedit) {
+        this.newBoxTranedit = newBoxTranedit;
+    }
+
+    public List<String> getNewBoxMccedit() {
+        return newBoxMccedit;
+    }
+
+    public void setNewBoxMccedit(List<String> newBoxMccedit) {
+        this.newBoxMccedit = newBoxMccedit;
+    }
+
+    public List<String> getCurrentBoxedit() {
+        return currentBoxedit;
+    }
+
+    public void setCurrentBoxedit(List<String> currentBoxedit) {
+        this.currentBoxedit = currentBoxedit;
+    }
+
+    public List<String> getCurrentBoxTranedit() {
+        return currentBoxTranedit;
+    }
+
+    public void setCurrentBoxTranedit(List<String> currentBoxTranedit) {
+        this.currentBoxTranedit = currentBoxTranedit;
+    }
+
+    public List<String> getCurrentBoxMccedit() {
+        return currentBoxMccedit;
+    }
+
+    public void setCurrentBoxMccedit(List<String> currentBoxMccedit) {
+        this.currentBoxMccedit = currentBoxMccedit;
+    }
+
+    public Map<String, String> getCurrentListedit() {
+        return currentListedit;
+    }
+
+    public void setCurrentListedit(Map<String, String> currentListedit) {
+        this.currentListedit = currentListedit;
+    }
+
+    public Map<String, String> getCurrentListTranedit() {
+        return currentListTranedit;
+    }
+
+    public void setCurrentListTranedit(Map<String, String> currentListTranedit) {
+        this.currentListTranedit = currentListTranedit;
+    }
+
+    public Map<String, String> getCurrentListMccedit() {
+        return currentListMccedit;
+    }
+
+    public void setCurrentListMccedit(Map<String, String> currentListMccedit) {
+        this.currentListMccedit = currentListMccedit;
+    }
+
+    public Map<String, String> getNewListedit() {
+        return newListedit;
+    }
+
+    public void setNewListedit(Map<String, String> newListedit) {
+        this.newListedit = newListedit;
+    }
+
+    public Map<String, String> getNewListTranedit() {
+        return newListTranedit;
+    }
+
+    public void setNewListTranedit(Map<String, String> newListTranedit) {
+        this.newListTranedit = newListTranedit;
+    }
+
+    public Map<String, String> getNewListMccedit() {
+        return newListMccedit;
+    }
+
+    public void setNewListMccedit(Map<String, String> newListMccedit) {
+        this.newListMccedit = newListMccedit;
+    }
+
+    public String getSearchAudit() {
+        return SearchAudit;
+    }
+
+    public void setSearchAudit(String SearchAudit) {
+        this.SearchAudit = SearchAudit;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public boolean isVuserpassgen() {
+        return vuserpassgen;
+    }
+
+    public void setVuserpassgen(boolean vuserpassgen) {
+        this.vuserpassgen = vuserpassgen;
+    }
+
+    
+}

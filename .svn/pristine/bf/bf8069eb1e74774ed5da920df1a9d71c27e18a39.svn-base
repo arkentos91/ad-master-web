@@ -1,0 +1,455 @@
+<%--
+  User: ruwan_e
+  Date: 1/16/14
+  Time: 3:16 PM
+--%>
+<%@page contentType="text/html" pageEncoding="UTF-8" %>
+<%@taglib uri="/struts-tags" prefix="s" %>
+<%@taglib uri="/struts-jquery-tags" prefix="sj" %>
+<%@taglib prefix="sjg" uri="/struts-jquery-grid-tags" %>
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <%@include file="/stylelinks.jspf" %>
+        <script type="text/javascript">
+            
+            window.onload = function (){
+                $("#passwordpolicyid").css("color", "#858585");
+            };
+
+            function editPasswordPolicy(keyval) {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/findPasswordPolicy',
+                    data: {passwordpolicyid: keyval},
+                    dataType: "json",
+                    type: "POST",
+                    success: function(data) {
+                        $('#divmsg').empty();
+                        var msg = data.message;
+                        if (msg) {
+                            alert(data.message);
+                        }
+                        else {
+                            $('#oldvalue').val(data.oldvalue);
+                            $('#passwordpolicyid').attr('readOnly', true);
+                            $("#passwordpolicyid").css("color", "#858585");
+                            $('#passwordpolicyid').val(data.passwordpolicyid);
+                            $('#minimumlength').val(data.minimumlength);
+                            $('#maximumlength').val(data.maximumlength);
+                            $('#minimumspecialcharacters').val(data.minimumspecialcharacters);
+                            $('#minimumuppercasecharacters').val(data.minimumuppercasecharacters);
+                            $('#minimumnumericalcharacters').val(data.minimumnumericalcharacters);
+                            $('#minimumlowercasecharacters').val(data.minimumlowercasecharacters);
+                            $('#repeatcharactersallow').val(data.repeatcharactersallow);
+//                            $('#initialpasswordexpirystatus').val(data.initialpasswordexpirystatus);
+                            $('#passwordexpiryperiod').val(data.passwordexpiryperiod);
+                            $('#noofhistorypassword').val(data.noofhistorypassword);
+                            $('#minimumpasswordchangeperiod').val(data.minimumpasswordchangeperiod);
+                            $('#idleaccountexpiryperiod').val(data.idleaccountexpiryperiod);
+                            $('#noofinvalidloginattempt').val(data.noofinvalidloginattempt);
+//                            $('#addButton').button("disable");
+                            $('#updateButton').button("enable");
+                        }
+                    },
+                    error: function(data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+//                        $("#deleteerrordialog").html("Error occurred while processing.").dialog('open');
+                    }
+                });
+            }
+
+            function resetAllData() {
+
+//             $.ajax({
+//                    url: '${pageContext.request.contextPath}/resetPasswordPolicy.action',
+//                    data: {},
+//                    dataType: "json",
+//                    type: "POST",
+//                    success: function(data) {
+//                        var msg = data.message;
+//                        if (msg) {
+//                            $('#passwordpolicyid').attr('readOnly', false);
+//                            $('#passwordpolicyid').val("");
+//                            $('#minimumlength').val("");
+//                            $('#maximumlength').val("");
+//                            $('#minimumspecialcharacters').val("");
+//                            $('#minimumuppercasecharacters').val("");
+//                            $('#minimumnumericalcharacters').val("");
+//                            $('#minimumlowercasecharacters').val("");
+//                            $('#repeatcharactersallow').val("");
+////                            $('#initialpasswordexpirystatus').val("");
+//                            $('#passwordexpiryperiod').val("");
+//                            $('#noofhistorypassword').val("");
+//                            $('#minimumpasswordchangeperiod').val("");
+//                            $('#idleaccountexpiryperiod').val("");
+//                            $('#noofinvalidloginattempt').val("");
+////                            $('#addButton').button("enable");
+//                            $('#updateButton').button("disable");
+//                        }
+//                        else {
+//
+//                            $('#passwordpolicyid').attr('readOnly', true);
+//                            $('#passwordpolicyid').val(data.passwordpolicyid);
+//                            $('#minimumlength').val(data.minimumlength);
+//                            $('#maximumlength').val(data.maximumlength);
+//                            $('#minimumspecialcharacters').val(data.minimumspecialcharacters);
+//                            $('#minimumuppercasecharacters').val(data.minimumuppercasecharacters);
+//                            $('#minimumnumericalcharacters').val(data.minimumnumericalcharacters);
+//                            $('#minimumlowercasecharacters').val(data.minimumlowercasecharacters);
+//                            $('#repeatcharactersallow').val(data.repeatcharactersallow);
+////                            $('#initialpasswordexpirystatus').val(data.initialpasswordexpirystatus);
+//                            $('#passwordexpiryperiod').val(data.passwordexpiryperiod);
+//                            $('#noofhistorypassword').val(data.noofhistorypassword);
+//                            $('#minimumpasswordchangeperiod').val(data.minimumpasswordchangeperiod);
+//                            $('#idleaccountexpiryperiod').val(data.idleaccountexpiryperiod);
+//                            $('#noofinvalidloginattempt').val(data.noofinvalidloginattempt);
+////                            $('#addButton').button("disable");
+//                            $('#updateButton').button("enable");
+//                        }
+//                    },
+//                    error: function(data) {
+////                        $("#deleteerrordialog").html("Error occurred while processing.").dialog('open');
+//                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+//                    }
+//                });
+
+
+
+                var s = $("#resetButton").is(':disabled')
+                if (s == true) {
+                    $('#passwordpolicyid').attr('readOnly', false);
+                    $('#passwordpolicyid').val("");
+                    $("#passwordpolicyid").css("color", "black");
+                    $('#minimumlength').val("");
+                    $('#maximumlength').val("");
+                    $('#minimumspecialcharacters').val("");
+                    $('#minimumuppercasecharacters').val("");
+                    $('#minimumnumericalcharacters').val("");
+                    $('#minimumlowercasecharacters').val("");
+                    $('#repeatcharactersallow').val("");
+//                    $('#initialpasswordexpirystatus').val("");
+                    $('#passwordexpiryperiod').val("");
+                    $('#noofhistorypassword').val("");
+                    $('#minimumpasswordchangeperiod').val("");
+                    $('#idleaccountexpiryperiod').val("");
+                    $('#noofinvalidloginattempt').val("");
+//                    $('#addButton').button("enable");
+//                    $('#updateButton').button("disable");
+                    $('#divmsg').text("");
+                } else {
+//                    print("ssssELSEEEEE");
+                    var passwordpolicyid = $('#passwordpolicyid').val();
+                    $('#passwordpolicyid').attr('readOnly', true);
+                    editPasswordPolicy(passwordpolicyid);
+                }
+
+            }
+
+            function resetFieldData() {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/resetPasswordPolicy.action',
+                    data: {},
+                    dataType: "json",
+                    type: "POST",
+                    success: function(data) {
+                        var msg = data.message;
+                        if (msg) {
+                            $('#passwordpolicyid').attr('readOnly', false);
+                            $('#passwordpolicyid').val("");
+                            $("#passwordpolicyid").css("color", "black");
+                            $('#minimumlength').val("");
+                            $('#maximumlength').val("");
+                            $('#minimumspecialcharacters').val("");
+                            $('#minimumuppercasecharacters').val("");
+                            $('#minimumnumericalcharacters').val("");
+                            $('#minimumlowercasecharacters').val("");
+                            $('#repeatcharactersallow').val("");
+//                            $('#initialpasswordexpirystatus').val("");
+                            $('#passwordexpiryperiod').val("");
+                            $('#noofhistorypassword').val("");
+                            $('#minimumpasswordchangeperiod').val("");
+                            $('#idleaccountexpiryperiod').val("");
+                            $('#noofinvalidloginattempt').val("");
+//                            $('#addButton').button("enable");
+                            $('#updateButton').button("disable");
+                        }
+                        else {
+                            $('#oldvalue').val(data.oldvalue);    
+                            $('#passwordpolicyid').attr('readOnly', true);
+                            $('#passwordpolicyid').val(data.passwordpolicyid);
+                            $("#passwordpolicyid").css("color", "#858585");
+                            $('#minimumlength').val(data.minimumlength);
+                            $('#maximumlength').val(data.maximumlength);
+                            $('#minimumspecialcharacters').val(data.minimumspecialcharacters);
+                            $('#minimumuppercasecharacters').val(data.minimumuppercasecharacters);
+                            $('#minimumnumericalcharacters').val(data.minimumnumericalcharacters);
+                            $('#minimumlowercasecharacters').val(data.minimumlowercasecharacters);
+                            $('#repeatcharactersallow').val(data.repeatcharactersallow);
+//                            $('#initialpasswordexpirystatus').val(data.initialpasswordexpirystatus);
+                            $('#passwordexpiryperiod').val(data.passwordexpiryperiod);
+                            $('#noofhistorypassword').val(data.noofhistorypassword);
+                            $('#minimumpasswordchangeperiod').val(data.minimumpasswordchangeperiod);
+                            $('#idleaccountexpiryperiod').val(data.idleaccountexpiryperiod);
+                            $('#noofinvalidloginattempt').val(data.noofinvalidloginattempt);
+//                            $('#addButton').button("disable");
+                            $('#updateButton').button("enable");
+                        }
+                    },
+                    error: function(data) {
+//                        $("#deleteerrordialog").html("Error occurred while processing.").dialog('open');
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+
+            }
+
+        </script>
+        <title></title>
+    </head>
+    <body style="">
+        <jsp:include page="/header.jsp"/>
+
+        <div class="main-container">
+
+
+            <jsp:include page="/leftmenu.jsp"/>
+
+            <div class="main-content">
+
+                <div class="container" style="min-height: 760px;">
+
+
+                    <!-- start: PAGE NAVIGATION BAR -->
+                    <jsp:include page="/navbar.jsp"/>
+                    <!-- end: NAVIGATION BAR -->
+
+                    <div class="row">
+
+
+                        <div id="content1">
+
+
+                            <s:div id="divmsg">
+
+                                <s:actionerror theme="jquery"/>
+                                <s:actionmessage theme="jquery"/>
+                            </s:div>
+
+                            <s:set id="vadd" var="vadd">
+                                <s:property value="vadd" default="true"/>
+                            </s:set>
+                            <s:set var="vupdatebutt">
+                                <s:property value="vupdatebutt" default="true"/>
+                            </s:set>
+                            <s:set var="vupdatelink">
+                                <s:property value="vupdatelink" default="true"/>
+                            </s:set>
+                            <s:set var="vdelete">
+                                <s:property value="vdelete" default="true"/>
+                            </s:set>                            
+                            <s:set var="policyid">
+                                <s:property value="policyid" default="true"/>
+                            </s:set>
+
+                            <div id="formstyle">
+                                <s:form id="customercategoryadd" method="post" action="PasswordPolicy" theme="simple">
+
+                                    <table border="0" cellpadding="5">
+
+                                        <tbody>
+
+                                            <tr>
+                                                <td>Password Policy ID <span style="color: red">*</span></td>
+                                                <td><s:textfield name="passwordpolicyid" id="passwordpolicyid"                                                        
+                                                             maxLength="5" 
+                                                             onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))" 
+                                                              
+                                                             readonly="#policyid"/>
+                                                    <!--$(this).val($(this).val().replace(/[^0-9]/g,''))-->
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Minimum Length <span style="color: red">*</span></td>
+                                                <td><s:textfield name="minimumlength" id="minimumlength"
+                                                             maxLength="5"
+                                                             onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))"
+                                                             />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Maximum Length <span style="color: red">*</span></td>
+                                                <td><s:textfield name="maximumlength" id="maximumlength"
+                                                             maxLength="5"
+                                                             onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))"
+                                                             />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Minimum Special Characters<span style="color: red">*</span></td>
+                                                <td><s:textfield name="minimumspecialcharacters" id="minimumspecialcharacters"
+                                                             maxLength="5"
+                                                             onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))"
+                                                             />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Minimum Upper Case Characters<span style="color: red">*</span></td>
+                                                <td><s:textfield name="minimumuppercasecharacters" id="minimumuppercasecharacters"
+                                                             maxLength="5"
+                                                             onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))"
+                                                             />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Minimum Lower Case Characters<span style="color: red">*</span></td>
+                                                <td><s:textfield name="minimumlowercasecharacters" id="minimumlowercasecharacters"
+                                                             maxLength="5"
+                                                             onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))"
+                                                             />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Minimum Numerical Characters<span style="color: red">*</span></td>
+                                                <td><s:textfield name="minimumnumericalcharacters" id="minimumnumericalcharacters"
+                                                             maxLength="5"
+                                                             onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))"
+                                                           />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Allowed Repeat Characters<span style="color: red">*</span></td>
+                                                <td><s:textfield name="repeatcharactersallow" id="repeatcharactersallow"
+                                                             maxLength="5"
+                                                             onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))"
+                                                             />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Password Expiry Period<span style="color: red">*</span></td>
+                                                <td><s:textfield name="passwordexpiryperiod" id="passwordexpiryperiod"
+                                                             maxLength="5"
+                                                             onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))"
+                                                             />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Password Expiry Notification Period<span style="color: red">*</span></td>
+                                                <td><s:textfield name="minimumpasswordchangeperiod" id="minimumpasswordchangeperiod"
+                                                             maxLength="5"
+                                                             onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))"
+                                                             />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>No. of History Passwords<span style="color: red">*</span></td>
+                                                <td><s:textfield name="noofhistorypassword" id="noofhistorypassword"
+                                                             maxLength="5"
+                                                             onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))"
+                                                             />
+                                                </td>
+                                            </tr>
+                                            <!--                                            <tr>
+                                                                                            <td>Minimum Password Change Period<span style="color: red">*</span></td>
+                                                                                            <td>
+                                            <%--<s:textfield name="minimumpasswordchangeperiod" id="minimumpasswordchangeperiod"
+                                                     maxLength="5"
+                                                     onkeyup="$(this).val($(this).val().replace(/[^0-9 ]/g,''))"
+                                                     onmouseout="$(this).val($(this).val().replace(/[^0-9 ]/g,''))"/>--%>
+                                        </td>
+                                    </tr>-->
+                                            <tr>
+                                                <td>Idle Account Expiry Period<span style="color: red">*</span></td>
+                                                <td><s:textfield name="idleaccountexpiryperiod" id="idleaccountexpiryperiod"
+                                                             maxLength="5"
+                                                             onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))"
+                                                             />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>No. of Invalid Login Attempts<span style="color: red">*</span></td>
+                                                <td><s:textfield name="noofinvalidloginattempt" id="noofinvalidloginattempt"
+                                                             maxLength="5"
+                                                             onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))"
+                                                             />
+                                                </td>
+                                            </tr>
+
+
+
+                                            <tr>
+                                                <td><span class="mandatoryfield">Mandatory fields are marked with *</span></td>
+                                                <td><s:hidden id="oldvalue" name="oldvalue" ></s:hidden>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td><s:url var="addurl" action="addPasswordPolicy"/>
+                                                    <s:url var="updateurl" action="updatePasswordPolicy"/></td>
+                                                <td>
+
+                                                    <%--<sj:submit button="true" href="%{addurl}" value="Add" targets="divmsg"--%>
+                                                               <%--id="addButton" disabled="#vadd"/>--%>
+
+                                                    <sj:submit button="true" href="%{updateurl}" value="Update" targets="divmsg"
+                                                               disabled="#vupdatebutt" id="updateButton"/>
+
+                                                    <sj:submit button="true" value="Reset" name="reset" onClick="resetAllData()" id="resetButton"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </s:form>
+                            </div>
+                            <!-- Start delete confirm dialog box -->
+                            <sj:dialog 
+                                id="deletedialog" 
+                                buttons="{ 
+                                'OK':function() { deletePage($(this).data('keyval'));$( this ).dialog( 'close' ); },
+                                'Cancel':function() { $( this ).dialog( 'close' );} 
+                                }" 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Delete Page"                            
+                                />
+                            <!-- Start delete process dialog box -->
+                            <sj:dialog 
+                                id="deletesuccdialog" 
+                                buttons="{
+                                'OK':function() { $( this ).dialog( 'close' );}
+                                }"  
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Deleting Process." 
+                                />
+                            <!-- Start delete error dialog box -->
+                            <sj:dialog 
+                                id="deleteerrordialog" 
+                                buttons="{
+                                'OK':function() { $( this ).dialog( 'close' );}                                    
+                                }" 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Delete error."
+                                />
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>                            
+        <!-- end: MAIN CONTAINER -->
+        <!-- start: FOOTER -->
+        <jsp:include page="/footer.jsp"/>
+        <!-- end: FOOTER -->
+
+
+
+    </body>
+</html>

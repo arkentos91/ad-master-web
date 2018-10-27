@@ -1,0 +1,306 @@
+<%-- 
+    Document   : purposeofremit
+    Created on : Jun 19, 2017, 9:36:22 AM
+    Author     : shavindi_s
+--%>
+
+<%@page import="com.epic.bmlalipay.util.varlist.CommonVarList"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="/struts-tags" prefix="s" %>
+<%@taglib  uri="/struts-jquery-tags" prefix="sj"%>
+<%@taglib prefix="sjg" uri="/struts-jquery-grid-tags"%>
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+
+        <%@include file="/stylelinks.jspf" %>
+
+        <script type="text/javascript">
+            function editformatter(cellvalue, options, rowObject) {
+                return "<a href='#' title='Edit' onClick='javascript:editPurposeOfRemit(&#34;" + cellvalue + "&#34;)'><img class='ui-icon ui-icon-pencil' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+
+            function deleteformatter(cellvalue, options, rowObject) {
+                return "<a href='#/' title='Delete' onClick='javascript:deletePurposeOfRemitInit(&#34;" + cellvalue + "&#34;)'><img class='ui-icon ui-icon-trash' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+
+            function editPurposeOfRemit(keyval) {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/FindPurposeOfRemit.action',
+                    data: {code: keyval},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        $('#divmsg').empty();
+                        var msg = data.message;
+                        if (msg) {
+                            $('#code').val("");
+                            $('#code').attr('readOnly', false);
+                            $('#description').val("");
+                            $('#status').val("ACT");
+                            $('#status').attr("disabled", true);
+                            $('#divmsg').text("");
+                            $('#updateButton').button("disable");
+
+                            var startStatus = <s:property value="vadd" />;
+                            if (startStatus) {
+                                $('#addButton').button("disable");
+                            } else {
+                                $('#addButton').button("enable");
+                            }
+                        }
+                        else {
+                            $('#oldvalue').val(data.oldvalue);
+                            $('#code').val(data.code);
+                            $('#code').attr('readOnly', true);
+                            $('#description').val(data.description);
+                            $('#status').val(data.status);
+                            $('#status').attr("disabled", false);
+                            $('#addButton').button("disable");
+                            $('#updateButton').button("enable");
+                        }
+                    },
+                    error: function (data) {
+//                        alert("error");
+                        //                        $("#deleteerrordialog").html("Error occurred while processing.").dialog('open');
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+            function deletePurposeOfRemitInit(keyval) {
+                $('#divmsg').empty();
+                $("#deletedialog").data('keyval', keyval).dialog('open');
+                $("#deletedialog").html('Are you sure you want to delete purpose of remit ' + keyval + ' ?');
+                return false;
+            }
+
+            function deletePurposeOfRemit(keyval) {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/DeletePurposeOfRemit.action',
+                    data: {code: keyval},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        $("#deletesuccdialog").dialog('open');
+                        $("#deletesuccdialog").html(data.message);
+                        resetFieldData();
+                    },
+                    error: function (data) {
+//                        $("#deleteerrordialog").dialog('open');
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+            function resetAllData() {
+
+                a = $("#addButton").is(':disabled');
+                u = $("#updateButton").is(':disabled');
+
+                if (a == true && u == true) {
+                    editPurposeOfRemit(null);
+                } else if (a == true && u == false) {
+                    var code = $('#code').val();
+                    editPurposeOfRemit(code);
+                } else if (a == false && u == true) {
+                    editPurposeOfRemit(null);
+                }
+
+                jQuery("#gridtable").trigger("reloadGrid");
+
+            }
+
+            function resetFieldData() {
+
+                var startStatus = <s:property value="vadd" />;
+                if (startStatus) {
+                    $('#addButton').button("disable");
+                } else {
+                    $('#addButton').button("enable");
+                }
+
+                $('#updateButton').button("disable");
+                $('#code').attr('readOnly', false);
+                $('#code').val("");
+                $('#description').val("");
+                $('#status').val("ACT");
+                $('#status').attr("disabled", true);
+                jQuery("#gridtable").trigger("reloadGrid");
+            }
+
+            function cancelAllData() {
+                editPurposeOfRemit(null);
+            }
+
+            function beforeSubmit() {
+                var status_des = $("#status").find("option:selected").text();
+                var status = $("#status").val();
+                $('#statusDes').val(status_des);
+                $('#statusHidden').val(status);
+            }
+
+        </script>
+
+    </head>
+
+    <body style="">
+        <jsp:include page="/header.jsp"/>
+
+        <div class="main-container">
+
+
+            <jsp:include page="/leftmenu.jsp"/>
+
+            <div class="main-content">
+                <div class="container" style="min-height: 760px;">
+
+                    <!-- start: PAGE NAVIGATION BAR -->
+                    <jsp:include page="/navbar.jsp"/>
+                    <!-- end: NAVIGATION BAR -->
+                    <div class="row">
+                        <div id="content1">
+                            <s:div id="divmsg">
+                                <s:actionerror theme="jquery"/>
+                                <s:actionmessage theme="jquery"/>
+                            </s:div>
+
+                            <s:set id="vadd" var="vadd"><s:property value="vadd" default="true"/></s:set>
+                            <s:set var="vupdatebutt"><s:property value="vupdatebutt" default="true"/></s:set>
+                            <s:set var="vupdatelink"><s:property value="vupdatelink" default="true"/></s:set>
+                            <s:set var="vdelete"><s:property value="vdelete" default="true"/></s:set>
+
+                                <div id="formstyle">
+                                <s:form id="PurposeOfRemitadd" method="post" action="PurposeOfRemit" theme="simple" >
+                                    <s:hidden name="oldvalue" id="oldvalue" />
+                                    <s:hidden id="statusDes" name="statusDes" ></s:hidden>
+                                    <s:hidden id="statusHidden" name="status" ></s:hidden>
+
+
+                                        <div class="row row_1">
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Code</label>
+                                                <s:textfield name="code" id="code" maxLength="30" cssClass="form-control"  onkeyup="$(this).val($(this).val().replace(/[^a-zA-Z0-9]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^a-zA-Z0-9]/g,''))"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red">*</span><label>Description</label>
+                                                <s:textfield  name="description" id="description" maxLength="100" cssClass="form-control" onkeyup="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red">*</span><label>Status</label>
+                                                <s:select  cssClass="form-control" id="status" list="%{statusList}"  headerValue="--Select Status--" headerKey="" name="statusInit" listKey="statuscode" listValue="description" disabled="true"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row row_1 form-inline">
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <s:url var="addurl" action="AddPurposeOfRemit"/>
+                                                <s:url var="updateurl" action="UpdatePurposeOfRemit"/>
+
+
+                                                <sj:submit button="true" href="%{addurl}" value="Add" targets="divmsg" id="addButton"  disabled="#vadd"  cssClass="form-control btn_normal" onclick="beforeSubmit()"
+                                                           cssStyle="border-radius: 12px;background-color:#969595;color:white;"/>
+                                            </div>
+                                            <div class="form-group">
+                                                <sj:submit button="true" href="%{updateurl}" value="Update" targets="divmsg"   disabled="#vupdatebutt" id="updateButton"  cssClass="form-control btn_normal" onclick="beforeSubmit()"
+                                                           cssStyle="border-radius: 12px;background-color:#969595;color:white;"/>
+                                            </div>
+                                            <div class="form-group">
+                                                <sj:submit button="true" value="Reset" name="reset" onClick="resetAllData()"   cssClass="form-control btn_normal"
+                                                           cssStyle="border-radius: 12px;"/>
+                                            </div>
+                                            <div class="form-group">
+                                                <sj:submit button="true" value="Cancel" name="cancel" onClick="cancelAllData()"  cssClass="form-control btn_normal"
+                                                           cssStyle="border-radius: 12px;" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </s:form>
+                            </div>
+
+
+                            <!-- Start delete confirm dialog box -->
+                            <sj:dialog 
+                                id="deletedialog" 
+                                buttons="{ 
+                                'OK':function() { deletePurposeOfRemit($(this).data('keyval'));$( this ).dialog( 'close' ); },
+                                'Cancel':function() { $( this ).dialog( 'close' );} 
+                                }" 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Delete Purpose of Remit"                            
+                                />
+                            <!-- Start delete process dialog box -->
+                            <sj:dialog 
+                                id="deletesuccdialog" 
+                                buttons="{
+                                'OK':function() { $( this ).dialog( 'close' );}
+                                }"  
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Deleting Process." 
+                                />
+                            <!-- Start delete error dialog box -->
+                            <sj:dialog 
+                                id="deleteerrordialog" 
+                                buttons="{
+                                'OK':function() { $( this ).dialog( 'close' );}                                    
+                                }" 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Delete error."
+                                />
+
+                            <div id="tablediv">
+                                <s:url var="listurl" action="ListPurposeOfRemit"/>
+                                <sjg:grid
+                                    id="gridtable"
+                                    caption="Purpose of Remit"
+                                    dataType="json"
+                                    href="%{listurl}"
+                                    pager="true"
+                                    gridModel="gridModel"
+                                    rowList="10,15,20"
+                                    rowNum="10"
+                                    autowidth="true"
+                                    rownumbers="true"
+                                    onCompleteTopics="completetopics"
+                                    rowTotal="false"
+                                    viewrecords="true"
+                                    >
+                                    <sjg:gridColumn name="code" index="u.code" title="Edit" width="25" align="center" formatter="editformatter" hidden="#vupdatelink" sortable="false"/>
+                                    <sjg:gridColumn name="code" index="u.code" title="Delete" width="25" align="center" formatter="deleteformatter" hidden="#vdelete" sortable="false"/>  
+                                    <sjg:gridColumn name="code" index="u.code" title="Code"  sortable="true"/>
+                                    <sjg:gridColumn name="description" index="u.description" title="Description"  sortable="true"/>
+                                    <sjg:gridColumn name="status" index="u.status" title="Status"  sortable="true"/>
+                                </sjg:grid> 
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+
+                    <!-- end: PAGE CONTENT-->
+                </div>
+            </div>
+            <!-- end: PAGE -->
+        </div>
+        <!-- end: MAIN CONTAINER -->
+        <!-- start: FOOTER -->
+        <jsp:include page="/footer.jsp"/>
+        <!-- end: FOOTER -->
+
+
+
+        <!-- end: BODY -->
+    </body>
+</html>

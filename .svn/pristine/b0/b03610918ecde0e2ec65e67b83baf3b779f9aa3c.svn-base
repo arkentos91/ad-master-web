@@ -1,0 +1,297 @@
+<%-- 
+    Document   : mserverconfiguration
+    Created on : Feb 1, 2016, 2:52:12 PM
+    Author     : thushanth
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8" %>
+<%@taglib uri="/struts-tags" prefix="s" %>
+<%@taglib uri="/struts-jquery-tags" prefix="sj" %>
+<%@taglib prefix="sjg" uri="/struts-jquery-grid-tags" %>
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <%@include file="/stylelinks.jspf" %>
+        <script type="text/javascript">
+            
+            window.onload = function (){
+                
+               resetFieldData();
+                
+                $('#mid').attr('readOnly', true);
+                $("#mid").css("color", "#858585");
+                
+            };
+
+            function editMserver() {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/findMserver',
+                    data: {},
+                    dataType: "json",
+                    type: "POST",
+                    success: function(data) {
+                        $('#divmsg').empty();
+                        var msg = data.message;
+                        if (msg) {
+                            alert(data.message)
+                        }
+                        else {
+                            $('#oldvalue').val(data.oldvalue);
+                            $('#mid').val(data.mid);
+                            $("#mid").css("color", "#858585");
+                            $('#mid').attr('readOnly', true);
+                            $('#tid').val(data.tid);
+                            $('#ip').val(data.ip);
+                            $('#port').val(data.port);
+                            $('#readTimeOut').val(data.readTimeOut);
+                            $('#conTimeOut').val(data.conTimeOut);
+                            
+//                            $('#addButton').button("disable");
+                            $('#updateButton').button("enable");
+                        }
+                    },
+                    error: function(data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+//                        $("#deleteerrordialog").html("Error occurred while processing.").dialog('open');
+                    }
+                });
+            }
+
+            function resetAllData() {
+
+//                var s = $("#addButton").is(':disabled');
+//                if (s == false) {
+//                    
+//                    $('#mid').val("");
+//                    $('#tid').val("");
+//                    $('#ip').val("");
+//                    $('#port').val("");
+//                    $('#readTimeOut').val("");
+//                    $('#conTimeOut').val("");
+                            
+//                    $('#addButton').button("enable");
+//                    $('#updateButton').button("disable");
+//                    $('#divmsg').text("");
+//                } else {
+                    
+                    editMserver();
+//                }
+
+            }
+
+            function resetFieldData() {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/resetMserver.action',
+                    data: {},
+                    dataType: "json",
+                    type: "POST",
+                    success: function(data) {
+                        var msg = data.message;
+                        if (msg) {
+                            
+                            $('#mid').val("");
+                            $("#mid").css("color", "black");
+                            $('#mid').attr('readOnly', false);
+                            $('#tid').val("");
+                            $('#ip').val("");
+                            $('#port').val("");
+                            $('#readTimeOut').val("");
+                            $('#conTimeOut').val("");                            
+                    
+//                            $('#addButton').button("enable");
+                            $('#updateButton').button("disable");
+                        }
+                        else {
+
+                            $('#mid').val(data.mid);
+                            $("#mid").css("color", "#858585");
+                            $('#mid').attr('readOnly', true);
+                            $('#tid').val(data.tid);
+                            $('#oldvalue').val(data.oldvalue);
+                            $('#ip').val(data.ip);
+                            $('#port').val(data.port);
+                            $('#readTimeOut').val(data.readTimeOut);
+                            $('#conTimeOut').val(data.conTimeOut);
+                            
+//                            $('#addButton').button("disable");
+                            $('#updateButton').button("enable");
+                        }
+                    },
+                    error: function(data) {
+//                        $("#deleteerrordialog").html("Error occurred while processing.").dialog('open');
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+
+            }
+
+        </script>
+        <title></title>
+    </head>
+    <body style="">
+        <jsp:include page="/header.jsp"/>
+
+        <div class="main-container">
+
+
+            <jsp:include page="/leftmenu.jsp"/>
+
+            <div class="main-content">
+
+                <div class="container" style="min-height: 760px;">
+
+
+                    <!-- start: PAGE NAVIGATION BAR -->
+                    <jsp:include page="/navbar.jsp"/>
+                    <!-- end: NAVIGATION BAR -->
+
+                    <div class="row">
+
+
+                        <div id="content1">
+
+
+                            <s:div id="divmsg">
+
+                                <s:actionerror theme="jquery"/>
+                                <s:actionmessage theme="jquery"/>
+                            </s:div>
+
+                            <%--<s:set id="vadd" var="vadd">--%>
+                                <%--<s:property value="vadd" default="true"/>--%>
+                            <%--</s:set>--%>
+                            <s:set var="vupdatebutt">
+                                <s:property value="vupdatebutt" default="false"/>
+                            </s:set>
+                           
+
+                            <div id="formstyle">
+                                <s:form id="mserverid" method="post" action="Mserver" theme="simple">
+
+                                    <table border="0" cellpadding="5">
+
+                                        <tbody>
+
+                                            <tr>
+                                                <td>MID <span style="color: red">*</span></td>
+                                                <td><s:textfield name="mid" id="mid"                                                        
+                                                             maxLength="20" 
+                                                             />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>TID <span style="color: red">*</span></td>
+                                                <td><s:textfield name="tid" id="tid"
+                                                             maxLength="8"
+                                                             />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>IP <span style="color: red">*</span></td>
+                                                <td><s:textfield name="ip" id="ip"
+                                                             maxLength="20" onkeyup="$(this).val($(this).val().replace(/[^0-9.]/g,'')); "
+                                                             />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Port <span style="color: red">*</span></td>
+                                                <td><s:textfield name="port" id="port"
+                                                             maxLength="5" onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,'')); "
+                                                             />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Read Time Out<span style="color: red">*</span></td>
+                                                <td><s:textfield name="readTimeOut" id="readTimeOut"
+                                                             maxLength="10" onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,'')); " 
+                                                             />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Connection Time Out<span style="color: red">*</span></td>
+                                                <td><s:textfield name="conTimeOut" id="conTimeOut"
+                                                             maxLength="10" onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,'')); "
+                                                             />
+                                                </td>
+                                            </tr>                                          
+
+
+                                            <tr>
+                                                <td><span class="mandatoryfield">Mandatory fields are marked with *</span></td>
+                                                <td><s:hidden id="oldvalue" name="oldvalue" ></s:hidden>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td>
+                                                    <%--<s:url var="addurl" action="addMserver"/>--%>
+                                                    <s:url var="updateurl" action="updateMserver"/></td>
+                                                <td>
+
+                                                    <%--<sj:submit button="true" href="%{addurl}" value="Add" targets="divmsg"--%>
+                                                               <!--id="addButton" disabled="#vadd"/>-->
+
+                                                    <sj:submit button="true" href="%{updateurl}" value="Update" targets="divmsg"
+                                                               disabled="#vupdatebutt" id="updateButton"/>
+
+                                                    <sj:submit button="true" value="Reset" name="reset" onClick="resetAllData()"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </s:form>
+                            </div>
+                            <!-- Start delete confirm dialog box -->
+                            <sj:dialog 
+                                id="deletedialog" 
+                                buttons="{ 
+                                'OK':function() { deleteMserver($(this).data('keyval'));$( this ).dialog( 'close' ); },
+                                'Cancel':function() { $( this ).dialog( 'close' );} 
+                                }" 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Delete Page"                            
+                                />
+                            <!-- Start delete process dialog box -->
+                            <sj:dialog 
+                                id="deletesuccdialog" 
+                                buttons="{
+                                'OK':function() { $( this ).dialog( 'close' );}
+                                }"  
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Deleting Process." 
+                                />
+                            <!-- Start delete error dialog box -->
+                            <sj:dialog 
+                                id="deleteerrordialog" 
+                                buttons="{
+                                'OK':function() { $( this ).dialog( 'close' );}                                    
+                                }" 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Delete error."
+                                />
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>                            
+        <!-- end: MAIN CONTAINER -->
+        <!-- start: FOOTER -->
+        <jsp:include page="/footer.jsp"/>
+        <!-- end: FOOTER -->
+
+
+
+    </body>
+</html>
+

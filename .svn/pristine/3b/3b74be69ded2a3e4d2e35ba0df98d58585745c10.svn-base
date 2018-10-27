@@ -1,0 +1,154 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package com.epic.bmlalipay.util.mapping;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+/**
+ *
+ * @author thushanth
+ */
+
+@Entity
+@Table(name="RISKCURRENCYPROFILE")
+public class Riskcurrency implements java.io.Serializable {
+
+     
+    private RiskprofileId id;
+    private Riskprofile profilecode;
+     private Currency currency;
+//     private BigDecimal dailycount;
+     private BigDecimal dailyamount;
+     private String lastupdateduser;
+     private Date lastupdatedtime;
+     private Date createtime;
+
+     
+     
+     
+     public Riskcurrency() {
+    }
+
+	
+    public Riskcurrency(RiskprofileId id) {
+        this.id = id;        
+    }
+
+//    public Riskprofile(RiskprofileId id, Currency currency,  BigDecimal dailycount, BigDecimal dailyamount,  String description, String lastupdateduser, Date lastupdatedtime, Date createtime, Status defaultstatus) {
+    public Riskcurrency(RiskprofileId id, Riskprofile profilecode, Currency currency, BigDecimal dailyamount,  String lastupdateduser, Date lastupdatedtime, Date createtime) {
+        this.profilecode = profilecode;
+        this.id = id;
+        this.currency = currency;
+//        this.dailycount = dailycount;
+        this.dailyamount = dailyamount;
+//        this.p2pMaxTxnAmount = p2pMaxTxnAmount;
+//        this.p2pMinTxnAmount = p2pMinTxnAmount;
+//        this.posMaxTxnCountPerDay = posMaxTxnCountPerDay;
+//        this.posMaxTxnAmountPerDay = posMaxTxnAmountPerDay;
+//        this.p2pMaxTxnCountPerDay = p2pMaxTxnCountPerDay;
+//        this.p2pMaxTxnAmountPerDay = p2pMaxTxnAmountPerDay;
+//        this.description = description;
+        this.lastupdateduser = lastupdateduser;
+        this.lastupdatedtime = lastupdatedtime;
+        this.createtime = createtime;
+//        this.defaultstatus = defaultstatus;
+//        this.customerwallets = customerwallets;
+    }
+
+    @EmbeddedId
+
+    
+    @AttributeOverrides( {
+        @AttributeOverride(name="profilecode", column=@Column(name="PROFILECODE", nullable=false, length=20) ), 
+        @AttributeOverride(name="currencycode", column=@Column(name="CURRENCYCODE", nullable=false, length=5) ) } )
+    public RiskprofileId getId() {
+        return id;
+    }
+
+    public void setId(RiskprofileId id) {
+        this.id = id;
+    }
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="PROFILECODE", insertable = false, updatable = false)
+    public Riskprofile getProfilecode() {
+        return profilecode;
+    }
+
+    public void setProfilecode(Riskprofile profilecode) {
+        this.profilecode = profilecode;
+    }
+
+    
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="CURRENCYCODE", insertable = false, updatable = false)
+    public Currency getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(Currency currency) {
+        this.currency = currency;
+    }
+
+    @Column(name="DAILLY_AMOUNT", precision=10)
+    public BigDecimal getDailyamount() {
+        return dailyamount;
+    }
+
+    public void setDailyamount(BigDecimal dailyamount) {
+        this.dailyamount = dailyamount;
+    }
+
+    
+    @Column(name="LASTUPDATEDUSER", length=20)
+    public String getLastupdateduser() {
+        return this.lastupdateduser;
+    }
+    
+    public void setLastupdateduser(String lastupdateduser) {
+        this.lastupdateduser = lastupdateduser;
+    }
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="LASTUPDATEDTIME", length=23)
+    public Date getLastupdatedtime() {
+        return this.lastupdatedtime;
+    }
+    
+    public void setLastupdatedtime(Date lastupdatedtime) {
+        this.lastupdatedtime = lastupdatedtime;
+    }
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="CREATETIME", length=23)
+    public Date getCreatetime() {
+        return this.createtime;
+    }
+    
+    public void setCreatetime(Date createtime) {
+        this.createtime = createtime;
+    }
+
+    
+    
+    
+    
+    
+    
+}

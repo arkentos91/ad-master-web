@@ -1,0 +1,224 @@
+<%-- 
+    Document   : statuscheck
+    Created on : Jul 7, 2017, 9:50:26 AM
+    Author     : prathibha_s
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="/struts-tags" prefix="s" %>
+<%@taglib  uri="/struts-jquery-tags" prefix="sj"%>
+<%@taglib prefix="sjg" uri="/struts-jquery-grid-tags"%>
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+        <%@include file="/stylelinks.jspf" %>
+
+        <script type="text/javascript">
+
+            function recheck(key) {
+                var transactionId = $("#transactionId").val();
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/CheckStatusCheck.action',
+                    data: {transactionId: transactionId},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+
+
+                        if (data.message == "00") {
+                            $("#sec2").css("display", "block");
+                            $("#sec1").css("display", "none");
+                            var container = $('<div />');
+                            $.each(data.nameList, function (key, value) {
+                                if (key == "status") {
+                                    container.append('<div class = "row row_1 text-center" style="margin-bottom:20px; margin-top: 0px;font-size: 19px; font-family: sans-serif;font-weight:bold; color:#ff0800 ">' + "<u>Transaction Receipt</u>" + '</div>');
+                                    key = "<span style='margin-bottom:10px; margin-top: 10px;font-size: 14px; font-family: sans-serif;font-weight:bold; color:#a7a7a7'>Status</span>";
+                                    value = "<span style='margin-bottom:10px; margin-top: 10px;font-size: 14px; font-family: sans-serif;font-weight: normal; color:#ff0800'>Pending Collection</span>";
+                                }
+                                if (key == "recepiant") {
+                                    container.append('<div class = "row row_1 text-center" style="margin-top: 10px;font-size: 19px; font-family: sans-serif;font-weight:bold; color:#ff0800 ">' + "<u>Recipent's Details</u>" + '</div>');
+                                    key = "";
+                                    value = "";
+                                }
+                                if (key == "sender") {
+                                    container.append('<div class = "row row_1 text-center" style="margin-top: 10px;font-size: 19px; font-family: sans-serif;font-weight:bold; color:#ff0800 ">' + "<u>Sender's Details</u>" + '</div>');
+                                    key = "";
+                                    value = "";
+                                }
+                                container.append('<div class = "row row_1" style="border-bottom: 1px solid gray;">' +
+                                        '<div class = "col-sm-6 text-right">' +
+                                        '<label class="text Recipient">' + key + '</label>' +
+                                        '</div>' +
+                                        '<div class = "col-sm-6 text-left" >' +
+                                        '<label class="text Recipientval">' + value+ '</label>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</div>'
+                                        );
+                            });
+                            $('#dynamic').html(container);
+                        } else {
+
+//                            document.getElementById("divmsg").innerHTML = "<div class='ui-widget actionError'>"
+//                                    + "<div class='ui-state-error ui-corner-all' style='padding: 0.3em 0.7em; margin-top: 20px;'>"
+//                                    + "<p><span class='ui-icon ui-icon-alert' style='float: left; margin-right: 0.3em;'></span><span>"
+//                                    + data.message
+//                                    + "</span></p></div></div>";
+                            var msg;
+
+                            if (data.message == "Invalid transaction ID") {
+                                msg = data.message;
+                            } else {
+                                msg = "Status on " + transactionId + " is : " + data.message;
+                            }
+
+                            document.getElementById("dialogmsg").innerHTML = msg;
+                            $("#dialog-message").dialog({
+                                title: "Status",
+                                modal: true,
+                                buttons: {
+                                    Ok: function () {
+                                        resets();
+                                        $(this).dialog("close");
+                                    }
+                                }
+                            });
+
+
+                        }
+                    },
+                    error: function (data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            function resetall(key) {
+                alert("in");
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/ResetStatusCheck.action',
+                    data: {transactionId: key},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                    },
+                    error: function (data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            function resets() {
+                $("#transactionId").val("");
+                $("#divmsg").empty();
+            }
+
+        </script>
+    </head>
+    <body style="">
+        <jsp:include page="/header.jsp"/>
+        <div class="main-container">
+
+            <jsp:include page="/leftmenu.jsp"/>
+
+            <div class="main-content">
+                <div class="container" style="min-height: 760px;">
+
+                    <!-- start: PAGE NAVIGATION BAR -->
+                    <jsp:include page="/navbar.jsp"/>
+                    <!-- end: NAVIGATION BAR -->
+                    <div class="row">
+                        <div id="content1">
+                            <s:div id="divmsg">
+                                <s:actionerror theme="jquery"/>
+                                <s:actionmessage theme="jquery"/>
+                            </s:div>
+
+
+
+                            <div id="formstyle">
+                                <s:form id="taskadd" method="post" action="Section" theme="simple" >
+                                    <s:hidden name="oldvalue" id="oldvalue" />
+                                    <div id="sec1" style="display: block">
+                                        <div class="row row_1">
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Transaction ID</label>
+                                                    <s:textfield name="transactionId" id="transactionId" maxLength="100" cssClass="form-control"  />
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="row row_1 form-inline">
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <div class="form-group">
+                                                        <input type="button" onclick="recheck()" value="Submit" class="form-control btn_normal" style="border-radius: 12px;background-color:#969595;color:white;"/>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <input type="button" onclick="resets()" value="Reset" class="form-control btn_normal" style="border-radius: 12px;background-color:#969595;color:white;"/>
+                                                    </div>                                                    
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </s:form>
+
+                                <sj:dialog 
+                                    id="deleteerrordialog" 
+                                    buttons="{
+                                    'OK':function() { $( this ).dialog( 'close' );}                                    
+                                    }" 
+                                    autoOpen="false" 
+                                    modal="true" 
+                                    title="Delete error."
+                                    />
+
+                                <div id="dialog-message" title="Error Message" style="display: none">
+                                    <p style="margin-top: 10px;">
+                                        <!--<span class="ui-icon ui-icon-circle-close" style="float:left; margin:0 7px 50px 0;"></span>-->
+                                        <label id="dialogmsg" ></label>
+                                    </p>
+                                </div>
+
+                                <div id="sec2" style="display: none" >
+                                    <div class="row row_1">
+                                        <div class="col-sm-12 text-center">
+                                            <h3>Remittance Completed!</h3>
+                                        </div>
+                                    </div>
+                                    <div class="row row_1">
+                                        <div class=" col-sm-8 col-sm-offset-2" id="dynamic" style="border: 1px solid gray; border-radius: 10px; padding: 25px">
+
+                                        </div>
+                                    </div>
+                                    <div class="row row_1">
+                                        <div class="col-sm-2 col-md-offset-5 text-center">
+                                            <div class="form-group" >
+                                                <a class="form-control btn_normal" style="border-radius: 12px;background-color:#969595;color:white;" href="viewESwitchCall.action" >Back</a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end: PAGE CONTENT-->
+                </div>
+            </div>
+            <!-- end: PAGE -->
+        </div>
+        <!-- end: MAIN CONTAINER -->
+        <!-- start: FOOTER -->
+        <jsp:include page="/footer.jsp"/>
+        <!-- end: FOOTER -->
+        <!-- end: BODY -->
+    </body>
+</html>

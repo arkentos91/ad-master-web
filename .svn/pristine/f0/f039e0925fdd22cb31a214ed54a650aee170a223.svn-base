@@ -1,0 +1,151 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.bean.reportexplorer;
+
+/**
+ * To set search data to the search fields when returning to the main page
+ *
+ * @author shavindi_s
+ */
+public class TxnSearchDataBean {
+
+    private String todate;
+    private String fromdate;
+    private String responcecode;
+    private String status;
+    private String hs_txn_cycle_status;
+    private String hs_destination_uri;
+    private String destination_service_id;
+    private String destination_country;
+    private String currency;
+    private String bank;
+    private String uritype;
+    private String sourceofincome;
+    private String remit;
+    private String listnerconfig;
+    private String rrn;
+
+    public String getTodate() {
+        return todate;
+    }
+
+    public void setTodate(String todate) {
+        this.todate = todate;
+    }
+
+    public String getFromdate() {
+        return fromdate;
+    }
+
+    public void setFromdate(String fromdate) {
+        this.fromdate = fromdate;
+    }
+
+    public String getResponcecode() {
+        return responcecode;
+    }
+
+    public void setResponcecode(String responcecode) {
+        this.responcecode = responcecode;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getHs_txn_cycle_status() {
+        return hs_txn_cycle_status;
+    }
+
+    public void setHs_txn_cycle_status(String hs_txn_cycle_status) {
+        this.hs_txn_cycle_status = hs_txn_cycle_status;
+    }
+
+    public String getHs_destination_uri() {
+        return hs_destination_uri;
+    }
+
+    public void setHs_destination_uri(String hs_destination_uri) {
+        this.hs_destination_uri = hs_destination_uri;
+    }
+
+    public String getDestination_service_id() {
+        return destination_service_id;
+    }
+
+    public void setDestination_service_id(String destination_service_id) {
+        this.destination_service_id = destination_service_id;
+    }
+
+    public String getDestination_country() {
+        return destination_country;
+    }
+
+    public void setDestination_country(String destination_country) {
+        this.destination_country = destination_country;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public String getBank() {
+        return bank;
+    }
+
+    public void setBank(String bank) {
+        this.bank = bank;
+    }
+
+    public String getUritype() {
+        return uritype;
+    }
+
+    public void setUritype(String uritype) {
+        this.uritype = uritype;
+    }
+
+    public String getSourceofincome() {
+        return sourceofincome;
+    }
+
+    public void setSourceofincome(String sourceofincome) {
+        this.sourceofincome = sourceofincome;
+    }
+
+    public String getRemit() {
+        return remit;
+    }
+
+    public void setRemit(String remit) {
+        this.remit = remit;
+    }
+
+    public String getListnerconfig() {
+        return listnerconfig;
+    }
+
+    public void setListnerconfig(String listnerconfig) {
+        this.listnerconfig = listnerconfig;
+    }
+
+    public String getRrn() {
+        return rrn;
+    }
+
+    public void setRrn(String rrn) {
+        this.rrn = rrn;
+    }
+
+}

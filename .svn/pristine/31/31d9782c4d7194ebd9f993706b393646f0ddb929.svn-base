@@ -1,0 +1,79 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.bean.controlpanel.acquirer;
+
+/**
+ *
+ * @author samith_k
+ */
+public class AcqPromotionTxnBean {
+
+    private String code;
+    private String txnType;
+    private String bank_fp;
+    private String bank_amount;
+    private String merchant_fp;
+    private String maerchant_amount;
+    private long fullCount;
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getTxnType() {
+        return txnType;
+    }
+
+    public void setTxnType(String txnType) {
+        this.txnType = txnType;
+    }
+
+    public String getBank_fp() {
+        return bank_fp;
+    }
+
+    public void setBank_fp(String bank_fp) {
+        this.bank_fp = bank_fp;
+    }
+
+    public String getBank_amount() {
+        return bank_amount;
+    }
+
+    public void setBank_amount(String bank_amount) {
+        this.bank_amount = bank_amount;
+    }
+
+    public String getMerchant_fp() {
+        return merchant_fp;
+    }
+
+    public void setMerchant_fp(String merchant_fp) {
+        this.merchant_fp = merchant_fp;
+    }
+
+    public String getMaerchant_amount() {
+        return maerchant_amount;
+    }
+
+    public void setMaerchant_amount(String maerchant_amount) {
+        this.maerchant_amount = maerchant_amount;
+    }
+
+    public long getFullCount() {
+        return fullCount;
+    }
+
+    public void setFullCount(long fullCount) {
+        this.fullCount = fullCount;
+    }
+ 
+
+}

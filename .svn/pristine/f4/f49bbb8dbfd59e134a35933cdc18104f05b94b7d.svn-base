@@ -1,0 +1,1432 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.bean.controlpanel.acquirer;
+
+//import com.epic.bmlalipay.util.mapping.AcquirerCommision;
+import com.epic.bmlalipay.util.mapping.AcquirerPromotion;
+import com.epic.bmlalipay.util.mapping.AcquirerRiskprofile;
+import com.epic.bmlalipay.util.mapping.AcquirerRiskprofileCurrency;
+import com.epic.bmlalipay.util.mapping.Currency;
+import com.epic.bmlalipay.util.mapping.MccOri;
+import com.epic.bmlalipay.util.mapping.MerchantOri;
+import com.epic.bmlalipay.util.mapping.MercustomersOri;
+import com.epic.bmlalipay.util.mapping.Status;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.codec.binary.Base64;
+
+/**
+ *
+ * @author samith_k
+ */
+public class MerchantMgtInputBean {
+
+    private String merchantcode;
+    private String filename;
+    private String merchantname;
+    private String merchantCustomer;
+    private String mid;
+    private String username;
+    private String password;
+    private String description;
+    private String status;
+    private String commision;
+    private String promotion;
+    private String latitude;
+    private String longitude;
+    private String address;
+    private String topupacc;
+    private String posacc;
+    private String message;
+    private String oldvalue;
+    private String riskProfile;
+    private String hiddenId;
+    private String merchantCustCategory;
+    private String currency;
+    private String currencyDes;
+
+    private String isAssign;
+    private String isUpdate;
+    
+    private String mobile;
+    private String contact1;
+    private String contact2;
+    private String email1;
+    private String email2;
+    
+    private String accounttype;
+    private String accountnumber;
+    private String paymenttype;
+    private String bankname;
+    private String branchcode;
+    private String branch;
+    
+    private String legalname;
+    private String identityType;
+
+    /*-------for images-----------*/
+    private byte[] identityCopy;
+    private String identityCopyImg;
+
+    private byte[] identityCopyBack;
+    private String identityCopyBackImg;
+
+    private byte[] selfie;
+    private String selfieImg;
+    /*--------------------*/
+
+    private List<Status> StatusList;
+    private List<Status> IsntbList;
+    private List<AccountTypeBean> IsntbBeanList;
+    private List<PaymentTypeDataBean> paymenttypeList;
+    private List<MercustomersOri> merchantCustomerList;
+    private List<Currency> currencyList;
+//    private List<AcquirerCommision> commisionList;
+    private List<AcquirerPromotion> promotionList;
+    private List<MerchantOri> merchantList;
+//    private List<AcquirerRiskprofileCurrency> riskProfileList;
+    private List<AcquirerRiskprofile> riskProfileList;
+    private List<MccOri> mccOriList;
+    private List<MCCDataBean> mccOriBeanList;
+    private MCCDataBean mccdatabean;
+
+    private Map<String, String> currencyCurrentList = new HashMap<String, String>();
+    private Map<String, String> currencyNewList = new HashMap<String, String>();
+    private Map<String, String> mccCurrentList = new HashMap<String, String>();
+    private Map<String, String> mccNewList = new HashMap<String, String>();
+    private Map<String, String> transactionCurrentList = new HashMap<String, String>();
+    private Map<String, String> transactionNewList = new HashMap<String, String>();
+
+    //for currency list
+    private List<String> newBox;
+    private List<String> currentBox;
+    //for mcc list
+    private List<String> mnewBox;
+    private List<String> mcurrentBox;
+    //for transaction list
+    private List<String> tnewBox;
+    private List<String> tcurrentBox;
+
+    private boolean vadd;
+    private boolean vupload;
+    private boolean vdelete;
+    private boolean vspanshow;
+    private boolean vupdatebutt;
+    private boolean vupdatelink;
+    private boolean vuserpassgen;
+    private boolean vsearch;
+    private boolean vreset;
+
+    private List<MerchantMgtDataBean> gridModel;
+    private List<MerchantMgtAssignBean> gridModelCommision;
+    private Integer rows = 0;
+    private Integer page = 0;
+    private Integer total = 0;
+    private Long records = 0L;
+    private String sord;
+    private String sidx;
+    private String searchField;
+    private String searchString;
+    private String searchOper;
+    private boolean loadonce = false;
+
+    private String s_merchantCode;
+    private String s_description;
+    private String s_merchantCustomer;
+    private String s_riskProfile;
+    private String s_status;
+    private String s_mcc;
+    private String s_commision;
+    private String s_promotion;
+    private String s_mobile;
+    private String s_contact1;
+    private String s_contact2;
+
+    private String SearchAudit;
+    private boolean search;
+    
+    private List<AccountTypeBean> accountTypeList;
+    private List<IncomeExpenseTypeBean> incomeExpenseTypeList;
+    private List<FlatPercentageTypeBean> flatPercentageTypeList;
+    
+    private String accountTypeCashIn;
+    private String incomeExpenseCashIn;
+    private String flatPercentageCashIn;
+    private String amountCashIn;
+    
+    private String accountTypeCashOut;
+    private String incomeExpenseCashOut;
+    private String flatPercentageCashOut;
+    private String amountCashOut;
+    
+    private String accountTypeNormal;
+    private String incomeExpenseNormal;
+    private String flatPercentageNormal;
+    private String amountNormal;
+    
+    private String accountTypeCashInDeb;
+    private String incomeExpenseCashInDeb;
+    private String flatPercentageCashInDeb;
+    private String amountCashInDeb;
+    
+    private String accountTypeCashOutDeb;
+    private String incomeExpenseCashOutDeb;
+    private String flatPercentageCashOutDeb;
+    private String amountCashOutDeb;
+    
+    private String accountTypeNormalDeb;
+    private String incomeExpenseNormalDeb;
+    private String flatPercentageNormalDeb;
+    private String amountNormalDeb;
+    
+    private String incomeExpenseCashInedit;
+    private String flatPercentageCashInedit;
+    private String amountCashInedit;
+
+    private String incomeExpenseCashIneditDeb;
+    private String flatPercentageCashIneditDeb;
+    private String amountCashIneditDeb;
+
+    private String incomeExpenseCashOutedit;
+    private String flatPercentageCashOutedit;
+    private String amountCashOutedit;
+
+    private String incomeExpenseCashOuteditDeb;
+    private String flatPercentageCashOuteditDeb;
+    private String amountCashOuteditDeb;
+
+    private String incomeExpenseNormaledit;
+    private String flatPercentageNormaledit;
+    private String amountNormaledit;
+
+    private String incomeExpenseNormaleditDeb;
+    private String flatPercentageNormaleditDeb;
+    private String amountNormaleditDeb;
+    
+    public String getS_mcc() {
+        return s_mcc;
+    }
+
+    public void setS_mcc(String s_mcc) {
+        this.s_mcc = s_mcc;
+    }
+
+    public List<PaymentTypeDataBean> getPaymenttypeList() {
+        return paymenttypeList;
+    }
+
+    public void setPaymenttypeList(List<PaymentTypeDataBean> paymenttypeList) {
+        this.paymenttypeList = paymenttypeList;
+    }
+
+    public List<AccountTypeBean> getIsntbBeanList() {
+        return IsntbBeanList;
+    }
+
+    public void setIsntbBeanList(List<AccountTypeBean> IsntbBeanList) {
+        this.IsntbBeanList = IsntbBeanList;
+    }
+
+    
+    
+    public String getEmail1() {
+        return email1;
+    }
+
+    public void setEmail1(String email1) {
+        this.email1 = email1;
+    }
+
+    public String getEmail2() {
+        return email2;
+    }
+
+    public void setEmail2(String email2) {
+        this.email2 = email2;
+    }
+
+    public List<Status> getIsntbList() {
+        return IsntbList;
+    }
+
+    public void setIsntbList(List<Status> IsntbList) {
+        this.IsntbList = IsntbList;
+    }
+
+    
+    
+    public String getLegalname() {
+        return legalname;
+    }
+
+    public void setLegalname(String legalname) {
+        this.legalname = legalname;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    public boolean isVreset() {
+        return vreset;
+    }
+
+    public void setVreset(boolean vreset) {
+        this.vreset = vreset;
+    }
+
+    public String getContact1() {
+        return contact1;
+    }
+
+    public void setContact1(String contact1) {
+        this.contact1 = contact1;
+    }
+
+    public String getContact2() {
+        return contact2;
+    }
+
+    public void setContact2(String contact2) {
+        this.contact2 = contact2;
+    }
+
+    public String getS_contact1() {
+        return s_contact1;
+    }
+
+    public void setS_contact1(String s_contact1) {
+        this.s_contact1 = s_contact1;
+    }
+
+    public String getS_contact2() {
+        return s_contact2;
+    }
+
+    public void setS_contact2(String s_contact2) {
+        this.s_contact2 = s_contact2;
+    }
+
+    public boolean isVuserpassgen() {
+        return vuserpassgen;
+    }
+
+    public void setVuserpassgen(boolean vuserpassgen) {
+        this.vuserpassgen = vuserpassgen;
+    }
+
+    public boolean isSearch() {
+        return search;
+    }
+
+    public void setSearch(boolean search) {
+        this.search = search;
+    }
+
+    public boolean isVspanshow() {
+        return vspanshow;
+    }
+
+    public void setVspanshow(boolean vspanshow) {
+        this.vspanshow = vspanshow;
+    }
+
+    public String getTopupacc() {
+        return topupacc;
+    }
+
+    public void setTopupacc(String topupacc) {
+        this.topupacc = topupacc;
+    }
+
+    public String getPosacc() {
+        return posacc;
+    }
+
+    public void setPosacc(String posacc) {
+        this.posacc = posacc;
+    }
+
+    public String getCommision() {
+        return commision;
+    }
+
+    public void setCommision(String commision) {
+        this.commision = commision;
+    }
+
+    public String getPromotion() {
+        return promotion;
+    }
+
+    public void setPromotion(String promotion) {
+        this.promotion = promotion;
+    }
+
+    public String getS_commision() {
+        return s_commision;
+    }
+
+    public void setS_commision(String s_commision) {
+        this.s_commision = s_commision;
+    }
+
+    public String getS_promotion() {
+        return s_promotion;
+    }
+
+    public void setS_promotion(String s_promotion) {
+        this.s_promotion = s_promotion;
+    }
+
+    public boolean isVupload() {
+        return vupload;
+    }
+
+    public void setVupload(boolean vupload) {
+        this.vupload = vupload;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getHiddenId() {
+        return hiddenId;
+    }
+
+    public void setHiddenId(String hiddenId) {
+        this.hiddenId = hiddenId;
+    }
+
+    public String getMerchantcode() {
+        return merchantcode;
+    }
+
+    public void setMerchantcode(String merchantcode) {
+        this.merchantcode = merchantcode;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public boolean isVadd() {
+        return vadd;
+    }
+
+    public void setVadd(boolean vadd) {
+        this.vadd = vadd;
+    }
+
+    public boolean isVupdatebutt() {
+        return vupdatebutt;
+    }
+
+    public void setVupdatebutt(boolean vupdatebutt) {
+        this.vupdatebutt = vupdatebutt;
+    }
+
+    public boolean isVupdatelink() {
+        return vupdatelink;
+    }
+
+    public void setVupdatelink(boolean vupdatelink) {
+        this.vupdatelink = vupdatelink;
+    }
+
+    public boolean isVdelete() {
+        return vdelete;
+    }
+
+    public void setVdelete(boolean vdelete) {
+        this.vdelete = vdelete;
+    }
+
+    public List<Status> getStatusList() {
+        return StatusList;
+    }
+
+    public void setStatusList(List<Status> StatusList) {
+        this.StatusList = StatusList;
+    }
+
+    public List<MerchantMgtDataBean> getGridModel() {
+        return gridModel;
+    }
+
+    public void setGridModel(List<MerchantMgtDataBean> gridModel) {
+        this.gridModel = gridModel;
+    }
+
+    public Integer getRows() {
+        return rows;
+    }
+
+    public void setRows(Integer rows) {
+        this.rows = rows;
+    }
+
+    public Integer getPage() {
+        return page;
+    }
+
+    public void setPage(Integer page) {
+        this.page = page;
+    }
+
+    public Integer getTotal() {
+        return total;
+    }
+
+    public void setTotal(Integer total) {
+        this.total = total;
+    }
+
+    public Long getRecords() {
+        return records;
+    }
+
+    public void setRecords(Long records) {
+        this.records = records;
+    }
+
+    public String getSord() {
+        return sord;
+    }
+
+    public void setSord(String sord) {
+        this.sord = sord;
+    }
+
+    public String getSidx() {
+        return sidx;
+    }
+
+    public void setSidx(String sidx) {
+        this.sidx = sidx;
+    }
+
+    public String getSearchField() {
+        return searchField;
+    }
+
+    public void setSearchField(String searchField) {
+        this.searchField = searchField;
+    }
+
+    public String getSearchString() {
+        return searchString;
+    }
+
+    public void setSearchString(String searchString) {
+        this.searchString = searchString;
+    }
+
+    public String getSearchOper() {
+        return searchOper;
+    }
+
+    public void setSearchOper(String searchOper) {
+        this.searchOper = searchOper;
+    }
+
+    public boolean isLoadonce() {
+        return loadonce;
+    }
+
+    public void setLoadonce(boolean loadonce) {
+        this.loadonce = loadonce;
+    }
+
+    public String getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getMerchantname() {
+        return merchantname;
+    }
+
+    public void setMerchantname(String merchantname) {
+        this.merchantname = merchantname;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getOldvalue() {
+        return oldvalue;
+    }
+
+    public void setOldvalue(String oldvalue) {
+        this.oldvalue = oldvalue;
+    }
+
+    public String getS_description() {
+        return s_description;
+    }
+
+    public void setS_description(String s_description) {
+        this.s_description = s_description;
+    }
+
+    public String getS_status() {
+        return s_status;
+    }
+
+    public void setS_status(String s_status) {
+        this.s_status = s_status;
+    }
+
+    public String getMid() {
+        return mid;
+    }
+
+    public void setMid(String mid) {
+        this.mid = mid;
+    }
+
+//    public List<AcquirerRiskprofileCurrency> getRiskProfileList() {
+//        return riskProfileList;
+//    }
+//
+//    public void setRiskProfileList(List<AcquirerRiskprofileCurrency> riskProfileList) {
+//        this.riskProfileList = riskProfileList;
+//    }
+
+    public List<AcquirerRiskprofile> getRiskProfileList() {
+        return riskProfileList;
+    }
+
+    public void setRiskProfileList(List<AcquirerRiskprofile> riskProfileList) {
+        this.riskProfileList = riskProfileList;
+    }
+    
+    
+    
+    
+
+    public String getRiskProfile() {
+        return riskProfile;
+    }
+
+    public void setRiskProfile(String riskProfile) {
+        this.riskProfile = riskProfile;
+    }
+
+    public String getMerchantCustomer() {
+        return merchantCustomer;
+    }
+
+    public void setMerchantCustomer(String merchantCustomer) {
+        this.merchantCustomer = merchantCustomer;
+    }
+
+    public List<MercustomersOri> getMerchantCustomerList() {
+        return merchantCustomerList;
+    }
+
+    public void setMerchantCustomerList(List<MercustomersOri> merchantCustomerList) {
+        this.merchantCustomerList = merchantCustomerList;
+    }
+
+    public List<MerchantOri> getMerchantList() {
+        return merchantList;
+    }
+
+    public void setMerchantList(List<MerchantOri> merchantList) {
+        this.merchantList = merchantList;
+    }
+
+    public String getS_merchantCustomer() {
+        return s_merchantCustomer;
+    }
+
+    public void setS_merchantCustomer(String s_merchantCustomer) {
+        this.s_merchantCustomer = s_merchantCustomer;
+    }
+
+    public String getS_riskProfile() {
+        return s_riskProfile;
+    }
+
+    public void setS_riskProfile(String s_riskProfile) {
+        this.s_riskProfile = s_riskProfile;
+    }
+
+    public boolean isVsearch() {
+        return vsearch;
+    }
+
+    public void setVsearch(boolean vsearch) {
+        this.vsearch = vsearch;
+    }
+
+    public Map<String, String> getCurrencyNewList() {
+        return currencyNewList;
+    }
+
+    public void setCurrencyNewList(Map<String, String> currencyNewList) {
+        this.currencyNewList = currencyNewList;
+    }
+
+    public Map<String, String> getMccCurrentList() {
+        return mccCurrentList;
+    }
+
+    public void setMccCurrentList(Map<String, String> mccCurrentList) {
+        this.mccCurrentList = mccCurrentList;
+    }
+
+    public Map<String, String> getMccNewList() {
+        return mccNewList;
+    }
+
+    public void setMccNewList(Map<String, String> mccNewList) {
+        this.mccNewList = mccNewList;
+    }
+
+    public Map<String, String> getTransactionCurrentList() {
+        return transactionCurrentList;
+    }
+
+    public void setTransactionCurrentList(Map<String, String> transactionCurrentList) {
+        this.transactionCurrentList = transactionCurrentList;
+    }
+
+    public Map<String, String> getTransactionNewList() {
+        return transactionNewList;
+    }
+
+    public void setTransactionNewList(Map<String, String> transactionNewList) {
+        this.transactionNewList = transactionNewList;
+    }
+
+    public Map<String, String> getCurrencyCurrentList() {
+        return currencyCurrentList;
+    }
+
+    public void setCurrencyCurrentList(Map<String, String> currencyCurrentList) {
+        this.currencyCurrentList = currencyCurrentList;
+    }
+
+    public List<String> getNewBox() {
+        return newBox;
+    }
+
+    public void setNewBox(List<String> newBox) {
+        this.newBox = newBox;
+    }
+
+    public List<String> getCurrentBox() {
+        return currentBox;
+    }
+
+    public void setCurrentBox(List<String> currentBox) {
+        this.currentBox = currentBox;
+    }
+
+    public List<String> getMnewBox() {
+        return mnewBox;
+    }
+
+    public void setMnewBox(List<String> mnewBox) {
+        this.mnewBox = mnewBox;
+    }
+
+    public List<String> getMcurrentBox() {
+        return mcurrentBox;
+    }
+
+    public void setMcurrentBox(List<String> mcurrentBox) {
+        this.mcurrentBox = mcurrentBox;
+    }
+
+    public List<String> getTnewBox() {
+        return tnewBox;
+    }
+
+    public void setTnewBox(List<String> tnewBox) {
+        this.tnewBox = tnewBox;
+    }
+
+    public List<String> getTcurrentBox() {
+        return tcurrentBox;
+    }
+
+    public void setTcurrentBox(List<String> tcurrentBox) {
+        this.tcurrentBox = tcurrentBox;
+    }
+
+    public String getS_merchantCode() {
+        return s_merchantCode;
+    }
+
+    public void setS_merchantCode(String s_merchantCode) {
+        this.s_merchantCode = s_merchantCode;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
+
+    public String getIdentityType() {
+        return identityType;
+    }
+
+    public void setIdentityType(String identityType) {
+        this.identityType = identityType;
+    }
+
+    public byte[] getIdentityCopy() {
+        return this.identityCopy;
+    }
+
+    public void setIdentityCopy(byte[] identityCopy) {
+        this.identityCopy = identityCopy;
+    }
+
+    public String getIdentityCopyImg() {
+        try {
+            byte[] blobAsBytes = getIdentityCopy();
+            blobAsBytes = Base64.encodeBase64(blobAsBytes);
+            this.identityCopyImg = new String(blobAsBytes);
+        } catch (Exception e) {
+            this.identityCopyImg = "";
+        }
+        return identityCopyImg;
+    }
+
+    public void setIdentityCopyImg(String identityCopyImg) {
+        this.identityCopyImg = identityCopyImg;
+    }
+
+    public byte[] getIdentityCopyBack() {
+        return this.identityCopyBack;
+    }
+
+    public void setIdentityCopyBack(byte[] identityCopyBack) {
+        this.identityCopyBack = identityCopyBack;
+    }
+
+    public String getIdentityCopyBackImg() {
+        try {
+            byte[] blobAsBytes = getIdentityCopyBack();
+            blobAsBytes = Base64.encodeBase64(blobAsBytes);
+            this.identityCopyBackImg = new String(blobAsBytes);
+        } catch (Exception e) {
+            this.identityCopyBackImg = "";
+        }
+        return identityCopyBackImg;
+    }
+
+    public void setIdentityCopyBackImg(String identityCopyBackImg) {
+        this.identityCopyBackImg = identityCopyBackImg;
+    }
+
+    public byte[] getSelfie() {
+        return this.selfie;
+    }
+
+    public void setSelfie(byte[] selfie) {
+        this.selfie = selfie;
+    }
+
+    public String getSelfieImg() {
+        try {
+            byte[] blobAsBytes = getSelfie();
+            blobAsBytes = Base64.encodeBase64(blobAsBytes);
+            this.selfieImg = new String(blobAsBytes);
+        } catch (Exception e) {
+            this.selfieImg = "";
+        }
+        return selfieImg;
+    }
+
+    public void setSelfieImg(String selfieImg) {
+        this.selfieImg = selfieImg;
+    }
+
+    public String getS_mobile() {
+        return s_mobile;
+    }
+
+    public void setS_mobile(String s_mobile) {
+        this.s_mobile = s_mobile;
+    }
+
+//    public List<AcquirerCommision> getCommisionList() {
+//        return commisionList;
+//    }
+//
+//    public void setCommisionList(List<AcquirerCommision> commisionList) {
+//        this.commisionList = commisionList;
+//    }
+
+    public List<AcquirerPromotion> getPromotionList() {
+        return promotionList;
+    }
+
+    public void setPromotionList(List<AcquirerPromotion> promotionList) {
+        this.promotionList = promotionList;
+    }
+
+    public String getSearchAudit() {
+        return SearchAudit;
+    }
+
+    public void setSearchAudit(String SearchAudit) {
+        this.SearchAudit = SearchAudit;
+    }
+
+    public String getMerchantCustCategory() {
+        return merchantCustCategory;
+    }
+
+    public void setMerchantCustCategory(String merchantCustCategory) {
+        this.merchantCustCategory = merchantCustCategory;
+    }
+
+    public List<MccOri> getMccOriList() {
+        return mccOriList;
+    }
+
+    public void setMccOriList(List<MccOri> mccOriList) {
+        this.mccOriList = mccOriList;
+    }
+
+    public List<MCCDataBean> getMccOriBeanList() {
+        return mccOriBeanList;
+    }
+
+    public void setMccOriBeanList(List<MCCDataBean> mccOriBeanList) {
+        this.mccOriBeanList = mccOriBeanList;
+    }
+
+    public MCCDataBean getMccdatabean() {
+        return mccdatabean;
+    }
+
+    public void setMccdatabean(MCCDataBean mccdatabean) {
+        this.mccdatabean = mccdatabean;
+    }
+
+    public List<AccountTypeBean> getAccountTypeList() {
+        return accountTypeList;
+    }
+
+    public void setAccountTypeList(List<AccountTypeBean> accountTypeList) {
+        this.accountTypeList = accountTypeList;
+    }
+
+    public List<IncomeExpenseTypeBean> getIncomeExpenseTypeList() {
+        return incomeExpenseTypeList;
+    }
+
+    public void setIncomeExpenseTypeList(List<IncomeExpenseTypeBean> incomeExpenseTypeList) {
+        this.incomeExpenseTypeList = incomeExpenseTypeList;
+    }
+
+    public List<FlatPercentageTypeBean> getFlatPercentageTypeList() {
+        return flatPercentageTypeList;
+    }
+
+    public void setFlatPercentageTypeList(List<FlatPercentageTypeBean> flatPercentageTypeList) {
+        this.flatPercentageTypeList = flatPercentageTypeList;
+    }
+
+    public String getAccountTypeCashIn() {
+        return accountTypeCashIn;
+    }
+
+    public void setAccountTypeCashIn(String accountTypeCashIn) {
+        this.accountTypeCashIn = accountTypeCashIn;
+    }
+
+    public String getIncomeExpenseCashIn() {
+        return incomeExpenseCashIn;
+    }
+
+    public void setIncomeExpenseCashIn(String incomeExpenseCashIn) {
+        this.incomeExpenseCashIn = incomeExpenseCashIn;
+    }
+
+    public String getFlatPercentageCashIn() {
+        return flatPercentageCashIn;
+    }
+
+    public void setFlatPercentageCashIn(String flatPercentageCashIn) {
+        this.flatPercentageCashIn = flatPercentageCashIn;
+    }
+
+    public String getAmountCashIn() {
+        return amountCashIn;
+    }
+
+    public void setAmountCashIn(String amountCashIn) {
+        this.amountCashIn = amountCashIn;
+    }
+
+    public String getAccountTypeCashOut() {
+        return accountTypeCashOut;
+    }
+
+    public void setAccountTypeCashOut(String accountTypeCashOut) {
+        this.accountTypeCashOut = accountTypeCashOut;
+    }
+
+    public String getIncomeExpenseCashOut() {
+        return incomeExpenseCashOut;
+    }
+
+    public void setIncomeExpenseCashOut(String incomeExpenseCashOut) {
+        this.incomeExpenseCashOut = incomeExpenseCashOut;
+    }
+
+    public String getFlatPercentageCashOut() {
+        return flatPercentageCashOut;
+    }
+
+    public void setFlatPercentageCashOut(String flatPercentageCashOut) {
+        this.flatPercentageCashOut = flatPercentageCashOut;
+    }
+
+    public String getAmountCashOut() {
+        return amountCashOut;
+    }
+
+    public void setAmountCashOut(String amountCashOut) {
+        this.amountCashOut = amountCashOut;
+    }
+
+    public String getAccountTypeNormal() {
+        return accountTypeNormal;
+    }
+
+    public void setAccountTypeNormal(String accountTypeNormal) {
+        this.accountTypeNormal = accountTypeNormal;
+    }
+
+    public String getIncomeExpenseNormal() {
+        return incomeExpenseNormal;
+    }
+
+    public void setIncomeExpenseNormal(String incomeExpenseNormal) {
+        this.incomeExpenseNormal = incomeExpenseNormal;
+    }
+
+    public String getFlatPercentageNormal() {
+        return flatPercentageNormal;
+    }
+
+    public void setFlatPercentageNormal(String flatPercentageNormal) {
+        this.flatPercentageNormal = flatPercentageNormal;
+    }
+
+    public String getAmountNormal() {
+        return amountNormal;
+    }
+
+    public void setAmountNormal(String amountNormal) {
+        this.amountNormal = amountNormal;
+    }
+
+    public String getAccountTypeCashInDeb() {
+        return accountTypeCashInDeb;
+    }
+
+    public void setAccountTypeCashInDeb(String accountTypeCashInDeb) {
+        this.accountTypeCashInDeb = accountTypeCashInDeb;
+    }
+
+    public String getIncomeExpenseCashInDeb() {
+        return incomeExpenseCashInDeb;
+    }
+
+    public void setIncomeExpenseCashInDeb(String incomeExpenseCashInDeb) {
+        this.incomeExpenseCashInDeb = incomeExpenseCashInDeb;
+    }
+
+    public String getFlatPercentageCashInDeb() {
+        return flatPercentageCashInDeb;
+    }
+
+    public void setFlatPercentageCashInDeb(String flatPercentageCashInDeb) {
+        this.flatPercentageCashInDeb = flatPercentageCashInDeb;
+    }
+
+    public String getAmountCashInDeb() {
+        return amountCashInDeb;
+    }
+
+    public void setAmountCashInDeb(String amountCashInDeb) {
+        this.amountCashInDeb = amountCashInDeb;
+    }
+
+    public String getAccountTypeCashOutDeb() {
+        return accountTypeCashOutDeb;
+    }
+
+    public void setAccountTypeCashOutDeb(String accountTypeCashOutDeb) {
+        this.accountTypeCashOutDeb = accountTypeCashOutDeb;
+    }
+
+    public String getIncomeExpenseCashOutDeb() {
+        return incomeExpenseCashOutDeb;
+    }
+
+    public void setIncomeExpenseCashOutDeb(String incomeExpenseCashOutDeb) {
+        this.incomeExpenseCashOutDeb = incomeExpenseCashOutDeb;
+    }
+
+    public String getFlatPercentageCashOutDeb() {
+        return flatPercentageCashOutDeb;
+    }
+
+    public void setFlatPercentageCashOutDeb(String flatPercentageCashOutDeb) {
+        this.flatPercentageCashOutDeb = flatPercentageCashOutDeb;
+    }
+
+    public String getAmountCashOutDeb() {
+        return amountCashOutDeb;
+    }
+
+    public void setAmountCashOutDeb(String amountCashOutDeb) {
+        this.amountCashOutDeb = amountCashOutDeb;
+    }
+
+    public String getAccountTypeNormalDeb() {
+        return accountTypeNormalDeb;
+    }
+
+    public void setAccountTypeNormalDeb(String accountTypeNormalDeb) {
+        this.accountTypeNormalDeb = accountTypeNormalDeb;
+    }
+
+    public String getIncomeExpenseNormalDeb() {
+        return incomeExpenseNormalDeb;
+    }
+
+    public void setIncomeExpenseNormalDeb(String incomeExpenseNormalDeb) {
+        this.incomeExpenseNormalDeb = incomeExpenseNormalDeb;
+    }
+
+    public String getFlatPercentageNormalDeb() {
+        return flatPercentageNormalDeb;
+    }
+
+    public void setFlatPercentageNormalDeb(String flatPercentageNormalDeb) {
+        this.flatPercentageNormalDeb = flatPercentageNormalDeb;
+    }
+
+    public String getAmountNormalDeb() {
+        return amountNormalDeb;
+    }
+
+    public void setAmountNormalDeb(String amountNormalDeb) {
+        this.amountNormalDeb = amountNormalDeb;
+    }
+
+    public String getIncomeExpenseCashInedit() {
+        return incomeExpenseCashInedit;
+    }
+
+    public void setIncomeExpenseCashInedit(String incomeExpenseCashInedit) {
+        this.incomeExpenseCashInedit = incomeExpenseCashInedit;
+    }
+
+    public String getFlatPercentageCashInedit() {
+        return flatPercentageCashInedit;
+    }
+
+    public void setFlatPercentageCashInedit(String flatPercentageCashInedit) {
+        this.flatPercentageCashInedit = flatPercentageCashInedit;
+    }
+
+    public String getAmountCashInedit() {
+        return amountCashInedit;
+    }
+
+    public void setAmountCashInedit(String amountCashInedit) {
+        this.amountCashInedit = amountCashInedit;
+    }
+
+    public String getIncomeExpenseCashIneditDeb() {
+        return incomeExpenseCashIneditDeb;
+    }
+
+    public void setIncomeExpenseCashIneditDeb(String incomeExpenseCashIneditDeb) {
+        this.incomeExpenseCashIneditDeb = incomeExpenseCashIneditDeb;
+    }
+
+    public String getFlatPercentageCashIneditDeb() {
+        return flatPercentageCashIneditDeb;
+    }
+
+    public void setFlatPercentageCashIneditDeb(String flatPercentageCashIneditDeb) {
+        this.flatPercentageCashIneditDeb = flatPercentageCashIneditDeb;
+    }
+
+    public String getAmountCashIneditDeb() {
+        return amountCashIneditDeb;
+    }
+
+    public void setAmountCashIneditDeb(String amountCashIneditDeb) {
+        this.amountCashIneditDeb = amountCashIneditDeb;
+    }
+
+    public String getIncomeExpenseCashOutedit() {
+        return incomeExpenseCashOutedit;
+    }
+
+    public void setIncomeExpenseCashOutedit(String incomeExpenseCashOutedit) {
+        this.incomeExpenseCashOutedit = incomeExpenseCashOutedit;
+    }
+
+    public String getFlatPercentageCashOutedit() {
+        return flatPercentageCashOutedit;
+    }
+
+    public void setFlatPercentageCashOutedit(String flatPercentageCashOutedit) {
+        this.flatPercentageCashOutedit = flatPercentageCashOutedit;
+    }
+
+    public String getAmountCashOutedit() {
+        return amountCashOutedit;
+    }
+
+    public void setAmountCashOutedit(String amountCashOutedit) {
+        this.amountCashOutedit = amountCashOutedit;
+    }
+
+    public String getIncomeExpenseCashOuteditDeb() {
+        return incomeExpenseCashOuteditDeb;
+    }
+
+    public void setIncomeExpenseCashOuteditDeb(String incomeExpenseCashOuteditDeb) {
+        this.incomeExpenseCashOuteditDeb = incomeExpenseCashOuteditDeb;
+    }
+
+    public String getFlatPercentageCashOuteditDeb() {
+        return flatPercentageCashOuteditDeb;
+    }
+
+    public void setFlatPercentageCashOuteditDeb(String flatPercentageCashOuteditDeb) {
+        this.flatPercentageCashOuteditDeb = flatPercentageCashOuteditDeb;
+    }
+
+    public String getAmountCashOuteditDeb() {
+        return amountCashOuteditDeb;
+    }
+
+    public void setAmountCashOuteditDeb(String amountCashOuteditDeb) {
+        this.amountCashOuteditDeb = amountCashOuteditDeb;
+    }
+
+    public String getIncomeExpenseNormaledit() {
+        return incomeExpenseNormaledit;
+    }
+
+    public void setIncomeExpenseNormaledit(String incomeExpenseNormaledit) {
+        this.incomeExpenseNormaledit = incomeExpenseNormaledit;
+    }
+
+    public String getFlatPercentageNormaledit() {
+        return flatPercentageNormaledit;
+    }
+
+    public void setFlatPercentageNormaledit(String flatPercentageNormaledit) {
+        this.flatPercentageNormaledit = flatPercentageNormaledit;
+    }
+
+    public String getAmountNormaledit() {
+        return amountNormaledit;
+    }
+
+    public void setAmountNormaledit(String amountNormaledit) {
+        this.amountNormaledit = amountNormaledit;
+    }
+
+    public String getIncomeExpenseNormaleditDeb() {
+        return incomeExpenseNormaleditDeb;
+    }
+
+    public void setIncomeExpenseNormaleditDeb(String incomeExpenseNormaleditDeb) {
+        this.incomeExpenseNormaleditDeb = incomeExpenseNormaleditDeb;
+    }
+
+    public String getFlatPercentageNormaleditDeb() {
+        return flatPercentageNormaleditDeb;
+    }
+
+    public void setFlatPercentageNormaleditDeb(String flatPercentageNormaleditDeb) {
+        this.flatPercentageNormaleditDeb = flatPercentageNormaleditDeb;
+    }
+
+    public String getAmountNormaleditDeb() {
+        return amountNormaleditDeb;
+    }
+
+    public void setAmountNormaleditDeb(String amountNormaleditDeb) {
+        this.amountNormaleditDeb = amountNormaleditDeb;
+    }
+
+    public String getAccounttype() {
+        return accounttype;
+    }
+
+    public void setAccounttype(String accounttype) {
+        this.accounttype = accounttype;
+    }
+
+    public String getAccountnumber() {
+        return accountnumber;
+    }
+
+    public void setAccountnumber(String accountnumber) {
+        this.accountnumber = accountnumber;
+    }
+
+    public String getPaymenttype() {
+        return paymenttype;
+    }
+
+    public void setPaymenttype(String paymenttype) {
+        this.paymenttype = paymenttype;
+    }
+
+    public String getBankname() {
+        return bankname;
+    }
+
+    public void setBankname(String bankname) {
+        this.bankname = bankname;
+    }
+
+    public String getBranchcode() {
+        return branchcode;
+    }
+
+    public void setBranchcode(String branchcode) {
+        this.branchcode = branchcode;
+    }
+
+    public String getBranch() {
+        return branch;
+    }
+
+    public void setBranch(String branch) {
+        this.branch = branch;
+    }
+
+    public String getIsAssign() {
+        return isAssign;
+    }
+
+    public void setIsAssign(String isAssign) {
+        this.isAssign = isAssign;
+    }
+
+    public String getIsUpdate() {
+        return isUpdate;
+    }
+
+    public void setIsUpdate(String isUpdate) {
+        this.isUpdate = isUpdate;
+    }
+
+    public List<MerchantMgtAssignBean> getGridModelCommision() {
+        return gridModelCommision;
+    }
+
+    public void setGridModelCommision(List<MerchantMgtAssignBean> gridModelCommision) {
+        this.gridModelCommision = gridModelCommision;
+    }
+
+    public List<Currency> getCurrencyList() {
+        return currencyList;
+    }
+
+    public void setCurrencyList(List<Currency> currencyList) {
+        this.currencyList = currencyList;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public String getCurrencyDes() {
+        return currencyDes;
+    }
+
+    public void setCurrencyDes(String currencyDes) {
+        this.currencyDes = currencyDes;
+    }
+    
+    
+}

@@ -1,0 +1,274 @@
+<%-- 
+    Document   : viewaudit
+    Created on : Jan 8, 2014, 1:23:34 PM
+    Author     : chalitha
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="/struts-tags" prefix="s" %>
+<%@taglib  uri="/struts-jquery-tags" prefix="sj"%>
+<%@taglib prefix="sjg" uri="/struts-jquery-grid-tags"%>
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+
+        <%@include file="/stylelinks.jspf" %>
+
+        <script type="text/javascript">
+
+            function backToMain() {
+                window.location = "${pageContext.request.contextPath}/viewSystemAudit.action?";
+            }
+            
+                        
+            function todo(){
+    //            window.open();
+
+    form = document.getElementById('auditform2');
+
+    //                    form.target = '_blank';
+    form.action = 'individualReportSystemAudit';
+    form.submit();
+    //            window.open(form);
+}
+        </script>
+
+    </head>            
+
+    <body style="">
+        <jsp:include page="/header.jsp"/>
+
+        <div class="main-container">
+
+
+            <jsp:include page="/leftmenu.jsp"/>
+
+            <div class="main-content">
+
+                <div class="container" style="min-height: 760px;">
+
+
+                    <!-- start: PAGE NAVIGATION BAR -->
+                    <jsp:include page="/navbar.jsp"/>
+                    <!-- end: NAVIGATION BAR -->
+
+                    <div class="row">
+
+
+                        <div id="content1">
+
+
+                            <s:div id="divmsg">
+
+                                <s:actionerror theme="jquery"/>
+                                <s:actionmessage theme="jquery"/>
+                            </s:div>
+
+                        <s:set id="vview" var="vview"><s:property value="vview" default="false"/></s:set>    
+
+
+                            <div id="formstyle">
+                                <s:form id="auditform2" method="post" action="*SystemAudit" theme="simple">
+
+
+                                    <table border="0" cellspacing="5">
+
+                                        <tbody>
+
+                                            <tr>
+                                                <td></td>
+                                                <td>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td></td>
+                                                <td>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>Audit ID</b></td>
+                                                <td><b>:</b></td>
+                                                <td><s:label style="margin-bottom: 0px;" name="auditId"  value="%{auditDataBean.id}" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>User Name</b></td>
+                                                <td><b>:</b></td>
+                                                <td><s:label style="margin-bottom: 0px;" name="userRole"  value="%{auditDataBean.userrole}" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>Description</b></td>
+                                                <td><b>:</b></td>
+                                                <td><s:label style="margin-bottom: 0px;" name="description"  value="%{auditDataBean.description}" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>Section</b></td>
+                                                <td><b>:</b></td>
+                                                <td><s:label style="margin-bottom: 0px;" name="section"  value="%{auditDataBean.section}" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>Page</b></td>
+                                                <td><b>:</b></td>
+                                                <td><s:label style="margin-bottom: 0px;" name="page"  value="%{auditDataBean.page}" />
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td><b>Task</b></td>
+                                                <td><b>:</b></td>
+                                                <td><s:label style="margin-bottom: 0px;" name="task"  value="%{auditDataBean.task}" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>Old Values</b></td>
+                                                <td><b>:</b></td>
+                                                <td><s:label style="margin-bottom: 0px; word-break: break-all;" name="oldvalue"  value="%{auditDataBean.oldvalue}" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>New Values</b></td>
+                                                <td><b>:</b></td>
+                                                <td><s:label style="margin-bottom: 0px; word-break: break-all;" name="newvalue"  value="%{auditDataBean.newvalue}" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>IP Address</b></td>
+                                                <td><b>:</b></td>
+                                                <td><s:label style="margin-bottom: 0px;" name="ip"  value="%{auditDataBean.ip}" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>Last Updated User</b></td>
+                                                <td><b>:</b></td>
+                                                <td><s:label style="margin-bottom: 0px;" name="user"  value="%{auditDataBean.user}" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>Last Updated Time</b></td>
+                                                <td><b>:</b></td>
+                                                <td><s:label style="margin-bottom: 0px;" name="created Date"  value="%{auditDataBean.lastUpdatedDate}" />
+                                                </td>
+                                            </tr>                   
+                                            <tr>
+                                                <td></td>
+                                                <td>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td>
+                                                    <sj:a href="#" name="back" button="true" onclick="backToMain()">Back</sj:a>
+                                                    <sj:a button="true" id="view" onclick="todo()"  disabled="#vview">View PDF</sj:a>
+                                                    
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                </s:form>
+
+                            </div>
+
+                            <!-- Start delete confirm dialog box -->
+                            <sj:dialog 
+                                id="deletedialog" 
+                                buttons="{ 
+                                'OK':function() { deletePage($(this).data('keyval'));$( this ).dialog( 'close' ); },
+                                'Cancel':function() { $( this ).dialog( 'close' );} 
+                                }" 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Delete Page"                            
+                                />
+                            <!-- Start delete process dialog box -->
+                            <sj:dialog 
+                                id="deletesuccdialog" 
+                                buttons="{
+                                'OK':function() { $( this ).dialog( 'close' );}
+                                }"  
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Deleting Process." 
+                                />
+                            <!-- Start delete error dialog box -->
+                            <sj:dialog 
+                                id="deleteerrordialog" 
+                                buttons="{
+                                'OK':function() { $( this ).dialog( 'close' );}                                    
+                                }" 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Delete error."
+                                />
+
+                            <!--<div id="tablediv">-->
+
+                                <%--<s:url var="listurl" action="listSystemAudit"/>--%>
+                                <%--<sjg:grid--%> 
+<!--                                    id="gridtable"
+                                    caption="Audit Traces"
+                                    dataType="json"
+                                    href="%{listurl}"
+                                    pager="true"
+                                    gridModel="gridModel"
+                                    rowList="10,15,20"
+                                    rowNum="10"
+                                    autowidth="true"
+                                    rownumbers="true"
+                                    shrinkToFit="false"
+                                    onCompleteTopics="completetopics"
+                                    rowTotal="false"
+                                    viewrecords="true">-->
+
+                                    <%--<sjg:gridColumn name="id" index="systemauditid" title="ID" sortable="true"/>--%>
+                                    <%--<sjg:gridColumn name="user" index="user.username" title="User" sortable="true"/>--%>
+                                    <%--<sjg:gridColumn name="description" index="description" title="Description" sortable="true"/>--%>
+                                    <%--<sjg:gridColumn name="section" index="section.sectioncode" title="Section" sortable="true"/>--%>
+                                    <%--<sjg:gridColumn name="sdblpage" index="page.pagecode" title="Page" sortable="true"/>--%>
+                                    <%--<sjg:gridColumn name="task" index="task.taskcode" title="Task" sortable="true"/>--%>
+                                    <%--<sjg:gridColumn name="lastUpdatedDate" index="lastupdatedtime" title="Last Updated Time" sortable="true"/>--%>
+                                    <%--<sjg:gridColumn name="id" title="View" width="25" align="center"--%> 
+                                                    <!--formatter="viewformatter" hidden="#vviewlink"/>-->
+                                <%--</sjg:grid>--%>
+                            <!--</div>-->
+
+                        </div>
+
+                    </div>
+
+
+
+
+                    <!-- end: PAGE CONTENT-->
+                </div>
+            </div>
+            <!-- end: PAGE -->
+        </div>
+        <!-- end: MAIN CONTAINER -->
+        <!-- start: FOOTER -->
+        <jsp:include page="/footer.jsp"/>
+        <!-- end: FOOTER -->
+
+
+
+        <!-- end: BODY -->
+    </body>
+</html>

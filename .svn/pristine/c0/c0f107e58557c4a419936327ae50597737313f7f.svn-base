@@ -1,0 +1,1363 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.dao.controlpanel.acquirer;
+
+import com.epic.bmlalipay.bean.controlpanel.acquirer.MerchantCustomerDataBean;
+import com.epic.bmlalipay.bean.controlpanel.acquirer.MerchantCustomerInputBean;
+import com.epic.bmlalipay.dao.common.CommonDAO;
+import com.epic.bmlalipay.util.common.Common;
+import com.epic.bmlalipay.util.common.HibernateInit;
+import com.epic.bmlalipay.util.mapping.Currency;
+import com.epic.bmlalipay.util.mapping.MccOri;
+import com.epic.bmlalipay.util.mapping.Status;
+import com.epic.bmlalipay.util.mapping.Systemaudit;
+import com.epic.bmlalipay.util.mapping.MercustomersOri;
+import com.epic.bmlalipay.util.mapping.MercustomersOriCurrency;
+import com.epic.bmlalipay.util.mapping.MercustomersOriCurrencyId;
+import com.epic.bmlalipay.util.mapping.MercustomersOriTransaction;
+import com.epic.bmlalipay.util.mapping.MercustomersOriTransactionId;
+import com.epic.bmlalipay.util.mapping.Systemuser;
+import com.epic.bmlalipay.util.mapping.Transactiontype;
+import com.epic.bmlalipay.util.mapping.Userrole;
+import com.epic.bmlalipay.util.varlist.CommonVarList;
+import com.epic.bmlalipay.util.varlist.MessageVarList;
+import com.epic.bmlalipay.util.varlist.TaskVarList;
+import java.io.File;
+import java.io.FileInputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import org.apache.struts2.ServletActionContext;
+import org.hibernate.Criteria;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.criterion.Restrictions;
+
+/**
+ *
+ * @author asitha_l
+ */
+public class MerchantCustomerDAO {
+
+    public List<MerchantCustomerDataBean> getSearchList(MerchantCustomerInputBean inputBean, int max, int first, String orderBy) throws Exception {
+
+        List<MerchantCustomerDataBean> dataList = new ArrayList<MerchantCustomerDataBean>();
+        Session session = null;
+        try {
+
+            if (orderBy.equals("") || orderBy == null) {
+                orderBy = " order by MT.CREATE_TIME desc ";
+            }
+            String where = this.makeWhereClause(inputBean);
+            int count = 0;
+            session = HibernateInit.sessionFactory.openSession();
+
+            String sqlCount = "select count(mt.mid) from MERCUSTOMERS_ORI mt where " + where;
+
+            Query queryCount = session.createSQLQuery(sqlCount);
+
+            List countList = queryCount.list();
+            count = (Integer) countList.get(0);
+            if (count > 0) {
+
+                String sqlSearch = " SELECT * from ( select MT.MID, MT.NAME, ST.DESCRIPTION AS STATUSDES,MT.CREATE_TIME,"
+                        + " row_number() over (" + orderBy + ") as r "
+                        + " from MERCUSTOMERS_ORI MT,STATUS ST "
+                        + " where MT.STATUS=ST.STATUSCODE AND " + where + ") s where r > " + first + " and r<= " + max;
+
+                List<Object[]> chequeList = (List<Object[]>) session.createSQLQuery(sqlSearch).list();
+
+                for (Object[] mcBean : chequeList) {
+
+                    MerchantCustomerDataBean merchantBean = new MerchantCustomerDataBean();
+
+                    try {
+                        merchantBean.setMid(mcBean[0].toString());
+                    } catch (NullPointerException npe) {
+                        merchantBean.setMid("--");
+                    }
+                    try {
+                        merchantBean.setName(mcBean[1].toString());
+                    } catch (NullPointerException npe) {
+                        merchantBean.setName("--");
+                    }
+                    try {
+                        merchantBean.setStatus(mcBean[2].toString());
+                    } catch (NullPointerException npe) {
+                        merchantBean.setStatus("--");
+                    }
+                    try {
+                        merchantBean.setCreatedtime(mcBean[3].toString().substring(0, 19));
+                    } catch (NullPointerException npe) {
+                        merchantBean.setCreatedtime("--");
+                    }
+                    merchantBean.setFullCount(count);
+
+                    dataList.add(merchantBean);
+                }
+            }
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return dataList;
+    }
+
+    private String makeWhereClause(MerchantCustomerInputBean inputBean) throws Exception {
+
+        String where = "1=1";
+
+        if ((inputBean.getS_mid() == null || inputBean.getS_mid().isEmpty())
+                && (inputBean.getS_name() == null || inputBean.getS_name().isEmpty())
+                && (inputBean.getS_status() == null || inputBean.getS_status().isEmpty())) {
+
+        } else {
+
+            if (inputBean.getS_mid() != null && !inputBean.getS_mid().isEmpty()) {
+                where += " and lower(MT.MID) like lower('%" + inputBean.getS_mid() + "%')";
+
+            }
+            if (inputBean.getS_name() != null && !inputBean.getS_name().isEmpty()) {
+                where += " and lower(MT.NAME) like lower('%" + inputBean.getS_name() + "%')";
+            }
+            if (inputBean.getS_status() != null && !inputBean.getS_status().isEmpty()) {
+                where += " and MT.STATUS='" + inputBean.getS_status() + "'";
+            }
+
+        }
+
+        return where;
+    }
+    
+    public String getCurrencyByprefix(String appprefix) throws Exception {
+        Currency sec = null;
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            sec = (Currency) session.get(Currency.class, appprefix);
+        } catch (Exception he) {
+            throw he;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+        return sec.getDescription();
+    }
+
+    public String setCurrencyDes(String code) throws Exception {
+        String description = "";
+        code = code.replace("[", "").replace("]", "").trim();
+        System.err.println("code :: "+code);
+        if (!code.isEmpty()) {
+            String[] set1 = code.split(",");
+            int count = code.length() - code.replace(",", "").length();
+            for (int i = 0; i < count + 1; i++) {
+                description = description + this.getCurrencyByprefix(set1[i].trim())+",";
+            }
+
+            code = description.substring(0, description.length() - 1);
+        }
+        System.err.println(code);
+        return code;
+
+    }
+
+    public String insertMc(MerchantCustomerInputBean inputBean, Systemaudit audit) throws Exception {
+        Session session = null;
+        Transaction txn = null;
+        FileInputStream fileInputStream = null;
+        String message = "";
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            Date sysDate = CommonDAO.getSystemDate(session);
+
+            List<String> assignCurrencyList = inputBean.getNewBox();
+            List<String> assigntransactionList = inputBean.getNewBoxTran();
+
+            if ((MercustomersOri) session.get(MercustomersOri.class, inputBean.getMid().trim()) == null) {
+                txn = session.beginTransaction();
+
+                MercustomersOri mc = new MercustomersOri();
+
+                mc.setName(inputBean.getName().trim());
+                mc.setMid(inputBean.getMid());
+
+                Status st = (Status) session.get(Status.class, inputBean.getStatus().trim());
+                mc.setStatus(st);
+                
+                mc.setEmail1(inputBean.getEmail1().trim());
+                mc.setLastupdateduser(audit.getLastupdateduser());
+                mc.setCreateTime(sysDate);
+                mc.setLastUpdatedTime(sysDate);
+                session.save(mc);
+
+                for (String currency : assignCurrencyList) {
+
+                    MercustomersOriCurrency mOriCurrency = new MercustomersOriCurrency();
+
+                    MercustomersOriCurrencyId mcId = new MercustomersOriCurrencyId();
+                    mcId.setCurrencyCode(currency);
+                    mcId.setMercustomersNo(inputBean.getMid().trim());
+                    mOriCurrency.setId(mcId);
+
+                    mOriCurrency.setCreatedtime(sysDate);
+                    mOriCurrency.setLastupdatedtime(sysDate);
+                    mOriCurrency.setLastupdateduser(audit.getLastupdateduser());
+                    session.save(mOriCurrency);
+
+                }
+
+                for (String mccode : assigntransactionList) {
+
+                    MercustomersOriTransaction mOriTransaction = new MercustomersOriTransaction();
+
+                    MercustomersOriTransactionId moriTId = new MercustomersOriTransactionId();
+                    moriTId.setTransactionCode(mccode);
+                    moriTId.setMercustomersNo(inputBean.getMid().trim());
+                    mOriTransaction.setId(moriTId);
+
+                    mOriTransaction.setCreatedtime(sysDate);
+                    mOriTransaction.setLastupdatedtime(sysDate);
+                    mOriTransaction.setLastupdateduser(audit.getLastupdateduser());
+                    session.save(mOriTransaction);
+
+                }
+
+                String newV = mc.getMid()
+                        + "|" + mc.getName()
+                        + "|" + mc.getStatus().getDescription()
+                        + "|" + mc.getEmail1()
+                        + "|" + this.setCurrencyDes(inputBean.getNewBox().toString())
+                        + "|" + inputBean.getNewBoxTran();
+                
+                
+                audit.setCreatetime(sysDate);
+                audit.setLastupdatedtime(sysDate);
+                if (newV.length() > 3000) {
+                    audit.setNewvalue(newV.substring(0, 1000) + "..." + newV.substring(newV.length() - 1000, newV.length()));
+                } else {
+                    audit.setNewvalue(newV);
+                }
+                session.save(audit);
+
+                txn.commit();
+
+            } else {
+                message = MessageVarList.COMMON_ALREADY_EXISTS;
+            }
+        } catch (Exception e) {
+            if (txn != null) {
+                txn.rollback();
+            }
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return message;
+    }
+
+    public boolean isexsitsStatus(String statuscode) throws Exception {
+        Session session = null;
+        boolean isexsit = false;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            String sqlCount = "select count(statuscode) from Status as u where u.statuscode=:mid";
+            Query queryCount = session.createQuery(sqlCount).setString("mid", statuscode);
+            Iterator itCount = queryCount.iterate();
+            long count = (Long) itCount.next();
+            System.err.println("count status " + count);
+            if (count == 1) {
+                isexsit = true;
+            } else {
+                isexsit = false;
+            }
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return isexsit;
+    }
+
+    public boolean isexsitsImg222(String statuscode) {
+        Session session = null;
+        boolean isexsit = false;
+        try {
+            String val = "";
+            session = HibernateInit.sessionFactory.openSession();
+            String sqlCount = "select u.LOGO from MERCUSTOMERS_ORI u where u.MID='" + statuscode + "'";
+            List<Object[]> chequeList = (List<Object[]>) session.createSQLQuery(sqlCount).list();
+            for (Object[] stmtBean : chequeList) {
+                if (stmtBean[0] != null) {
+                    val = (String.valueOf(stmtBean[0]));
+                }
+            }
+
+            if (val != null) {
+                isexsit = false;
+            } else {
+                isexsit = true;
+            }
+            System.err.println(val);
+
+        } catch (Exception e) {
+
+        }
+        return isexsit;
+    }
+
+    public boolean isexsitsImg(String OStype) throws Exception {
+        MercustomersOri commonfilepath = new MercustomersOri();
+        boolean valid = true;
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+
+            String sql = "from MercustomersOri as u where u.mid=:mid";
+            Query query = session.createQuery(sql).setString("mid", OStype);
+            commonfilepath = (MercustomersOri) query.list().get(0);
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return valid;
+
+    }
+
+    public boolean canChangeStatus(String statuscode) {
+        Session session = null;
+        boolean isexsit = false;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            String sqlCount = "select count(statuscode) from Status as u where u.statuscode=:mid";
+            Query queryCount = session.createQuery(sqlCount).setString("mid", statuscode);
+            Iterator itCount = queryCount.iterate();
+            long count = (Long) itCount.next();
+            System.err.println("count status " + count);
+            if (count == 1) {
+                isexsit = true;
+            } else {
+                isexsit = false;
+            }
+        } catch (Exception e) {
+
+        }
+        return isexsit;
+    }
+
+    public String insertupdatetMc(MerchantCustomerInputBean inputBean, Systemaudit audit) throws Exception {
+        Session session = null;
+        Transaction txn = null;
+        String message = "";
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            Date sysDate = CommonDAO.getSystemDate(session);
+            MercustomersOri u = (MercustomersOri) session.get(MercustomersOri.class, inputBean.getMid().trim());
+            if (u == null) {
+                txn = session.beginTransaction();
+
+                MercustomersOri mc = new MercustomersOri();
+
+                mc.setName(inputBean.getName().trim());
+                mc.setMid(inputBean.getMid());
+
+                Status st = (Status) session.get(Status.class, CommonVarList.STATUS_ACTIVE);
+                mc.setStatus(st);
+
+                mc.setCreateTime(sysDate);
+                mc.setLastupdateduser(audit.getLastupdateduser());
+                mc.setLastUpdatedTime(sysDate);
+
+                String newVal = mc.getMid() + "|"
+                        + mc.getName() + "|"
+                        + mc.getStatus().getDescription();
+
+                audit.setDescription("Merchant customer code " + inputBean.getMid() + " added via file : " + inputBean.getFilename() + " by " + audit.getLastupdateduser());
+                audit.setNewvalue(newVal);
+                audit.setCreatetime(sysDate);
+                audit.setLastupdatedtime(sysDate);
+
+                session.save(audit);
+                session.save(mc);
+
+                txn.commit();
+            } else {
+                txn = session.beginTransaction();
+
+                String oldVal = u.getMid() + "|"
+                        + u.getName() + "|"
+                        + u.getStatus().getDescription();
+
+                u.setName(inputBean.getName().trim());
+                u.setMid(inputBean.getMid());
+
+                Status st = (Status) session.get(Status.class, CommonVarList.STATUS_ACTIVE);
+                u.setStatus(st);
+
+                u.setCreateTime(sysDate);
+                u.setLastUpdatedTime(sysDate);
+                u.setLastupdateduser(audit.getLastupdateduser());
+
+                String newVal = u.getMid() + "|"
+                        + u.getName() + "|"
+                        + u.getStatus().getDescription();
+
+                audit.setDescription("Merchant customer code " + inputBean.getMid() + " updated via file : " + inputBean.getFilename() + " by " + audit.getLastupdateduser());
+                audit.setTaskcode(TaskVarList.UPDATE_TASK);
+
+                System.out.println("value length " + newVal.length());
+
+                audit.setNewvalue(newVal);
+                audit.setOldvalue(oldVal);
+                audit.setCreatetime(sysDate);
+                audit.setLastupdatedtime(sysDate);
+
+                session.save(audit);
+                session.saveOrUpdate(u);
+
+                txn.commit();
+
+            }
+        } catch (Exception e) {
+            if (txn != null) {
+                txn.rollback();
+            }
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return message;
+    }
+
+    public MercustomersOri findMerchantByMid(String mid) throws Exception {
+        MercustomersOri merchantC = null;
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+
+            String sql = "from MercustomersOri as u where u.mid=:mid";
+            Query query = session.createQuery(sql).setString("mid", mid);
+            merchantC = (MercustomersOri) query.list().get(0);
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return merchantC;
+
+    }
+
+    public List<MccOri> getMccList(String mid)
+            throws Exception {
+
+        List<MccOri> statusList = null;
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            String sql1 = "select m.mcccode from MccOri as m "
+                    + "where "
+                    + "m.mcccode in "
+                    + "(select mc.id.mcc from MercustomersOriMcc as mc "
+                    + "where "
+                    + "mc.id.mercustomersNo=:mid) ";
+
+            Query query = session.createQuery(sql1).setString(
+                    "mid", mid);
+            statusList = query.list();
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return statusList;
+    }
+
+    public List<Transactiontype> getTranList(String mid)
+            throws Exception {
+
+        List<Transactiontype> statusList = null;
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            String sql1 = "select t.typecode from Transactiontype as t "
+                    + "where "
+                    + "t.status.statuscode=:status and t.typecode in "
+                    + "(select mc.id.transactionCode from MercustomersOriTransaction as mc "
+                    + "where "
+                    + "mc.id.mercustomersNo=:mid) ";
+
+            Query query = session.createQuery(sql1).setString("status", CommonVarList.STATUS_ACTIVE).setString("mid", mid);
+            statusList = query.list();
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return statusList;
+    }
+
+    public List<Currency> getCurrList(String mid)
+            throws Exception {
+
+        List<Currency> statusList = null;
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            String sql1 = "select c.description from Currency as c where c.currencycode in ("
+                    + "select mc.id.currencyCode from MercustomersOriCurrency as mc "
+                    + "where mc.id.mercustomersNo=:mid)";
+
+            Query query = session.createQuery(sql1).setString("mid", mid);
+            statusList = query.list();
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return statusList;
+    }
+
+    public String updateMc(MerchantCustomerInputBean inputBean, Systemaudit audit) throws Exception {
+
+        Session session = null;
+        Transaction txn = null;
+        String message = "";
+        FileInputStream fileInputStream = null;
+
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            txn = session.beginTransaction();
+            Date sysDate = CommonDAO.getSystemDate(session);
+            String email1,email2;
+            MercustomersOri u = (MercustomersOri) session.get(MercustomersOri.class, inputBean.getMid().trim());
+
+            if (u != null) {
+                try {
+                    email1 = u.getEmail1().trim();
+                } catch (NullPointerException e) {
+                    email1 = "";
+                }
+                
+                String oldValue= u.getMid() + "|"
+                        + u.getName() + "|"
+                        + u.getStatus().getDescription() + "|"
+                        + email1 + "|"
+                        + this.getCurrList(inputBean.getMid()).toString() + "|"
+                        + this.getTranList(inputBean.getMid()).toString();
+
+                System.err.println("old value: " + oldValue);
+
+                Status st = (Status) session.get(Status.class, inputBean.getStatus().trim());
+                u.setStatus(st);
+                u.setName(inputBean.getName());
+                
+                u.setEmail1(inputBean.getEmail1().trim());
+
+                /**
+                 * insert mobile logo
+                 */
+                try {
+                    if (inputBean.getLogoImg().length() != 0) {
+                        File logoFile = inputBean.getLogoImg();
+                        byte[] bFile = new byte[(int) logoFile.length()];
+                        try {
+                            fileInputStream = new FileInputStream(logoFile);
+                            fileInputStream.read(bFile);
+                            fileInputStream.close();
+                        } catch (Exception ex) {
+
+                        }
+                    }
+                } catch (NullPointerException ex) {
+
+                } finally {
+                    try {
+                        if (fileInputStream != null) {
+                            fileInputStream.close();
+                        } else {
+                        }
+                    } catch (Exception e) {
+                        throw e;
+                    }
+                }
+
+                /**
+                 * insert web logo
+                 */
+                try {
+                    if (inputBean.getLogowebImg().length() != 0) {
+                        File logoWebImgFile = inputBean.getLogowebImg();
+                        byte[] bLogoWebFile = new byte[(int) logoWebImgFile.length()];
+                        try {
+                            fileInputStream = new FileInputStream(logoWebImgFile);
+                            fileInputStream.read(bLogoWebFile);
+                            fileInputStream.close();
+                        } catch (Exception ex) {
+
+                        }
+                    }
+                } catch (NullPointerException ex) {
+                } finally {
+                    try {
+                        if (fileInputStream != null) {
+                            fileInputStream.close();
+                        } else {
+                        }
+                    } catch (Exception e) {
+                        throw e;
+                    }
+                }
+
+                u.setLastUpdatedTime(sysDate);
+                u.setLastupdateduser(audit.getLastupdateduser());
+
+                session.update(u);
+
+                this.assignCurerncyUpdate(inputBean, audit);
+                this.assignTranUpdate(inputBean, audit);
+
+
+//-----------------------------------------------------------------------------------
+                String newValue= u.getMid() + "|"
+                        + u.getName() + "|"
+                        + u.getStatus().getDescription() + "|"
+                        + u.getEmail1()+ "|"
+                        + this.getCurrList(inputBean.getMid()).toString() + "|"
+                        + this.getTranList(inputBean.getMid()).toString();
+
+                System.err.println("new value: " + newValue);
+
+                System.out.println("value length new " + newValue.length());
+                System.out.println("value length old " + oldValue.length());
+                if (newValue.length() > 3000) {
+                    audit.setNewvalue(newValue.substring(0, 1000) + "..." + newValue.substring(newValue.length() - 1000, newValue.length()));
+                } else {
+                    audit.setNewvalue(newValue);
+                }
+
+                if (oldValue.length() > 3000) {
+                    audit.setOldvalue(oldValue.substring(0, 1000) + "..." + oldValue.substring(oldValue.length() - 1000, oldValue.length()));
+                } else {
+                    audit.setOldvalue(oldValue);
+                }
+                audit.setCreatetime(sysDate);
+                audit.setLastupdatedtime(sysDate);
+
+                session.save(audit);
+                txn.commit();
+            } else {
+                message = MessageVarList.COMMON_NOT_EXISTS;
+            }
+        } catch (Exception e) {
+            if (txn != null) {
+                txn.rollback();
+            }
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return message;
+    }
+
+    public String deleteMc(MerchantCustomerInputBean inputBean, Systemaudit audit) throws Exception {
+        Session session = null;
+        Transaction txn = null;
+        String message = "";
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            txn = session.beginTransaction();
+            Date sysDate = CommonDAO.getSystemDate(session);
+
+            MercustomersOri u = (MercustomersOri) session.get(MercustomersOri.class, inputBean.getMid().trim());
+
+            if (u != null) {
+
+                long count = 0;
+                String sqlCount = "select count(u.mid) from MerchantOri as u where u.mercustomersOri.mid=:mid ";
+                Query queryCount = session.createQuery(sqlCount)
+                        .setString("mid", inputBean.getMid().trim());
+
+                Iterator itCount = queryCount.iterate();
+                count = (Long) itCount.next();
+                if (count > 0) {
+                    message = MessageVarList.COMMON_NOT_DELETE;
+                    message = message + ". Merchants are already assigned to this record.";
+                } else {
+
+                    sqlCount = "delete from MERCUSTOMERS_ORI_CURRENCY where MERCUSTOMERS_NO='" + inputBean.getMid() + "'";
+                    
+                    sqlCount = "delete from MERCUSTOMERS_ORI_CURRENCY where MERCUSTOMERS_NO='" + inputBean.getMid() + "'";
+
+                    Query queryDel = session.createSQLQuery(sqlCount);
+                    queryDel.executeUpdate();
+
+                    sqlCount = "delete from MERCUSTOMERS_ORI_TRANSACTION where MERCUSTOMERS_NO='" + inputBean.getMid() + "'";
+                    queryDel = session.createSQLQuery(sqlCount);
+                    queryDel.executeUpdate();
+
+                    audit.setCreatetime(sysDate);
+                    audit.setLastupdatedtime(sysDate);
+
+                    session.save(audit);
+                    session.delete(u);
+                    txn.commit();
+                }
+            } else {
+                message = MessageVarList.COMMON_NOT_EXISTS;
+            }
+        } catch (Exception e) {
+            if (txn != null) {
+                txn.rollback();
+            }
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return message;
+    }
+
+    public List<Currency> getCurrancyList() throws Exception {
+        List<Currency> currancyList = null;
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            String sql = "from Currency as u order by Upper(u.description) asc";
+            Query query = session.createQuery(sql);
+            currancyList = query.list();
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return currancyList;
+    }
+
+    public void getCurrencyList(MerchantCustomerInputBean inputBean) throws Exception {
+
+        List<Currency> currentList = new ArrayList<Currency>();
+        Session session = null;
+
+        try {
+
+            session = HibernateInit.sessionFactory.openSession();
+            String sql = "from Currency as c";
+            Query query = session.createQuery(sql);
+            currentList = (List<Currency>) query.list();
+
+            for (Iterator<Currency> it = currentList.iterator(); it.hasNext();) {
+
+                Currency currency = it.next();
+                inputBean.getCurrentList().put(currency.getCurrencycode(), currency.getDescription());
+            }
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+    }
+
+    public List<MccOri> getMccList() throws Exception {
+        List<MccOri> mccList = null;
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            String sql = "from MccOri as u order by Upper(u.description) asc";
+            Query query = session.createQuery(sql);
+            mccList = query.list();
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return mccList;
+    }
+
+    public List<Transactiontype> getTransactionTypeList() throws Exception {
+        List<Transactiontype> transactiontypeList = null;
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            String sql = "from Transactiontype as u order by Upper(u.description) asc";
+            Query query = session.createQuery(sql);
+            transactiontypeList = query.list();
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return transactiontypeList;
+    }
+
+    public String assignCurerncyUpdate(MerchantCustomerInputBean inputBean, Systemaudit audit) throws Exception {
+
+        Session session = null;
+        Transaction txn = null;
+        String message = "";
+
+        MercustomersOriCurrencyId mercustomersoricurrencyid = null;
+
+        long count = 0;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            txn = session.beginTransaction();
+            Date sysDate = CommonDAO.getSystemDate(session);
+            MercustomersOriCurrency mercustomersoricurrency = null;
+
+            String sql = "from MercustomersOriCurrency as u where u.id.mercustomersNo=:mid";
+            Query query = session.createQuery(sql).setString("mid", inputBean.getMid());
+            List<MercustomersOriCurrency> currencylist = query.list();
+            List<String> newBoxHas = inputBean.getNewBoxedit();
+
+            for (MercustomersOriCurrency mr : currencylist) {
+
+                if (newBoxHas.contains(mr.getId().getCurrencyCode())) {
+
+                    mr.setLastupdatedtime(sysDate);
+                    mr.setLastupdateduser(audit.getLastupdateduser());
+                    session.update(mr);
+
+                    newBoxHas.remove(mr.getId().getCurrencyCode());
+                } else {
+                    session.delete(mr);
+                    session.flush();
+                }
+            }
+            for (String currancy : newBoxHas) {
+
+                mercustomersoricurrency = new MercustomersOriCurrency();
+                mercustomersoricurrencyid = new MercustomersOriCurrencyId();
+                mercustomersoricurrencyid.setMercustomersNo(inputBean.getMid());
+                mercustomersoricurrencyid.setCurrencyCode(currancy);
+                mercustomersoricurrency.setId(mercustomersoricurrencyid);
+                mercustomersoricurrency.setCreatedtime(sysDate);
+                mercustomersoricurrency.setLastupdatedtime(sysDate);
+                mercustomersoricurrency.setLastupdateduser(audit.getLastupdateduser());
+                session.save(mercustomersoricurrency);
+            }
+            audit.setCreatetime(sysDate);
+            audit.setLastupdatedtime(sysDate);
+            txn.commit();
+
+        } catch (Exception e) {
+            if (txn != null) {
+                txn.rollback();
+            }
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return message;
+    }
+
+    public String assignMccUpdate_(MerchantCustomerInputBean inputBean, Systemaudit audit) throws Exception {
+
+        Session session = null;
+        Transaction txn = null;
+        String message = "";
+
+        return message;
+    }
+
+    public String assignTranUpdate(MerchantCustomerInputBean inputBean, Systemaudit audit) throws Exception {
+
+        Session session = null;
+        Transaction txn = null;
+        String message = "";
+
+        MercustomersOriTransactionId mercustomersoritransactionid = null;
+
+        long count = 0;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            txn = session.beginTransaction();
+            Date sysDate = CommonDAO.getSystemDate(session);
+
+            MercustomersOriTransaction merchantoritransaction = null;
+
+            String sql = "from MercustomersOriTransaction as u where u.id.mercustomersNo=:mid";
+            Query query = session.createQuery(sql).setString("mid", inputBean.getMid());
+            List<MercustomersOriTransaction> tranlist = query.list();
+            List<String> newBoxHas = inputBean.getNewBoxTranedit();
+
+            for (MercustomersOriTransaction mr : tranlist) {
+
+                if (newBoxHas.contains(mr.getId().getTransactionCode())) {
+
+                    mr.setLastupdatedtime(sysDate);
+                    mr.setLastupdateduser(audit.getLastupdateduser());
+                    session.update(mr);
+
+                    newBoxHas.remove(mr.getId().getTransactionCode());
+                } else {
+                    session.delete(mr);
+                    session.flush();
+                }
+            }
+
+            for (String tran : newBoxHas) {
+
+                merchantoritransaction = new MercustomersOriTransaction();
+                mercustomersoritransactionid = new MercustomersOriTransactionId();
+                mercustomersoritransactionid.setMercustomersNo(inputBean.getMid());
+                mercustomersoritransactionid.setTransactionCode(tran);
+                merchantoritransaction.setId(mercustomersoritransactionid);
+                merchantoritransaction.setCreatedtime(sysDate);
+                merchantoritransaction.setLastupdatedtime(sysDate);
+                merchantoritransaction.setLastupdateduser(audit.getLastupdateduser());
+                session.save(merchantoritransaction);
+            }
+
+            audit.setCreatetime(sysDate);
+            audit.setLastupdatedtime(sysDate);
+            txn.commit();
+
+        } catch (Exception e) {
+            if (txn != null) {
+                txn.rollback();
+            }
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return message;
+    }
+
+    public void getCurrencyListByMid(MerchantCustomerInputBean inputBean) throws Exception {
+        String mid = inputBean.getMid();
+        List<Currency> currencyNewList = new ArrayList<Currency>();
+        List<Currency> currencyCurrentList = new ArrayList<Currency>();
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+
+            String sql1 = "from Currency as c where c.currencycode in (select mc.id.currencyCode from MercustomersOriCurrency as mc where mc.id.mercustomersNo=:mid)";
+            String sql2 = "from Currency as c where c.currencycode not in (select mc.id.currencyCode from MercustomersOriCurrency as mc where mc.id.mercustomersNo=:mid)";
+
+            Query query1 = session.createQuery(sql1).setString("mid", mid);
+            Query query2 = session.createQuery(sql2).setString("mid", mid);
+
+            currencyCurrentList = (List<Currency>) query1.list();
+            currencyNewList = (List<Currency>) query2.list();
+
+            for (Iterator<Currency> it = currencyCurrentList.iterator(); it.hasNext();) {
+                Currency mCurrency = it.next();
+                inputBean.getNewListedit().put(mCurrency.getCurrencycode(), mCurrency.getDescription());
+
+                System.err.println("curent cur: " + mCurrency.getCurrencycode());
+            }
+
+            for (Iterator<Currency> it = currencyNewList.iterator(); it.hasNext();) {
+                Currency mCurrency = it.next();
+                inputBean.getCurrentListedit().put(mCurrency.getCurrencycode(), mCurrency.getDescription());
+
+            }
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+    }
+
+    public void getMccListByMid(MerchantCustomerInputBean inputBean) throws Exception {
+        String mid = inputBean.getMid();
+        List<MccOri> mccNewList = new ArrayList<MccOri>();
+        List<MccOri> mccCurrentList = new ArrayList<MccOri>();
+        List<String> old_mccList = new ArrayList<String>();
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+
+            String sql1 = "from MccOri as m "
+                    + "where "
+                    + "m.mcccode in "
+                    + "(select mc.id.mcc from MercustomersOriMcc as mc "
+                    + "where "
+                    + "mc.id.mercustomersNo=:mid) ";
+
+            String sql2 = "from MccOri as m "
+                    + "where "
+                    + "m.mcccode not in "
+                    + "(select mc.id.mcc from MercustomersOriMcc as mc "
+                    + "where "
+                    + "mc.id.mercustomersNo=:mid) ";
+
+            Query query1 = session.createQuery(sql1).setString("mid", mid);
+            Query query2 = session.createQuery(sql2).setString("mid", mid);
+
+            mccCurrentList = (List<MccOri>) query1.list();
+            old_mccList = (List<String>) query1.list();
+            mccNewList = (List<MccOri>) query2.list();
+            int i = 0;
+            for (Iterator<MccOri> it = mccCurrentList.iterator(); it.hasNext();) {
+                MccOri mcc = it.next();
+                inputBean.getNewListMccedit().put(mcc.getMcccode(), mcc.getMccdes());
+
+                System.err.println("curent mcc: " + mcc.getMcccode());
+                inputBean.setOld_mcc(old_mccList);
+
+            }
+
+            for (Iterator<MccOri> it = mccNewList.iterator(); it.hasNext();) {
+                MccOri mcc = it.next();
+                inputBean.getCurrentListMccedit().put(mcc.getMcccode(), mcc.getMccdes());
+            }
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+    }
+
+    public void getTransactionListByMid(MerchantCustomerInputBean inputBean) throws Exception {
+        String mid = inputBean.getMid();
+        List<Transactiontype> transactionNewList = new ArrayList<Transactiontype>();
+        List<Transactiontype> transactionCurrentList = new ArrayList<Transactiontype>();
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+
+            String sql1 = "from Transactiontype as t "
+                    + "where "
+                    + "t.status.statuscode=:status and t.typecode in "
+                    + "(select mc.id.transactionCode from MercustomersOriTransaction as mc "
+                    + "where "
+                    + "mc.id.mercustomersNo=:mid) ";
+
+            String sql2 = "from Transactiontype as t "
+                    + "where "
+                    + "t.status.statuscode=:status and t.typecode not in "
+                    + "(select mc.id.transactionCode from MercustomersOriTransaction as mc "
+                    + "where "
+                    + "mc.id.mercustomersNo=:mid) ";
+
+            Query query1 = session.createQuery(sql1).setString("status", CommonVarList.STATUS_ACTIVE).setString("mid", mid);
+            Query query2 = session.createQuery(sql2).setString("status", CommonVarList.STATUS_ACTIVE).setString("mid", mid);
+
+            transactionCurrentList = (List<Transactiontype>) query1.list();
+            transactionNewList = (List<Transactiontype>) query2.list();
+
+            for (Iterator<Transactiontype> it = transactionCurrentList.iterator(); it.hasNext();) {
+                Transactiontype mcc = it.next();
+                inputBean.getNewListTranedit().put(mcc.getTypecode(), mcc.getDescription());
+
+                System.err.println("current tra: " + mcc.getTypecode());
+
+            }
+
+            for (Iterator<Transactiontype> it = transactionNewList.iterator(); it.hasNext();) {
+                Transactiontype mcc = it.next();
+                inputBean.getCurrentListTranedit().put(mcc.getTypecode(), mcc.getDescription());
+            }
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+    }
+
+    public List<Transactiontype> getCurrentTranList(MerchantCustomerInputBean inputBean) throws Exception {
+        String mid = inputBean.getMid();
+        List<Transactiontype> transactionCurrentList = new ArrayList<Transactiontype>();
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+
+            String sql1 = "from Transactiontype as t "
+                    + "where "
+                    + "t.status.statuscode=:status and t.typecode in "
+                    + "(select mc.id.transactionCode from MercustomersOriTransaction as mc "
+                    + "where "
+                    + "mc.id.mercustomersNo=:mid) ";
+
+
+            Query query1 = session.createQuery(sql1).setString("status", CommonVarList.STATUS_ACTIVE).setString("mid", mid);
+
+            transactionCurrentList = (List<Transactiontype>) query1.list();
+
+            for (Iterator<Transactiontype> it = transactionCurrentList.iterator(); it.hasNext();) {
+                Transactiontype mcc = it.next();
+                inputBean.getNewListTranedit().put(mcc.getTypecode(), mcc.getDescription());
+
+            }
+
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return transactionCurrentList;
+    }
+    
+    public String generateUserPass(MerchantCustomerInputBean inputBean, Systemaudit audit) throws Exception {
+
+        Session session = null;
+        Transaction txn = null;
+        String message = "";
+
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            txn = session.beginTransaction();
+            Date sysDate = CommonDAO.getSystemDate(session);
+
+            MercustomersOri u = (MercustomersOri) session.get(MercustomersOri.class, inputBean.getMid());
+
+            if (u != null) {
+                String username = new SimpleDateFormat("yyMMddHHmmss").format(Calendar.getInstance().getTime());
+                String pass = ServletActionContext.getServletContext().getInitParameter("genpass");
+                
+                inputBean.setPassword(pass);
+                inputBean.setUsername(username);
+
+                this.addtoSystemuser(inputBean, audit);
+                audit.setCreatetime(sysDate);
+                audit.setLastupdatedtime(sysDate);
+                session.update(u);
+
+                txn.commit();
+
+            } else {
+                message = MessageVarList.COMMON_NOT_EXISTS;
+            }
+        } catch (Exception e) {
+            if (txn != null) {
+                txn.rollback();
+            }
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return message;
+    }
+    
+    public String addtoSystemuser(MerchantCustomerInputBean inputBean, Systemaudit audit) throws Exception {
+        Session session = null;
+        Transaction txn = null;
+        String message = "";
+        MerchantCustomerDataBean bb = null;
+        inputBean.setMid( inputBean.getMid());
+        Calendar cal = Calendar.getInstance();
+
+        if (!isSystemUserExist(inputBean.getUsername())) {
+            session = HibernateInit.sessionFactory.openSession();
+            Date sysDate = CommonDAO.getSystemDate(session);
+
+            txn = session.beginTransaction();
+
+            Systemuser user = new Systemuser();
+            user.setUsername(inputBean.getUsername());
+            user.setPassword(Common.mpiMd5(inputBean.getPassword()));
+
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+            String sql = "select passwordexpiryperiod from Passwordpolicy";
+            Query query = session.createQuery(sql);
+            Iterator itCount = query.iterate();
+            int expiryperiod = (Integer) itCount.next();
+            cal.setTime(sysDate);
+            cal.add(Calendar.DAY_OF_MONTH, expiryperiod);
+            user.setExpirydate(cal.getTime());
+
+            Userrole ur = new Userrole();
+            ur.setUserrolecode("MERCUS");
+            user.setUserrole(ur);
+
+            user.setDualauthuserrole("admin");
+            Status st = new Status();
+            st.setStatuscode("ACT");
+            user.setStatus(st);
+
+            MercustomersOri cc = this.findMerchantByMid(inputBean.getMid());
+
+            user.setFullname(cc.getName().trim());
+            
+            user.setNoofinvlidattempt("0");//edited
+
+            audit.setCreatetime(sysDate);
+            audit.setLastupdatedtime(sysDate);
+            user.setLastupdateduser(audit.getLastupdateduser());
+
+            user.setLastupdatedtime(sysDate);
+            user.setLoggeddate(sysDate);
+            user.setInitialloginstatus("0");
+            user.setCreatetime(sysDate);
+            session.save(audit);
+            session.save(user);
+
+            txn.commit();
+        } else {
+
+            long count = 0;
+
+            String sqlCount = "select count(username) from Systemuser as u where u.status.statuscode=:statuscode AND u.username=:username";
+            Query queryCount = session.createQuery(sqlCount).setString("statuscode", CommonVarList.STATUS_DELETE)
+                    .setString("username", inputBean.getUsername().trim());
+
+            Iterator itCount = queryCount.iterate();
+            count = (Long) itCount.next();
+
+            if (count > 0) {
+                message = "$" + inputBean.getUsername().trim();
+            } else {
+                message = MessageVarList.COMMON_ALREADY_EXISTS;
+            }
+
+        }
+        return "";
+    }
+    
+    private boolean isSystemUserExist(String username) throws Exception {
+        List<Systemuser> userList = new ArrayList<Systemuser>();
+        Session session = null;
+        boolean userCheckStatus = false;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            session.beginTransaction();
+            Criteria criteria = session.createCriteria(Systemuser.class);
+            criteria.add(Restrictions.eq("username", username));
+            userList = (List<Systemuser>) criteria.list();
+
+            for (Systemuser user : userList) {
+                userCheckStatus = true;
+            }
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return userCheckStatus;
+    }
+    
+}

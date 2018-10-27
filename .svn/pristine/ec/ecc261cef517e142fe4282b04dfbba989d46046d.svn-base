@@ -1,0 +1,323 @@
+<%-- 
+    Document   : viewtransaction
+    Created on : Feb 8, 2016, 4:27:59 PM
+    Author     : thushanth
+--%>
+
+<%@page contentType="text/html" pageEncoding="windows-1252"%>
+<%@taglib uri="/struts-tags" prefix="s" %>
+<%@taglib  uri="/struts-jquery-tags" prefix="sj"%>
+<%@taglib prefix="sjg" uri="/struts-jquery-grid-tags"%>
+<!DOCTYPE html>
+<html>
+    <head>
+
+        <%@include file="/stylelinks.jspf" %>
+
+        <script type="text/javascript">
+
+            function backToMain() {
+                window.location = "${pageContext.request.contextPath}/ViewTransactionExplorer.action?load=yes";
+            }
+            function closeWindow() {
+                window.close();
+            }
+
+            function todo() {
+                form = document.getElementById('auditform2');
+
+                form.action = 'individualReportTransactionExplorer.action';
+                form.submit();
+            }
+        </script>
+        <title></title>
+    </head>
+    <body style="">
+        <jsp:include page="/header.jsp"/>
+        <jsp:include page="/leftmenu.jsp"/>
+        <div class="ali-body f-right ali-header-text"> 
+
+                            <s:div id="divmsg">
+
+                                <s:actionerror theme="jquery"/>
+                                <s:actionmessage theme="jquery"/>
+                            </s:div>
+
+                            <s:set var="vsearch"><s:property value="vsearch" default="true"/></s:set>
+                            <s:set var="vviewlink"><s:property value="vviewlink" default="true"/></s:set>
+                            <s:set var="vgenerate"><s:property value="vgenerate" default="true"/></s:set>
+
+                                <div class="ali-form">
+                                <s:form id="auditform2" method="post" action="TransactionExplorer" theme="simple" >
+                                    <sj:tabbedpanel id="localtabs" selectedTab="0" disabledTabs="[]" cssClass="form">
+
+                                        <sj:tab id="tab1" target="tone" label="Transaction Info"/>
+                                        <sj:tab id="tab2" target="ttwo" label="Transaction History" disabled="true"/>
+                                        <div id="tone">
+
+                                            <table border="0" cellspacing="5">
+                                                <tbody>
+
+                                                    <tr>
+                                                        <td><b>Transaction ID</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td><s:label style="margin-bottom: 0px;" name="transactionid"  value="%{transdataBean.transactionid}" />
+                                                        </td>
+                                                    </tr> 
+                                                    <tr>
+                                                        <td><b>Transaction Type</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td><s:label style="margin-bottom: 0px;" name="txntypecode"  value="%{transdataBean.txntypecode}" />
+                                                    </tr>
+                                                    <tr>
+                                                        <td><b>RRN</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td><s:label style="margin-bottom: 0px;" name="rrn"  value="%{transdataBean.rrn}" />
+                                                        </td>
+                                                    </tr> 
+                                                    <tr>
+                                                        <td><b>Trace Number</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td><s:label style="margin-bottom: 0px;" name="tracenumber"  value="%{transdataBean.tracenumber}" />
+                                                        </td>
+                                                    </tr> 
+                                                    <tr>
+                                                        <td><b>Response</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td><s:label style="margin-bottom: 0px;" name="responcecode"  value="%{transdataBean.responcecode}" />
+                                                        </td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <td><b>Status</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td><s:label style="margin-bottom: 0px;" name="status"  value="%{transdataBean.status}" />
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><b>MTI</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td><s:label style="margin-bottom: 0px;" name="mti"  value="%{transdataBean.mti}" />
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><b>Processing Code</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td><s:label style="margin-bottom: 0px;" name="processingcode"  value="%{transdataBean.processingcode}" />
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><b>Local Date</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td><s:label style="margin-bottom: 0px;" name="localdate"  value="%{transdataBean.localdate}" />
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><b>Local Time</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td><s:label style="margin-bottom: 0px;" name="localtime"  value="%{transdataBean.localtime}" />
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><b>Invoice No</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td><s:label style="margin-bottom: 0px;" name="invoiceno"  value="%{transdataBean.invoiceno}" />
+                                                        </td>
+                                                    </tr>
+    <!--                                                <tr>
+                                                        <td><b>Recipient Mobile Number</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td>
+                                                         <%--<s:label style="margin-bottom: 0px;" name="r_mobnum"  value="%{transdataBean.r_mobnum}" />--%>
+                                                        </td>
+                                                    </tr>-->
+                                                    <tr>
+                                                        <td><b>Transaction Amount</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td><s:label style="margin-bottom: 0px;" name="amount"  value="%{transdataBean.amount}" />
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><b>Transaction Currency</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td><s:label style="margin-bottom: 0px;" name="currencycode"  value="%{transdataBean.currencycode}" />
+                                                        </td>
+                                                    </tr>
+
+    <!--                                                <tr>
+                                                        <td><b>Delivery Method</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td>
+                                                            <%--<s:label style="margin-bottom: 0px;" name="uritype"  value="%{transdataBean.uritype}" />--%>
+                                                        </td>
+                                                    </tr>-->
+    <!--                                                <tr>
+                                                        <td><b>RRN</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td>
+                                                            <%--<s:label style="margin-bottom: 0px;" name="rrn"  value="%{transdataBean.rrn}" />--%>
+                                                        </td>
+                                                    </tr>-->
+    <!--                                                <tr>
+                                                        <td><b>Beneficiary Bank Name</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td>
+                                                            <%--<s:label style="margin-bottom: 0px;" name="benificiary_bank_name"  value="%{transdataBean.benificiary_bank_name}" />--%>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><b>Funding Source</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td>
+                                                            <%--<s:label style="margin-bottom: 0px;" name="source_of_income"  value="%{transdataBean.source_of_income}" />--%>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><b>Purpose of Payment</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td>
+                                                            <%--<s:label style="margin-bottom: 0px;" name="purpose_of_remittance"  value="%{transdataBean.purpose_of_remittance}" />--%>
+                                                        </td>
+                                                    </tr> -->
+                                                    <tr>
+                                                        <td><b>Tid</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td><s:label style="margin-bottom: 0px;" name="tid"  value="%{transdataBean.tid}" />
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><b>Mid</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td><s:label style="margin-bottom: 0px;" name="mid"  value="%{transdataBean.mid}" />
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><b>Auth Code</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td><s:label style="margin-bottom: 0px;" name="authcode"  value="%{transdataBean.authcode}" />
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><b>QR URL</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td><s:label style="margin-bottom: 0px;" name="qr_url"  value="%{transdataBean.qr_url}" />
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><b>Signature</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td><s:label style="margin-bottom: 0px;" name="signature"  value="%{transdataBean.signature}" />
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><b>EOD Status</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td><s:label style="margin-bottom: 0px;" name="eodstatus"  value="%{transdataBean.eodstatus}" />
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><b>Created Time</b></td>
+                                                        <td><b>:</b></td>
+                                                        <td><s:label style="margin-bottom: 0px;" name="createtime"  value="%{transdataBean.createtime}" />
+                                                        </td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td>
+                                                          <!--  cssStyle="display:none"-->
+                                                            <sj:a href="#" name="back" button="true" onclick="backToMain()">Back</sj:a>
+                                                            <sj:a button="true" id="view" onclick="todo()" disabled="#vgenerate" >View PDF</sj:a>
+
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+
+                                       </div>
+                                        <div id="ttwo">
+
+                                            <!--Start delete confirm dialog box--> 
+                                           <sj:dialog 
+                                               id="deletedialog" 
+                                               buttons="{ 
+                                               'OK':function() { deletePage($(this).data('keyval'));$( this ).dialog( 'close' ); },
+                                               'Cancel':function() { $( this ).dialog( 'close' );} 
+                                               }" 
+                                               autoOpen="false" 
+                                               modal="true" 
+                                               title="Delete System Page"                            
+                                               />
+                                            <!--Start delete process dialog box--> 
+                                           <sj:dialog 
+                                               id="deletesuccdialog" 
+                                               buttons="{
+                                               'OK':function() { $( this ).dialog( 'close' );}
+                                               }"  
+                                               autoOpen="false" 
+                                               modal="true" 
+                                               title="Deleting Process." 
+                                               />
+                                            <!--Start delete error dialog box--> 
+                                           <sj:dialog 
+                                               id="deleteerrordialog" 
+                                               buttons="{
+                                               'OK':function() { $( this ).dialog( 'close' );}                                    
+                                               }" 
+                                               autoOpen="false" 
+                                               modal="true" 
+                                               title="Delete error."
+                                               />
+
+                                           <div id="tablediv" style="width:95%">
+
+                                               <s:url var="listurl" action="ListTransactionExplorer?transactionid=%{transdataBean.transactionid}"/>
+                                               <sjg:grid 
+                                                   id="gridtable"
+                                                   caption="Transaction History"                             
+                                                   dataType="json"
+                                                   href="%{listurl}"
+                                                   pager="true"
+                                                   gridModel="gridHisModel"
+                                                   rowList="10,15,20"
+                                                   rowNum="10"
+                                                   autowidth="true"
+                                                   rownumbers="true"
+                                                   onCompleteTopics="completetopics"
+                                                   rowTotal="false"
+                                                   viewrecords="true"
+
+                                                   >
+
+                                                   <sjg:gridColumn name="transactionhistoryid" index="transactionhistoryid" title="Transaction History ID" sortable="true"/>
+                                                   <sjg:gridColumn name="transactionid" index="transactionid" title="Transaction ID" sortable="true"/>
+                                                   <sjg:gridColumn name="statuscode" index="status.description" title="Status" sortable="true"/>                                        
+                                                   <sjg:gridColumn name="lastupdateduser" index="lastupdateduser" title="Last Updated User" sortable="true"/>
+                                                   <sjg:gridColumn name="createdtime" index="createtime" title="Created Time" sortable="true"/>
+
+
+
+
+                                               </sjg:grid>
+                                           </div> 
+
+                                       </div>
+                                    </sj:tabbedpanel>      
+                                </s:form>
+                            </div>
+
+
+
+                        </div>
+
+                <jsp:include page="/footer.jsp"/>
+
+                </body>
+                </html>
+

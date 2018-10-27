@@ -1,0 +1,403 @@
+<%-- 
+    Document   : wamconfiguration
+    Created on : Feb 3, 2016, 12:37:10 PM
+    Author     : jayana_i
+--%>
+
+<%@page import="com.epic.bmlalipay.util.varlist.CommonVarList"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="/struts-tags" prefix="s" %>
+<%@taglib  uri="/struts-jquery-tags" prefix="sj"%>
+<%@taglib prefix="sjg" uri="/struts-jquery-grid-tags"%>
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+
+        <%@include file="/stylelinks.jspf" %>
+
+        <script type="text/javascript">
+            window.onload = function () {
+                $("#id").css("color", "#858585");
+                var s = $("#updateButton").is(':disabled');
+                if (s == false) {
+                    $('#id').attr('readOnly', true);
+                } else {
+                    $('#id').attr('readOnly', true);
+                }
+            };
+
+
+
+            function resetAllData() {
+
+                var s = $("#updateButton").is(':enabled');
+                if (s == false) {
+                    $('#id').attr('readOnly', false);
+                    $('#id').val("");
+                    $("#id").css("color", "black");
+                    $('#maxpool').val("");
+                    $('#minpool').val("");
+                    $('#maxpoolqueue').val("");
+                    $('#serviceport').val("");
+                    $('#servicereadtimeout').val("");
+                    $('#loglevel').val("");
+                    $('#logbackuppath').val("");
+                    $('#logbackupstatus').val("");
+                    $('#nooflogfile').val("");
+
+//                    $('#addButton').button("enable");
+//                    $('#updateButton').button("disable");
+                    $('#divmsg').text("");
+                } else {
+                    var id = $('#id').val();
+                    $('#id').attr('readOnly', true);
+                    resetFieldData();
+                    $('#divmsg').text("");
+                }
+
+            }
+
+            function resetFieldData() {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/resetWamConfiguration.action',
+                    data: {},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        var msg = data.message;
+                        if (msg) {
+                            $('#id').attr('readOnly', true);
+                            $('#id').val("");
+                            $("#id").css("color", "black");
+                            $('#maxpool').val("");
+                            $('#minpool').val("");
+                            $('#maxpoolqueue').val("");
+                            $('#serviceport').val("");
+                            $('#servicereadtimeout').val("");
+                            $('#loglevel').val("");
+                            $('#logbackuppath').val("");
+                            $('#logbackupstatus').val("");
+                            $('#nooflogfile').val("");
+                            $('#validationstatus').val('<s:property value="defaultvalidationstatus" />');
+//                            $('#addButton').button("enable");
+//                            $('#updateButton').button("disable");
+                        } else {
+
+                            $('#id').attr('readOnly', true);
+                            $('#id').val(data.wcbean.id);
+                            $("#id").css("color", "#858585");
+                            $('#maxpool').val(data.wcbean.maxpool);
+                            $('#minpool').val(data.wcbean.minpool);
+                            $('#maxpoolqueue').val(data.wcbean.maxpoolqueue);
+                            $('#serviceport').val(data.wcbean.serviceport);
+                            $('#servicereadtimeout').val(data.wcbean.servicereadtimeout);
+                            $('#loglevel').val(data.wcbean.loglevel);
+                            $('#logbackuppath').val(data.wcbean.logbackuppath);
+                            $('#logbackupstatus').val(data.wcbean.logbackupstatus);
+                            $('#nooflogfile').val(data.wcbean.nooflogfile);
+                            $('#setsleeptime').val(data.wcbean.setsleeptime);
+                            $('#setstxncount').val(data.wcbean.setstxncount);
+                            $('#setprocessstatus').val(data.wcbean.setprocessstatus);
+                            $('#oldvalue').val(data.oldvalue);
+                            $('#validationstatus').val(data.wcbean.validationstatus);
+                        }
+                    },
+                    error: function (data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+
+            }
+
+            function beforeSubmit() {
+                var loglevel = $("#loglevel").find("option:selected").text();
+                $('#loglevelDes').val(loglevel);
+            }
+        </script>
+        <title></title>
+    </head>
+
+
+    <body style="">
+        <jsp:include page="/header.jsp"/>
+
+        <div class="main-container">
+
+
+            <jsp:include page="/leftmenu.jsp"/>
+
+            <div class="main-content">
+
+                <div class="container" style="min-height: 760px;">
+
+
+                    <!-- start: PAGE NAVIGATION BAR -->
+                    <jsp:include page="/navbar.jsp"/>
+                    <!-- end: NAVIGATION BAR -->
+
+                    <div class="row">
+
+
+                        <div id="content1">
+
+
+                            <s:div id="divmsg">
+
+                                <s:actionerror theme="jquery"/>
+                                <s:actionmessage theme="jquery"/>
+                            </s:div>
+
+                            <s:set id="vadd" var="vadd"><s:property value="vadd" default="true"/></s:set>
+                            <s:set var="vupdatebutt"><s:property value="vupdatebutt" default="true"/></s:set>
+                            <s:set var="vupdatelink"><s:property value="vupdatelink" default="true"/></s:set>                            
+
+                                <div id="formstyle">
+                                <s:form id="taskadd" method="post" action="Section" theme="simple" >
+
+                                    <s:hidden id="oldvalue" name="oldvalue" ></s:hidden>
+                                    <s:hidden id="loglevelDes" name="loglevelDes" ></s:hidden>
+                                        <div class="row row_1">
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>ID</label>
+                                                <s:textfield cssClass="form-control" name="id" id="id" maxLength="4" value="%{wcbean.id}" onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red">*</span><label>Service Port</label>
+                                                <s:textfield cssClass="form-control" name="serviceport" id="serviceport" maxLength="5" value="%{wcbean.serviceport}" onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red">*</span><label>Service Read Timeout</label>
+                                                <s:textfield  cssClass="form-control" name="servicereadtimeout" id="servicereadtimeout" maxLength="5" value="%{wcbean.servicereadtimeout}" onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))" /> (ms)
+                                            </div>
+
+                                        </div>
+
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red">*</span><label>Log Level</label>
+                                                <s:select cssClass="form-control" name="loglevel" id="loglevel" list="%{loglevelList}" maxLength="3" value="%{wcbean.loglevel}" listKey="code" listValue="description"  onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))" />
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row row_1">
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red">*</span><label>Min Pool</label>
+                                                <s:textfield cssClass="form-control" name="minpool" id="minpool" maxLength="4" value="%{wcbean.minpool}" onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red">*</span><label>Max Pool</label>
+                                                <s:textfield cssClass="form-control" name="maxpool" id="maxpool" maxLength="4" value="%{wcbean.maxpool}" onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))"/>
+                                            </div>
+
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red">*</span><label>Max Pool Queue</label>
+                                                <s:textfield cssClass="form-control" name="maxpoolqueue" id="maxpoolqueue" maxLength="4" value="%{wcbean.maxpoolqueue}" onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red">*</span><label>Log Backup Status</label>
+                                                <s:select  cssClass="form-control" id="logbackupstatus" list="%{statusList}" name="logbackupstatus" listKey="statuscode" listValue="description"  value="%{wcbean.logbackupstatus}" />
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                    <div class="row row_1">
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red">*</span><label>Log Backup Path</label>
+                                                <s:textfield  cssClass="form-control" name="logbackuppath" id="logbackuppath" maxLength="200" value="%{wcbean.logbackuppath}" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red">*</span><label>No. of Log Files</label>
+                                                <s:textfield cssClass="form-control" name="nooflogfile" id="nooflogfile" maxLength="3" value="%{wcbean.nooflogfile}" onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))"/>
+                                            </div>
+                                        </div>
+
+                                        <!--                                        <div class="col-sm-3">
+                                                                                    <div class="form-group">
+                                                                                        <span style="color: red">*</span><label>Validation Status</label>
+                                                                                        <!s:select cssClass="form-control" id="validationstatus" list="%{validationstatusList}"  name="validationstatus" listKey="statuscode" listValue="description" value="%{wcbean.validationstatus}"  cssStyle="width: 153px"/>
+                                                                                    </div>
+                                        
+                                                                                </div>-->
+                                        <!--                                        <div class="col-sm-3">
+                                                                                    <div class="form-group">
+                                                                                        <span style="color: red">*</span><label>Settlement Process Sleep Time</label>
+                                                                                        <!s:textfield cssClass="form-control" name="setsleeptime" id="setsleeptime" maxLength="10" value="%{wcbean.setsleeptime}" onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))"/> (ms)
+                                                                                    </div>
+                                                                                </div>-->
+
+                                    </div>
+                                    <!--                                    <div class="row row_1">
+                                                                            <div class="col-sm-3">
+                                                                                <div class="form-group">
+                                                                                    <span style="color: red">*</span><label>Settlement Transaction Count</label>
+                                                                                    <!s:textfield cssClass="form-control" name="setstxncount" id="setstxncount" maxLength="4" value="%{wcbean.setstxncount}" onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))"/>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-sm-3">
+                                                                                <div class="form-group">
+                                                                                    <span style="color: red">*</span><label>Settlement Process Status</label>
+                                                                                    <!s:select cssClass="form-control" id="setprocessstatus" list="%{statusList}"  name="setprocessstatus" listKey="statuscode" listValue="description" value="%{wcbean.setprocessstatus}" />
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>-->
+                                    <s:url var="addurl" action="AddWamConfiguration"/>
+                                    <s:url var="updateurl" action="UpdateWamConfiguration"/>
+                                    <div class="row row_popup form-inline">
+                                        <div class="col-sm-9">
+                                            <div class="form-group">
+                                                <span class="mandatoryfield">Mandatory fields are marked with *</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row row_1 form-inline">
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <sj:submit button="true" href="%{updateurl}" value="Update" targets="divmsg"   disabled="#vupdatebutt" id="updateButton"
+                                                           cssClass="form-control btn_normal"
+                                                           cssStyle="border-radius: 12px;background-color:#969595;color:white;" onclick="beforeSubmit()"/>
+                                            </div>
+                                            <div class="form-group">
+                                                <sj:submit button="true" value="Reset" name="reset" onClick="resetAllData()" 
+                                                           cssClass="form-control btn_normal"
+                                                           cssStyle="border-radius: 12px;"/>
+                                            </div>
+                                            <!--                                            <div class="form-group">
+                                            <%--<sj:submit button="true" value="Cancel" name="cancel" onClick="cancelAllData()"--%>
+                                                       cssClass="form-control btn_normal"
+                                                       cssStyle="border-radius: 12px;"/>
+                                        </div>-->
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                            </s:form>
+                        </div>
+
+                        <!--                            start newly changed
+                        <sj:dialog 
+                            id="adddialog" 
+                            buttons="{ 
+                            'OK':function() { AddSection($(this).data('keyval'));$( this ).dialog( 'close' ); },
+                            'Cancel':function() { $( this ).dialog( 'close' );} 
+                            }" 
+                            autoOpen="false" 
+                            modal="true" 
+                            title="Add Section"                            
+                            />
+                            Start add process dialog box 
+                        <sj:dialog 
+                            id="addsuccdialog" 
+                            buttons="{
+                            'OK':function() { $( this ).dialog( 'close' );}
+                            }"  
+                            autoOpen="false" 
+                            modal="true" 
+                            title="Adding Process." 
+                            />
+                        end newly changed
+
+                         Start delete confirm dialog box 
+                        <sj:dialog 
+                            id="deletedialog" 
+                            buttons="{ 
+                            'OK':function() { deleteTask($(this).data('keyval'));$( this ).dialog( 'close' ); },
+                            'Cancel':function() { $( this ).dialog( 'close' );} 
+                            }" 
+                            autoOpen="false" 
+                            modal="true" 
+                            title="Delete Task"                            
+                            />
+                         Start delete process dialog box 
+                        <sj:dialog 
+                            id="deletesuccdialog" 
+                            buttons="{
+                            'OK':function() { $( this ).dialog( 'close' );}
+                            }"  
+                            autoOpen="false" 
+                            modal="true" 
+                            title="Deleting Process." 
+                            />
+                         Start delete error dialog box 
+                        <sj:dialog 
+                            id="deleteerrordialog" 
+                            buttons="{
+                            'OK':function() { $( this ).dialog( 'close' );}                                    
+                            }" 
+                            autoOpen="false" 
+                            modal="true" 
+                            title="Delete error."
+                            />
+
+                        <div id="tablediv">
+                        <s:url var="listurl" action="ListWamConfiguration"/>
+                        <sjg:grid
+                            id="gridtable"
+                            caption="Wam Configuration"
+                            dataType="json"
+                            href="%{listurl}"
+                            pager="true"
+                            gridModel="gridModel"
+                            rowList="10,15,20"
+                            rowNum="10"
+                            autowidth="true"
+                            shrinkToFit="false"
+                            rownumbers="true"
+                            onCompleteTopics="completetopics"
+                            rowTotal="false"
+                            viewrecords="true"
+                            >
+                            <sjg:gridColumn name="sectioncode" index="u.sectioncode" title="Section Code"  sortable="true"/>
+                            <sjg:gridColumn name="description" index="u.description" title="Description"  sortable="true"/>
+                            <sjg:gridColumn name="statuscode" index="u.status.description" title="Status"  sortable="true"/>
+                            <sjg:gridColumn name="sortkey" index="u.sortkey" title="Sort Key"  sortable="true"/>
+                            <sjg:gridColumn name="sectioncode" index="u.sectioncode" title="Edit" width="25" align="center" formatter="editformatter" hidden="#vupdatelink"/>
+                            <sjg:gridColumn name="sectioncode" index="u.sectioncode" title="Delete" width="40" align="center" formatter="deleteformatter" hidden="#vdelete"/>  
+                        </sjg:grid> 
+                    </div>
+
+                </div>
+
+            </div>-->
+
+
+
+
+                        <!-- end: PAGE CONTENT-->
+                    </div>
+                </div>
+                <!-- end: PAGE -->
+            </div>
+            <!-- end: MAIN CONTAINER -->
+            <!-- start: FOOTER -->
+            <jsp:include page="/footer.jsp"/>
+            <!-- end: FOOTER -->
+
+
+
+            <!-- end: BODY -->
+    </body>
+</html>

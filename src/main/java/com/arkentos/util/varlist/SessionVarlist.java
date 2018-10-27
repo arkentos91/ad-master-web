@@ -1,0 +1,104 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.arkentos.util.varlist;
+
+/**
+ *
+ * @author jayana_i
+ */
+public class SessionVarlist {
+
+    //session object fo the application
+    public static final String SESSION_OBJ = "SessionObject";
+    //Users bean  
+    public static final String SYSTEMUSER = "SYSTEMUSER";
+    public static final String ESWITCH_COUNTRY = "ESWITCH_COUNTRY";
+    public static final String ESWITCH = "ESWITCH";
+    public static final String ESWITCH_SOURCE_URI = "ESWITCH_SOURCE_URI";
+    public static final String ESWITCH_BCI = "ESWITCH_BCI";
+    public static final String ESWITCH_BANK = "ESWITCH_BANK";
+    public static final String ESWITCH_BRANCH = "ESWITCH_BRANCH";
+    public static final String ESWITCH_ACTIVEFIELDS = "ESWITCH_ACTIVEFIELDS";
+    //Users bean  
+    public static final String SECTIONPAGELIST = "SECTIONPAGELIST";
+    //----for context parameter--------------
+    public static final String USERMAP = "USERMAP";//HashMap<String,String>
+    //HashMap<String,List<Task>>
+    public static final String TASKMAP = "TASKMAP";
+    //reset login message
+    public static final String CURRENTPAGE = "CURRENTPAGE";
+    public static final String CURRENTSECTION = "CURRENTSECTION";
+    public static final String TXNSEARCHBEAN = "TXNSEARCHBEAN";
+    public static final String TXNDETAILMERCHANTWISEBEAN = "TXNDETAILMERCHANTWISEBEAN";
+    public static final String DSWISETXNBEAN = "DSWISETXNBEAN";
+    public static final String IPGWISETXNBEAN = "IPGWISETXNBEAN";
+    public static final String DSERRORBEAN = "DSERRORBEAN";
+    public static final String NOOFTXNBEAN = "NOOFTXNBEAN";
+    public static final String ACCOUNTBEAN = "ACCOUNTBEAN";
+    public static final String CARDBEAN = "CARDBEAN";
+    public static final String MOBILEBEAN = "MOBILEBEAN";
+    public static final String CUSTOMERID = "CUSTOMERID";
+    public static final String GENERALINFO = "GENERALINFO";
+    public static final String ACCBANKTYPE = "ACCBANKTYPE";
+    public static final String CARDBANKTYPE = "CARDBANKTYPE";
+
+    // search SMS outbox 
+    public static final String SMS_OUTBOX_SEARCHBEAN = "SMSOUTBOXSEARCHBEAN";
+
+    // search SMS inbox 
+    public static final String SMS_INBOX_SEARCHBEAN = "SMSINBOXSEARCHBEAN";
+
+    // search Audit 
+    public static final String AUDIT_SEARCHBEAN = "AUDITSEARCHBEAN";
+
+    // search LoginHistory 
+    public static final String LOGIN_HISTORY_SEARCHBEAN = "LOGINHISTORYSEARCHBEAN";
+
+    // individual search audit
+    public static final String IND_AUDIT_SEARCHBEAN = "INDAUDITSEARCHBEAN";
+
+    //minimum period for change password
+    public static final String MIN_PASSWORD_CHANGE_PERIOD = "MINPASSWORDCHANGEPERIOD";
+    public static final String ONLY_SHOW_ONTIME = "SHOWONETIME";
+
+    // password expiry period    
+    public static final String PASSWORD_EXPIRY_PERIOD = "PASSWORDEXPIRYPERIOD";
+
+    public static final String CUSTOMER_SUBSCRIPTION_MGT = "CUSTOMERSSUBSCRIPTIONMGT";
+
+    public static final String CUSTOMER_SEARCHBEAN = "CUSTOMERSEARCHBEAN";
+
+    public static final String TRANSACTION_REPORT = "TRANSACTIONREPORT";
+
+    //for keep risk transaction profile details
+    public static final String TXN_CURRENCY = "TXNCURRENCY";
+
+//        Txn report
+    public static final String TRANS_EXPOR_SEARCHBEAN = "TRANSEXPORSEARCHBEAN";
+    public static final String CARD_INFO_SEARCHBEAN = "CARDINFOSEARCHBEAN";
+    public static final String TRANS_EXPOR_INDIVIDUAL_BEAN = "TRANSEXPORINDIVIDUALBEAN";
+
+    // individual search customer wallet
+    public static final String IND_CUSTOMER_SEARCHBEAN = "INDCUSTOMERSEARCHBEAN";
+
+    // search Audit 
+    public static final String CUSTOMER_WALLET_SEARCHBEAN = "CUSTOMERWALLETSEARCHBEAN";
+
+    /////
+    public static final String MOBILEUPDATESPATH = "MOBILEUPDATESPATH";
+
+    public static final String ASSIGN_LIST = "ASSIGNLIST";
+    
+    public static final String TERMINAL_ORI = "TERMINALORI";
+    
+    public static final String ACQUIRER_PROMOTION_LIST = "ACQUIRERPROMOTIONLIST";
+    public static final String ACQUIRER_PROMOTION_VALIDATE_MSG = "ACQUIRERPROMOTIONVALIDATEMSG";
+    
+    public static final String ACQUIRER_TXN_RISK_LIST = "ACQUIRERTXNRISKLIST";
+    public static final String ACQ_VALIDATE_MSG = "ACQVALIDATEMSG";
+    
+    public static final String MERCHANT_MGT_COMMISION_LIST = "MERCHANTMGTCOMMISIONLIST";
+    public static final String MERCHANT_MGT_VALIDATION_MSG = "MERCHANTMGTVALIDATIONMSG";
+}

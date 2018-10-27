@@ -1,0 +1,567 @@
+<%-- 
+    Document   : terminaloriinsert
+    Created on : Apr 29, 2016, 11:34:10 AM
+    Author     : jayana_i
+--%>
+
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="/struts-tags" prefix="s" %>
+<%@taglib prefix="sj" uri="/struts-jquery-tags"%>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" href="resouces/css/common/common_popup.css">
+        <title>Insert Card Product</title>       
+        <script>
+
+//global variables for previous height
+            var height_r;
+            var height_u;
+            $("#min2").hide();
+            // maximize popup dialog 
+            function maximize() {
+                $(window).scrollTop(0);
+                height_r = $("#remoteadddialog").height();// get sizes
+                height_u = $("#updatedialog").height();// get sizes
+                $("#remoteadddialog").height($(window).height() - 60);
+                $("#updatedialog").height($(window).height() - 60);
+                $(".ui-dialog").width($(window).width() - 40);
+                $(".ui-dialog").height($(window).height() - 40);
+                $(".ui-dialog").center();
+                $("#max2").hide();
+                $("#min2").show();
+            }
+            // reset to previous popup dialog
+            function resetwindow() {
+                $(window).scrollTop(0);
+                $("#remoteadddialog").height(height_r);// set sizes
+                $("#updatedialog").height(height_u);// set sizes
+                $(".ui-dialog").width("900");
+                $(".ui-dialog").height("490");
+                $(".ui-dialog").center();
+                $("#max2").show();
+                $("#min2").hide();
+            }
+            //center popup dialog
+            jQuery.fn.center = function () {
+                this.css("position", "fixed");
+                this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) +
+                        $(window).scrollTop()) + "px");
+                this.css("left", Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) +
+                        $(window).scrollLeft()) + "px");
+                return this;
+            };
+
+            $(document).ready(function () {
+                var ter_mode_edit = $('#terminalcategoryedit').val();
+                showmobileedit(ter_mode_edit);
+            });
+
+            $(function () {
+                $.subscribe('backTopic', function (event, data) {
+                    var size = '2';
+                    var active = '1';
+                    $("#localtabsedit").tabs('option', 'active', active + 1 >= size ? 0 : active - 1);
+                    $('#amessageedit').empty();
+                });
+            });
+            $(function () {
+
+                $.subscribe('nextTopic', function (event, data) {
+
+                    var size = '2';
+                    var active = '0';
+                    $("#localtabsedit").tabs('option', 'active', active + 1 >= size ? 0 : active + 1);
+                    $('#amessageedit').empty();
+
+                });
+            });
+
+
+
+            function toright() {
+                $("#currentBox option:selected").each(function () {
+
+                    $("#newBox").append($('<option>', {
+                        value: $(this).val(),
+                        text: $(this).text()
+                    }));
+                    $(this).remove();
+                });
+            }
+
+            function toleft() {
+                $("#newBox option:selected").each(function () {
+
+                    $("#currentBox").append($('<option>', {
+                        value: $(this).val(),
+                        text: $(this).text()
+                    }));
+                    $(this).remove();
+                });
+            }
+
+            function toleftall() {
+                $("#newBox option").each(function () {
+
+                    $("#currentBox").append($('<option>', {
+                        value: $(this).val(),
+                        text: $(this).text()
+                    }));
+                    $(this).remove();
+                });
+            }
+            function torightall() {
+                $("#currentBox option").each(function () {
+
+                    $("#newBox").append($('<option>', {
+                        value: $(this).val(),
+                        text: $(this).text()
+                    }));
+                    $(this).remove();
+                });
+            }
+
+            function clickAssign() {
+
+                $('#currentBox option').prop('selected', true);
+                $('#newBox option').prop('selected', true);
+                $("#assignbut").click();
+            }
+
+            function loadsection(key, mid) {
+
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/findTerminal.action',
+                    data: {
+                        id: key
+                    },
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        $('#divmsg').empty();
+
+                        var msg = data.message;
+
+                        if (msg) {
+
+                            $('#currentBox').empty();
+                            $('#newBox').empty();
+                        } else {
+                            $('#oldvalue').val(data.oldvalue);
+                            $('#newBox').empty();
+                            $('#currentBox').empty();
+
+                            $.each(data.newList, function (key, value) {
+                                $('#newBox').append(
+                                        $('<option></option>').val(key).html(
+                                        value));
+                            });
+                            $.each(data.currentList, function (key, value) {
+                                $('#currentBox').append(
+                                        $('<option></option>').val(key).html(
+                                        value));
+                            });
+                        }
+                    },
+                    error: function (data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+
+
+            function resetAllEditData() {
+
+                $('#amessageedit').empty();
+                var id = $('#idedit').val();
+                var mid = $('#merchantOriedit').val();
+                loadsection(id, mid);
+            }
+
+            function cancelDataEdit() {
+                var id = $('#idedit').val();
+                var mid = $('#merchantOriedit').val();
+                var tercat = $('#terminalcategoryedit').val();
+
+                editTerminal(id);
+
+            }
+
+
+            function editTerminal(keyval) {
+                var tercat = $('#terminalcategoryedit').val();
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/findTerminal.action',
+                    data: {id: keyval},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        $('#amessageedit').empty();
+                        var msg = data.message;
+                        if (msg) {
+                            $('#idedit').val("");
+                            $('#idedit').attr('readOnly', false);
+                            $('#terminalnameedit').val("");
+                            $('#acquirerRiskprofileedit').val("");
+                            $('#statusedit').val("");
+
+                            $('#merchantOriedit').val("");
+
+                            $('#currencyedit').val("");
+                            $('#mccOriedit').val("");
+                            $('#serialnoedit').val("");
+                            $('#manufactureredit').val("");
+                            $('#modeledit').val("");
+                            $('#dateinstallededit').val("");
+                            $('#amessageedit').empty();
+                        }
+                        else {
+
+                            $('#idedit').val(data.id);
+                            $('#idedit').attr('readOnly', true);
+                            $('#terminalnameedit').val(data.terminalname);
+                            $('#acquirerRiskprofileedit').val(data.acquirerRiskprofile);
+                            $('#statusedit').val(data.status);
+                            $('#mobileedit').val(data.mobile);
+                            $('#terminalcategoryedit').val(data.terminalcategory);
+                            $('#merchantOriedit').val(data.merchantOri);
+
+                            $('#currencyedit').val(data.currency);
+                            $('#mccOriedit').val(data.mccOri);
+                            $('#serialnoedit').val(data.serialno);
+                            $('#manufactureredit').val(data.manufacturer);
+                            $('#modeledit').val(data.model);
+                            $('#dateinstallededit').val(data.dateinstalled);
+                            $('#amessageedit').empty();
+
+
+                            showmobileedit(data.terminalcategory);
+
+                        }
+                    },
+                    error: function (data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            function nextDiv(key) {
+
+                if (key == 'div1') {
+                    $('#edittone').hide();
+                    $('#editttwo').show();
+                } else if (key == 'div2') {
+                    $('#edittone').hide();
+                    $('#editttwo').show();
+                }
+            }
+
+            function backDiv(key) {
+                if (key == 'div1') {
+                    $('#editttwo').hide();
+                    $('#edittone').show();
+                } else if (key == 'div2') {
+                    $('#edittone').hide();
+                    $('#editttwo').show();
+                }
+
+            }
+
+            function showmobileedit(key) {
+                var ter_mode_edit = key;
+
+                if (ter_mode_edit == 'POS') {
+                    $('#mob_colomn').hide();
+                    $('#mobileedit').prop('disabled', true);
+                    $('#mobileedit').val("");
+
+                } else if (ter_mode_edit == 'MOB') {
+                    $('#mob_colomn').show();
+                    $('#mobileedit').prop('disabled', false);
+                } else {
+                    $('#mob_colomn').hide();
+                }
+            }
+
+        </script>
+
+    </head>
+    <body>
+        <div class="col-sm-12">
+            <div style="text-align: right">
+                <sj:submit 
+                    id="max2"
+                    button="true" 
+                    value="Maximize" 
+                    onClick="maximize()"
+                    onClickTopics="Maximize"
+                    cssStyle="height: 16px;padding: 1px;width: 55px;font-size: 11px;background: orange;color: white;border-color: gray;"
+                    />                          
+                <sj:submit 
+                    id="min2"
+                    button="true" 
+                    value="Minimize" 
+                    onClick="resetwindow()"
+                    onClickTopics="Minimize"
+                    cssStyle="height: 16px;padding: 1px;width: 55px;font-size: 11px;background: orange;color: white;border-color: gray;"
+                    />                     
+            </div>
+        </div>
+        <s:div id="amessageedit">
+            <s:actionerror theme="jquery"/>
+            <s:actionmessage theme="jquery"/>
+        </s:div>
+        <s:set var="vspanshow"><s:property value="vspanshow" default="true"/></s:set>
+
+        <s:form id="cardproductedit" method="post"  theme="simple" cssClass="form" enctype="multipart/form-data">
+            <div id="edittone" > 
+                <div class="row row_popup">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <span style="color: red">*</span><label>Terminal ID </label>
+                            <s:textfield name="id" id="idedit" maxLength="8" cssClass="form-control" readonly="true"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <span style="color: red">*</span><label>Merchant ID</label>
+                            <s:select cssClass="form-control" id="merchantOriedit" list="%{midList}" 
+                                      headerValue="-- Select Merchant ID --"  headerKey="" 
+                                      name="merchantOri" listKey="mid" listValue="mid" />
+                        </div>
+                    </div> 
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                        <span style="color: red">*</span><label>Currency</label>
+                        <s:select  id="currencyedit" list="%{currencyList}"  headerValue="--Select Currency--" headerKey="" name="currency" listKey="currencycode" listValue="description" cssClass="form-control"/>                    
+                    </div>
+                    </div>
+                </div>
+                <div class="row row_popup">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <span style="color: red">*</span><label>Terminal Name</label>
+                            <s:textfield  name="terminalname" id="terminalnameedit" maxLength="50" cssClass="form-control" onkeyup="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))"/>
+                        </div>
+                    </div>        
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <span style="color: red">*</span><label>Serial Number</label>
+                            <s:textfield  name="serialno" id="serialnoedit" maxLength="50" tooltip="Display Name should contains [CARD]" cssClass="form-control" onkeyup="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <span style="color: red">*</span><label>Manufacturer</label>
+                            <s:textfield name="manufacturer" id="manufactureredit" maxLength="50" onkeyup="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))" cssClass="form-control"/>
+                        </div>
+                    </div>    
+                </div>
+                <div class="row row_popup">        
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <span style="color: red">*</span><label>Model</label>
+                            <s:textfield  name="model" id="modeledit" maxLength="50" cssClass="form-control" onkeyup="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))"/>
+                        </div>
+                    </div>        
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <span style="color: red">*</span><label>Installed Date</label>
+                            <sj:datepicker cssClass="form-control" id="dateinstallededit" name="dateinstalled" readonly="true" maxDate="d" changeYear="true"
+                                           buttonImageOnly="true" displayFormat="yy-mm-dd" yearRange="2000:2200" />
+
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <span style="color: red"></span><label>Risk Profile</label>
+                                <s:select cssClass="form-control" id="acquirerRiskprofileedit" list="%{acquirerriskprofileList}" headerValue="-- Select Risk Profile--"  headerKey=""
+                                          name="acquirerRiskprofile" listKey="profilecode" listValue="description"  />
+                        </div>
+                    </div>
+                </div>
+                <div class="row row_popup">
+
+
+
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <span style="color: red">*</span><label>Status</label>
+                            <!s:select cssClass="form-control" id="statusedit" list="%{statusList}" headerValue="-- Select Status--"  headerKey=""
+                                name="status" listKey="statuscode" listValue="description" />                  
+
+                            <s:select cssClass="form-control" id="statusedit" name="status" list="%{terstatusList}" accesskey="" headerValue="-- Select Status--"  headerKey=""  listKey="key" listValue="value"/> 
+
+
+
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label>Terminal Category</label>
+                            <s:select cssClass="form-control" id="terminalcategoryedit" name="terminalcategory" list="%{terminalcategoryList}" 
+                                      headerValue="-- Select Terminal Category--"  headerKey=""  listKey="key" listValue="value" onchange="showmobileedit(value)"/>   
+                        </div>
+                    </div>     
+                    <div class="col-sm-4" >
+                        <div class="form-group">
+                            <span style="color: red" id="mob_colomn" >*</span><label>Mobile</label>
+                            <s:textfield  name="mobile" id="mobileedit" hidden="#vspanshow" maxLength="20"  cssClass="form-control"  onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^0-9]/g,''))"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row row_popup">
+
+
+                    
+
+                </div>
+                <div class="row row_popup">
+
+                </div>       
+                <div class="row row_popup">
+                    <div class="horizontal_line_popup"></div>
+                </div>
+
+
+                <div class="row row_popup form-inline">
+                    <div class="col-sm-9">
+                        <div class="form-group">
+                            <span class="mandatoryfield">Mandatory fields are marked with *</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <div class="form-group" style=" margin-left: 10px;margin-right: 0px;">
+                            <sj:submit 
+                                button="true" 
+                                value="Reset" 
+                                onClick="cancelDataEdit()"
+                                id="cancleDataEdit"
+                                cssClass="btn btn-default btn-sm"
+                                />                          
+                        </div>
+                        <div class="form-group" style=" margin-left: 0px;margin-right: 10px;">
+                            <s:url action="updateTerminal" var="updateturl"/>
+                            <sj:submit
+                                button="true" 
+                                id="nextButtonEdit" 
+                                value="Next"
+                                href="#" 
+                                onclick="nextDiv('div2')"
+                                cssClass="btn btn-sm active" 
+                                cssStyle="background-color: #ada9a9" 
+                                />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="editttwo" hidden="true"> 
+                <div class="row row_popup">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Transactions  : </label>                    
+                        </div>
+                    </div>
+                </div>
+                <div class="row row_popup">
+                    <div class="horizontal_line_popup"></div>
+                </div>
+                <div class="row row_popup">
+                    <div class="col-sm-5">
+                        <label>Assigned Transaction(s)</label>
+                        <s:select cssClass="form-control" multiple="true" 
+                                  name="currentBox" id="currentBox" list="currentList"									 
+                                  ondblclick="toright()" style="height:200px;"/>
+
+                    </div>
+                    <div class="col-sm-2 text-center">
+                        <div class="row" style="height: 20px;"></div>
+                        <div class="row">
+                            <sj:a
+                                id="editright" 
+                                onClick="toright()" 
+                                button="true"
+                                style="font-size:10px;width:60px;margin:4px;"> > </sj:a>
+                            </div>
+                            <div class="row">
+                            <sj:a
+                                id="editrightall" 
+                                onClick="torightall()" 
+                                button="true"
+                                style="font-size: 10px;width:60px;margin:4px;"> >> </sj:a>
+                            </div>
+                            <div class="row">
+                            <sj:a
+                                id="editleft" 
+                                onClick="toleft()" 
+                                button="true"
+                                style="font-size:10px;width:60px;margin:4px;"> < </sj:a>
+                            </div>
+                            <div class="row">
+                            <sj:a
+                                id="editleftall" 
+                                onClick="toleftall()" 
+                                button="true"
+                                style="font-size:10px;width:60px;margin:4px;"> << </sj:a>
+                            </div>
+                        </div>
+                        <div class="col-sm-5">
+                            <label>Blocked Transaction(s)</label>
+                        <s:select cssClass="form-control" multiple="true"
+                                  name="newBox" id="newBox" list="newList"									 
+                                  ondblclick="toleft()" style="height:200px;" />
+                    </div>
+                </div>
+                <div style="display: none; visibility: hidden;">
+                    <s:url var="assignurl" action="AssignTerminal" />
+                    <sj:submit button="true" href="%{assignurl}" id="assignbut"
+                               targets="amessageedit" />
+                </div>
+                <div class="row row_popup">
+                    <div class="horizontal_line_popup"></div>
+                </div>
+                <div class="row row_popup form-inline">
+                    <div class="col-sm-8">
+                        <!--                    <div class="form-group">
+                                                <span class="mandatoryfield">Mandatory fields are marked with *</span>
+                                            </div>-->
+                    </div>
+                    <div class="col-sm-4  text-right">
+                        <div class="form-group" style=" margin-left: 10px;margin-right: 0px;">
+                            <sj:submit 
+                                button="true" 
+                                id="backButtonEdit" 
+                                value="Back"
+                                href="#" 
+                                onclick="backDiv('div1')"
+                                cssClass="btn btn-sm active" 
+
+                                />
+                        </div>
+
+                        <div class="form-group" style=" margin-left: 0px;margin-right: 0px;">
+                            <sj:submit
+                                button="true"
+                                id="assignbuta"
+                                value="Update"
+                                onclick="clickAssign()"
+                                cssClass="btn btn-default btn-sm" 
+                                cssStyle="background-color: #ada9a9"
+                                disabled="#vassign"/>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <%--</sj:tabbedpanel>--%>
+        </s:form>
+    </body>
+</html>
+

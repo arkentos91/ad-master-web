@@ -1,0 +1,1321 @@
+<%-- 
+    Document   : eswitchcall
+    Created on : Jun 19, 2017, 10:14:01 AM
+    Author     : jayana_i
+--%>
+
+<%@page import="com.epic.bmlalipay.util.varlist.CommonVarList"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="/struts-tags" prefix="s" %>
+<%@taglib  uri="/struts-jquery-tags" prefix="sj"%>
+<%@taglib prefix="sjg" uri="/struts-jquery-grid-tags"%>
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+
+        <%@include file="/stylelinks.jspf" %>
+
+        <script type="text/javascript">
+
+
+
+            function editformatter(cellvalue, options, rowObject) {
+                a = $("#addButton").is(':disabled');
+                u = $("#updateButton").is(':disabled');
+                return "<a href='#' title='Edit' onClick='javascript:editESwitchCall(&#34;" + cellvalue + "&#34;)'><img class='ui-icon ui-icon-pencil' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+
+            function deleteformatter(cellvalue, options, rowObject) {
+                return "<a href='#/' title='Delete' onClick='javascript:deleteESwitchCallInit(&#34;" + cellvalue + "&#34;)'><img class='ui-icon ui-icon-trash' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+
+
+            function editESwitchCall(keyval) {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/FindESwitchCall.action',
+                    data: {code: keyval},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        $('#divmsg').empty();
+                        var msg = data.message;
+                        if (msg) {
+                            $('#code').val("");
+                            $('#code').attr('readOnly', false);
+                            $("#code").css("color", "black");
+                            $('#name').val("");
+                            $('#serviceuri').val('');
+                            $('#country').val('');
+                            $('#service').val('');
+                            $('#sourceuri').val('');
+                            $('#amount').val('');
+                            $('#sourcecurrency').val('');
+                            $('#destinationuri').val('');
+//                            $('#sourceuri').attr('placeholder', '');
+                            $("#destinationuri").attr('placeholder', '');
+//                            $('#sourceuriPlaceholder').val('');
+
+                            $('#divmsg').text("");
+                            $('#updateButton').button("disable");
+                            var startStatus = <s:property value="vadd" />;
+                            if (startStatus) {
+                                $('#addButton').button("disable");
+                            } else {
+                                $('#addButton').button("enable");
+                            }
+                        } else {
+                            $('#oldvalue').val(data.oldvalue);
+                            $('#code').val(data.code);
+                            $('#code').attr('readOnly', true);
+                            $("#code").css("color", "#858585");
+                            $('#name').val(data.name);
+//                            $('#status').prop('disabled', false);
+                            $('#serviceuri').val('');
+                            $('#amount').val('');
+                            $('#sourcecurrency').val('');
+                            $('#destinationuri').val('');
+                            $('#country').val('');
+                            $('#service').val('');
+                            $('#sourceuri').val('');
+//                            $('#sourceuri').attr('placeholder', '');
+                            $("#destinationuri").attr('placeholder', '');
+                            $('#addButton').button("disable");
+                            $('#updateButton').button("enable");
+                        }
+                    },
+                    error: function (data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            function deleteESwitchCallInit(keyval) {
+                $('#divmsg').empty();
+                $("#deletedialog").data('keyval', keyval).dialog('open');
+                $("#deletedialog").html('Are you sure you want to delete country list ' + keyval + ' ?');
+                return false;
+            }
+
+            function deleteESwitchCall(keyval) {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/DeleteESwitchCall.action',
+                    data: {code: keyval},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        $("#deletesuccdialog").dialog('open');
+                        $("#deletesuccdialog").html(data.message);
+                        resetFieldData();
+                    },
+                    error: function (data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            function resetAllData() {
+                a = $("#addButton").is(':disabled');
+                u = $("#updateButton").is(':disabled');
+                if (a == true && u == true) {
+                    editESwitchCall(null);
+                } else if (a == true && u == false) {
+                    var code = $('#code').val();
+                    $('#code').attr('readOnly', true);
+                    editESwitchCall(code);
+                } else if (a == false && u == true) {
+                    editESwitchCall(null);
+                }
+            }
+
+            function resetFieldData() {
+
+                a = $("#addButton").is(':disabled');
+                u = $("#updateButton").is(':disabled');
+                var startStatus = '<s:property value="vadd" />';
+                $('#code').val("");
+                $('#code').attr('readOnly', false);
+                $("#code").css("color", "black");
+                $('#name').val("");
+                $('#status').val('<s:property value="defaultStatus" />');
+//                $('#status').prop('disabled', true);
+
+
+                if (a == true && u == true) {
+                    $('#addButton').button("disable");
+                    $('#updateButton').button("disable");
+                } else if (a == true && u == false && startStatus == 'false') {
+                    $('#addButton').button("enable");
+                    $('#updateButton').button("disable");
+                } else if (a == true && u == false && startStatus == 'true') {
+                    $('#addButton').button("disable");
+                    $('#updateButton').button("disable");
+                } else if (a == false && u == true) {
+                    $('#addButton').button("enable");
+                    $('#updateButton').button("disable");
+                }
+                jQuery("#gridtable").trigger("reloadGrid");
+            }
+
+            function cancelAllData() {
+//                $('#oldvalue').val(data.oldvalue);
+//                $('#code').val(data.code);
+//                $('#code').attr('readOnly', true);
+//                $("#code").css("color", "#858585");
+//                $('#name').val(data.name);
+////                            $('#status').prop('disabled', false);
+//                $('#serviceuri').val('');
+//                $('#amount').val('');
+//                $('#sourcecurrency').val('');
+//                $('#destinationuri').val('');
+//                $('#country').val('');
+//                $('#service').val('');
+//                $('#sourceuri').val('');
+////                            $('#sourceuri').attr('placeholder', '');
+//                $("#destinationuri").attr('placeholder', '');
+//                $('#addButton').button("disable");
+//                $('#updateButton').button("enable");
+                editESwitchCall(null);
+            }
+
+            function getServiceA() {
+                var country = $('#country').val();
+                if (country !== null) {
+                    $.ajax({
+                        url: '${pageContext.request.contextPath}/getServiceESwitchCall.action',
+                        data: {country: country},
+                        dataType: "json",
+                        type: "POST",
+                        success: function (data) {
+                            var msg = data.message;
+                            if (msg) {
+                                //                            alert(data.message)
+                                $("#service").empty();
+                            } else {
+                                //                            alert('im in');
+
+                                $("#branchcode").empty();
+                                $('#branchcode').append(
+                                        $('<option></option>').val("").html("--Select Branch--")
+                                        );
+                                $("#service").empty();
+                                $('#service').append(
+                                        $('<option></option>').val("").html("--Select Service--")
+                                        );
+                                $.each(data.serviceList, function (key, value) {
+                                    $('#service').append(
+                                            $('<option></option>').val(key).html(value)
+                                            );
+                                });
+                            }
+
+                        },
+                        error: function (data) {
+                            window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                        }
+                    });
+                }
+            }
+
+            function hidebanksec() {
+                $("#act1").css("display", "none");
+                $("#act2").css("display", "none");
+                $("#act3").css("display", "none");
+            }
+
+            function hideSections() {
+                $('#section2').css("display", "none");
+                $('#section3').css("display", "block");
+            }
+
+            function add() {
+                var country = $('#country').val();
+                var service = $('#service').val();
+                var serviceuri = $('#serviceuri').val();
+                var sourceuri = $('#sourceuri').val();
+                var bankcode = $('#bankcode').val();
+                var branchcode = $('#branchcode').val();
+                var amount = $('#amount').val();
+                var destinationuri = $("#destinationuri").val()
+                var sourcecurrency = $('#sourcecurrency').val();
+
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/AddESwitchCall.action',
+                    data: {country: country,
+                        service: service,
+                        serviceuri: serviceuri,
+                        sourceuri: sourceuri,
+                        bankcode: bankcode,
+                        branchcode: branchcode,
+                        amount: amount,
+                        destinationuri: destinationuri,
+                        sourcecurrency: sourcecurrency
+                    },
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        if (data.message) {
+//                            alert(data.message);
+//                            document.getElementById("divmsg").innerHTML = "<div class='ui-widget actionError'>"
+//                                    + "<div class='ui-state-error ui-corner-all' style='padding: 0.3em 0.7em; margin-top: 20px;'>"
+//                                    + "<p><span class='ui-icon ui-icon-alert' style='float: left; margin-right: 0.3em;'></span><span>"
+//                                    + data.message
+//                                    + "</span></p></div></div>";
+                            document.getElementById("dialogmsg").innerHTML = data.message;
+                            $("#dialog-message").dialog({
+                                modal: true,
+                                buttons: {
+                                    Ok: function () {
+                                        $(this).dialog("close");
+                                    }
+                                }
+                            });
+                        } else {
+
+                            $('#section1').css("display", "none");
+                            $('#section2').css("display", "block");
+//                            $('#section3').css("display", "block");
+
+                            $('#txnid_p2').val(data.txnid_p2);
+                            var homsendCharged = data.homesendChgAmount_p2.split("#");
+                            var bankChgAmount = data.bankChgAmount_p2.split("#");
+                            var totalAmount = data.totalAmount_p2.split("#");
+                            document.getElementById("currencyCodeid1").innerHTML = data.charged_amount_currency;
+                            document.getElementById("currencyCodeid2").innerHTML = data.bml_commission_currency;
+                            document.getElementById("currencyCodeid3").innerHTML = data.charged_amount_currency;
+//                            $('#currencyCodeid2').val(bankChgAmount[1]);
+//                            $('#currencyCodeid3').val(totalAmount[1]);
+
+
+                            $('#homesendChgAmount_p2').val(Number(homsendCharged[0]).toFixed(2));
+                            $('#BankChgAmount_p2').val(Number(bankChgAmount[0]).toFixed(2));
+                            $('#totalAmount_p2').val(Number(totalAmount[0]).toFixed(2));
+                            $('#rate_p2').val(data.rate_p2);
+                            if (data.source_of_income_p3 == "1") {
+                                $('#col1').css("display", "block");
+                                $("#source_of_income_p3").empty();
+                                $('#source_of_income_p3').append(
+                                        $('<option></option>').val("").html("--Select Source Of Income--")
+                                        );
+                                $.each(data.sourceofincomeList, function (key, value) {
+                                    $('#source_of_income_p3').append(
+                                            $('<option></option>').val(key).html(value)
+                                            );
+                                });
+                            }
+//                            console.log(data.sourceofincome_val);
+                            if (data.sourceofincome_val != null) {
+                                $("#source_of_income_p3").attr("disabled", "true");
+                                $("#source_of_income_p3").val(data.sourceofincome_val);
+                            }
+
+                            if (data.purpose_of_remit_p3 == "1") {
+                                $('#col2').css("display", "block");
+                                $("#purpose_of_remit_p3").empty();
+                                $('#purpose_of_remit_p3').append(
+                                        $('<option></option>').val("").html("--Select Source Of Income--")
+                                        );
+                                $.each(data.perposeofremitList, function (key, value) {
+                                    $('#purpose_of_remit_p3').append(
+                                            $('<option></option>').val(key).html(value)
+                                            );
+                                });
+                            }
+
+//                            if (data.sender_name_p3 == "1") {
+//                                $('#col3').css("display", "block");
+//                            }
+//                            
+                            var sender_name_p3 = data.sender_name_p3.split("#");
+                            if (sender_name_p3[0] == "1") {
+                                $('#col3').css("display", "block");
+                                if (sender_name_p3[1] != 'null') {
+                                    $('#sender_name_p3').val(sender_name_p3[1]);
+                                    $('#sender_name_p3').prop('readonly', true);
+                                }
+                            }
+
+
+//                            if (data.sender_addr_street_p3 == "1") {
+//                                $('#col4').css("display", "block");
+//                            }
+                            var sender_addr_street_p3 = data.sender_addr_street_p3.split("#");
+                            if (sender_addr_street_p3[0] == "1") {
+                                $('#col4').css("display", "block");
+                                if (sender_addr_street_p3[1] != "null") {
+                                    $('#sender_addr_street_p3').val(sender_addr_street_p3[1]);
+                                    $('#sender_addr_street_p3').prop('readonly', true);
+                                }
+                            }
+//                            if (data.sender_addr_city_p3 == "1") {
+//                                $('#col5').css("display", "block");
+//                            }
+                            var sender_addr_city_p3 = data.sender_addr_city_p3.split("#");
+                            if (sender_addr_city_p3[0] == "1") {
+                                $('#col5').css("display", "block");
+                                if (sender_addr_city_p3[1] != "null") {
+                                    $('#sender_addr_city_p3').val(sender_addr_city_p3[1]);
+                                    $('#sender_addr_city_p3').prop('readonly', true);
+                                }
+                            }
+//                            if (data.sender_addr_zip_p3 == "1") {
+//                                $('#col6').css("display", "block");
+//                            }
+                            var sender_addr_zip_p3 = data.sender_addr_zip_p3.split("#");
+                            if (sender_addr_zip_p3[0] == "1") {
+                                $('#col6').css("display", "block");
+                                if (sender_addr_zip_p3[1] != "null") {
+                                    $('#sender_addr_zip_p3').val(sender_addr_zip_p3[1]);
+                                    $('#sender_addr_zip_p3').prop('readonly', true);
+                                }
+                            }
+//                            if (data.sender_nationality_p3 == "1") {
+//                                $('#col7').css("display", "block");
+//                            }
+                            var sender_nationality_p3 = data.sender_nationality_p3.split("#");
+                            if (sender_nationality_p3[0] == "1") {
+                                $('#col7').css("display", "block");
+                                if (sender_nationality_p3[1] != "null") {
+                                    $('#sender_nationality_p3').val(sender_nationality_p3[1]);
+                                    $('#sender_nationality_p3').prop('readonly', true);
+                                }
+                            }
+//                            if (data.sender_addr_country_p3 == "1") {
+//                                $('#col8').css("display", "block");
+//                            }
+                            var sender_addr_country_p3 = data.sender_addr_country_p3.split("#");
+                            if (sender_addr_country_p3[0] == "1") {
+                                $('#col8').css("display", "block");
+                                if (sender_addr_country_p3[1] != "null") {
+                                    $('#sender_addr_country_p3').val(sender_addr_country_p3[1]);
+                                    $('#sender_addr_country_p3').prop('readonly', true);
+                                }
+                            }
+                            if (data.sender_id_type_p3 == "1") {
+                                $('#col9').css("display", "block");
+                                $("#sender_id_type_p3").empty();
+                                $('#sender_id_type_p3').append(
+                                        $('<option></option>').val("").html("--Select Source Of Income--")
+                                        );
+                                $.each(data.senderidtypeList, function (key, value) {
+                                    $('#sender_id_type_p3').append(
+                                            $('<option></option>').val(key).html(value)
+                                            );
+                                });
+                            }
+//                            console.log(data.senderidtype_val);
+                            if (data.senderidtype_val != null) {
+                                $("#sender_id_type_p3").attr("disabled", "true");
+                                $("#sender_id_type_p3").val(data.senderidtype_val);
+                            }
+//                            if (data.sender_id_number_p3 == "1") {
+//                                $('#col10').css("display", "block");
+//                            }
+                            var sender_id_number_p3 = data.sender_id_number_p3.split("#");
+                            if (sender_id_number_p3[0] == "1") {
+                                $('#col10').css("display", "block");
+                                if (sender_id_number_p3[1] != "null") {
+                                    $('#sender_id_number_p3').val(sender_id_number_p3[1]);
+                                    $('#sender_id_number_p3').prop('readonly', true);
+                                }
+                            }
+//                            if (data.sender_id_issue_date_p3 == "1") {
+//                                $('#col11').css("display", "block");
+//                            }
+                            var sender_id_issue_date_p3 = data.sender_id_issue_date_p3.split("#");
+                            if (sender_id_issue_date_p3[0] == "1") {
+                                $('#col11').css("display", "block");
+                                if (sender_id_number_p3[1] != "null") {
+                                    $('#sender_id_issue_date_p3').val(sender_id_issue_date_p3[1]);
+                                    $('#sender_id_issue_date_p3').prop('readonly', true);
+                                }
+                            }
+//                            if (data.sender_id_exp_date_p3 == "1") {
+//                                $('#col12').css("display", "block");
+//                            }
+                            var sender_id_exp_date_p3 = data.sender_id_exp_date_p3.split("#");
+                            if (sender_id_exp_date_p3[0] == "1") {
+                                $('#col12').css("display", "block");
+                                if (sender_id_exp_date_p3[1] != "null") {
+                                    $('#sender_id_exp_date_p3').val(sender_id_exp_date_p3[1]);
+                                    $('#sender_id_exp_date_p3').prop('readonly', true);
+                                }
+                            }
+//                            if (data.sender_dob_p3 == "1") {
+//                                $('#col13').css("display", "block");
+//                            }
+                            var sender_dob_p3 = data.sender_dob_p3.split("#");
+                            if (sender_dob_p3[0] == "1") {
+                                $('#col13').css("display", "block");
+                                if (sender_dob_p3[1] != "null") {
+                                    $('#sender_dob_p3').val(sender_dob_p3[1]);
+                                    $('#sender_dob_p3').prop('readonly', true);
+                                }
+                            }
+//                            if (data.benificiary_name_p3 == "1") {
+//                                $('#col14').css("display", "block");
+//                            }
+
+                            var benificiary_name_p3 = data.benificiary_name_p3.split("#");
+                            if (benificiary_name_p3[0] == "1") {
+                                $('#col14').css("display", "block");
+                                if (benificiary_name_p3[1] != "null") {
+                                    $('#benificiary_name_p3').val(benificiary_name_p3[1]);
+                                    $('#benificiary_name_p3').prop('readonly', true);
+                                }
+                            }
+//                            if (data.benificiary_bank_code_p3 == "1") {
+//                                $('#col15').css("display", "block");
+//                            }
+                            var benificiary_bank_code_p3 = data.benificiary_bank_code_p3.split("#");
+                            if (benificiary_bank_code_p3[0] == "1") {
+                                $('#col15').css("display", "block");
+                                if (benificiary_bank_code_p3[1] != "null") {
+                                    $('#benificiary_bank_code_p3').val(benificiary_bank_code_p3[1]);
+                                    $('#benificiary_bank_code_p3').prop('readonly', true);
+                                }
+                            }
+//                            if (data.benificiary_bank_name_p3 == "1") {
+//                                $('#col16').css("display", "block");
+//                            }
+                            var benificiary_bank_name_p3 = data.benificiary_bank_name_p3.split("#");
+                            if (benificiary_bank_name_p3[0] == "1") {
+                                $('#col16').css("display", "block");
+                                if (benificiary_bank_name_p3[1] != "null") {
+                                    $('#benificiary_bank_name_p3').val(benificiary_bank_name_p3[1]);
+                                    $('#benificiary_bank_name_p3').prop('readonly', true);
+                                }
+                            }
+//                            if (data.benificiary_branch_name_p3 == "1") {
+//                                $('#col17').css("display", "block");
+//                            }
+                            var benificiary_branch_name_p3 = data.benificiary_branch_name_p3.split("#");
+                            if (benificiary_branch_name_p3[0] == "1") {
+                                $('#col17').css("display", "block");
+                                if (benificiary_branch_name_p3[1] != "null") {
+                                    $('#benificiary_branch_name_p3').val(benificiary_branch_name_p3[1]);
+                                    $('#benificiary_branch_name_p3').prop('readonly', true);
+                                }
+                            }
+//                            if (data.benificiary_nationality_p3 == "1") {
+//                                $('#col18').css("display", "block");
+//                            }
+                            var benificiary_nationality_p3 = data.benificiary_nationality_p3.split("#");
+                            if (benificiary_nationality_p3[0] == "1") {
+                                $('#col18').css("display", "block");
+                                if (benificiary_nationality_p3[1] != "null") {
+                                    $('#benificiary_nationality_p3').val(benificiary_nationality_p3[1]);
+                                    $('#benificiary_nationality_p3').prop('readonly', true);
+                                }
+                            }
+
+
+
+                        }
+
+
+                    },
+                    error: function (data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            function getServiceURI() {
+                var service = $('#service').val();
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/getServiceURIESwitchCall.action',
+                    data: {service: service},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        var msg = data.message;
+                        if (msg) {
+                            $("#serviceuri").empty();
+                        } else {
+
+                            $("#sourceuri").val(data.sourceuri);
+                            $("#serviceuri").empty();
+                            $('#serviceuri').append(
+                                    $('<option></option>').val("").html("--Select Service URI--")
+                                    );
+                            $.each(data.serviceuriList, function (key, value) {
+                                $('#serviceuri').append(
+                                        $('<option></option>').val(key).html(value)
+                                        );
+                            });
+                        }
+                    },
+                    error: function (data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            function getServiceName() {
+                var serviceuri = $('#serviceuri').val();
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/getServiceNameESwitchCall.action',
+                    data: {serviceuri: serviceuri},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        var msg = data.message;
+                        if (msg) {
+
+
+                            $("#sourceuri").val('');
+                        } else {
+                            if (data.activeList[0] == "ACT") {
+                                $("#act1").css("display", "block");
+                                if (data.activeList[1] == "ACT") {
+                                    $("#act2").css("display", "block");
+//                                    $("#bankcode").val(data.sourceuri);
+                                    $("#bankcode").empty();
+                                    $('#bankcode').append(
+                                            $('<option></option>').val("").html("--Select Bank--")
+                                            );
+                                    $.each(data.bankList, function (key, value) {
+                                        $('#bankcode').append(
+                                                $('<option></option>').val(key).html(value)
+                                                );
+                                    });
+
+                                }
+                                if (data.activeList[2] == "ACT") {
+                                    $("#act3").css("display", "block");
+                                }
+
+                            }
+
+                            $("#sourceuri").val('');
+//                            $("#sourceuri").attr('placeholder', data.sourceuriPlaceholder);
+                            $("#destinationuri").attr('placeholder', data.destinationuriPlaceholder);
+//                            alert(data.sourceuri);
+                        }
+                    },
+                    error: function (data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            function getBranchList() {
+                var bankcode = $('#bankcode').val();
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/getBranchListESwitchCall.action',
+                    data: {bankcode: bankcode},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        var msg = data.message;
+                        if (msg) {
+
+                        } else {
+                            $("#branchcode").empty();
+                            $('#branchcode').append(
+                                    $('<option></option>').val("").html("--Select Branch--")
+                                    );
+                            $.each(data.branchList, function (key, value) {
+                                $('#branchcode').append(
+                                        $('<option></option>').val(key).html(value)
+                                        );
+                            });
+                        }
+                    },
+                    error: function (data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            function submittxnval() {
+                var txnid_p2 = $('#txnid_p2').val();
+                var homesendChgAmount_p2 = $('#homesendChgAmount_p2').val();
+                var bankChgAmount_p2 = $('#bankChgAmount_p2').val();
+                var totalAmount_p2 = $('#totalAmount_p2').val();
+                var source_of_income_p3 = $('#source_of_income_p3').val();
+                var purpose_of_remit_p3 = $('#purpose_of_remit_p3').val();
+                var sender_name_p3 = $('#sender_name_p3').val();
+                var sender_addr_street_p3 = $('#sender_addr_street_p3').val();
+                var sender_addr_city_p3 = $('#sender_addr_city_p3').val();
+                var sender_addr_zip_p3 = $('#sender_addr_zip_p3').val();
+                var sender_nationality_p3 = $('#sender_nationality_p3').val();
+                var sender_addr_country_p3 = $('#sender_addr_country_p3').val();
+                var sender_id_type_p3 = $('#sender_id_type_p3').val();
+                var sender_id_number_p3 = $('#sender_id_number_p3').val();
+                var sender_id_issue_date_p3 = $('#sender_id_issue_date_p3').val();
+                var sender_id_exp_date_p3 = $('#sender_id_exp_date_p3').val();
+                var sender_dob_p3 = $('#sender_dob_p3').val();
+                var benificiary_name_p3 = $('#benificiary_name_p3').val();
+                var benificiary_bank_code_p3 = $('#benificiary_bank_code_p3').val();
+                var benificiary_bank_name_p3 = $('#benificiary_bank_name_p3').val();
+                var benificiary_branch_name_p3 = $('#benificiary_branch_name_p3').val();
+                var benificiary_nationality_p3 = $('#benificiary_nationality_p3').val();
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/SendDetailsESwitchCall.action',
+                    data: {
+                        txnid_p2: txnid_p2,
+                        homesendChgAmount_p2: homesendChgAmount_p2,
+                        bankChgAmount_p2: bankChgAmount_p2,
+                        totalAmount_p2: totalAmount_p2,
+                        source_of_income_p3: source_of_income_p3,
+                        purpose_of_remit_p3: purpose_of_remit_p3,
+                        sender_name_p3: sender_name_p3,
+                        sender_addr_street_p3: sender_addr_street_p3,
+                        sender_addr_city_p3: sender_addr_city_p3,
+                        sender_addr_zip_p3: sender_addr_zip_p3,
+                        sender_nationality_p3: sender_nationality_p3,
+                        sender_addr_country_p3: sender_addr_country_p3,
+                        sender_id_type_p3: sender_id_type_p3,
+                        sender_id_number_p3: sender_id_number_p3,
+                        sender_id_issue_date_p3: sender_id_issue_date_p3,
+                        sender_id_exp_date_p3: sender_id_exp_date_p3,
+                        sender_dob_p3: sender_dob_p3,
+                        benificiary_name_p3: benificiary_name_p3,
+                        benificiary_bank_code_p3: benificiary_bank_code_p3,
+                        benificiary_bank_name_p3: benificiary_bank_name_p3,
+                        benificiary_branch_name_p3: benificiary_branch_name_p3,
+                        benificiary_nationality_p3: benificiary_nationality_p3
+                    },
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+
+//                            alert(data.nameList);
+                        if (data.message == "00") {
+                            $("#submittxn").css("display", "block");
+                            $("#section3").css("display", "none");
+                            $("#section4").css("display", "block");
+
+
+                            var container = $('<div />');
+                            $.each(data.nameList, function (key, value) {
+                                if (key == "status") {
+                                    container.append('<div class = "row row_1 text-center" style="margin-bottom:20px; margin-top: 0px;font-size: 19px; font-family: sans-serif;font-weight:bold; color:#ff0800 ">' + "<u>Transaction Receipt</u>" + '</div>');
+                                    key = "<span style='margin-bottom:10px; margin-top: 10px;font-size: 14px; font-family: sans-serif;font-weight:bold; color:#a7a7a7'>Status</span>";
+                                    value = "<span style='margin-bottom:10px; margin-top: 10px;font-size: 14px; font-family: sans-serif;font-weight: normal; color:#ff0800'>Pending Collection</span>";
+                                }
+                                if (key == "recepiant") {
+                                    container.append('<div class = "row row_1 text-center" style="margin-top: 10px;font-size: 19px; font-family: sans-serif;font-weight:bold; color:#ff0800 ">' + "<u>Recipent's Details</u>" + '</div>');
+                                    key = "";
+                                    value = "";
+                                }
+                                if (key == "sender") {
+                                    container.append('<div class = "row row_1 text-center" style="margin-top: 10px;font-size: 19px; font-family: sans-serif;font-weight:bold; color:#ff0800 ">' + "<u>Sender's Details</u>" + '</div>');
+                                    key = "";
+                                    value = "";
+                                }
+                                container.append('<div class = "row row_1" style="border-bottom: 1px solid gray;">' +
+                                        '<div class = "col-sm-6 text-right">' +
+                                        '<label class="text Recipient">' + key + '</label>' +
+                                        '</div>' +
+                                        '<div class = "col-sm-6 text-left" >' +
+                                        '<label class="text Recipientval">' + value + '</label>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</div>'
+                                        );
+                            });
+
+                            $('#dynamic').html(container);
+                        } else if (data.message == "ACT") {
+                            $("#submittxn").css("display", "none");
+                            $("#recheck").css("display", "block");
+                            $("#cancelsec3").css("display", "block");
+//                            document.getElementById("divmsg").innerHTML = "<div class='ui-widget actionError'>"
+//                                    + "<div class='ui-state-error ui-corner-all' style='padding: 0.3em 0.7em; margin-top: 20px;'>"
+//                                    + "<p><span class='ui-icon ui-icon-alert' style='float: left; margin-right: 0.3em;'></span><span>"
+//                                    + data.message
+//                                    + "</span></p></div></div>";
+//                            document.getElementById("dialogmsg").innerHTML = data.message.split("#")[1];
+//                            $("#dialog-message").dialog({
+//                                modal: true,
+//                                buttons: {
+//                                    Ok: function () {
+//                                        $(this).dialog("close");
+//                                    }
+//                                }
+//                            });
+                        } else {
+                            document.getElementById("dialogmsg").innerHTML = data.message;
+                            $("#dialog-message").dialog({
+                                modal: true,
+                                buttons: {
+                                    Ok: function () {
+                                        $(this).dialog("close");
+                                    }
+                                }
+                            });
+                        }
+
+
+                    },
+                    error: function (data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            function cancelpage3() {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/CancelPageESwitchCall.action',
+//                    data: {code: keyval},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        if (data.message == "00") {
+                            $("#cancelsec3").css("display", "none");
+//                            $("#cancelsec3").css("display", "none");
+//                            $("#submittxn").css("display", "block");
+
+//                            document.getElementById("divmsg").innerHTML = "<div class='ui-widget actionMessage'>"
+//                                    + "<div class='ui-state-highlight ui-corner-all' style='padding: 0.3em 0.7em; margin-top: 20px;'>"
+//                                    + "<p><span class='ui-icon ui-icon-info' style='float: left; margin-right: 0.3em;'></span><span>"
+//                                    + "Remittance Completed"
+//                                    + "</span></p></div></div>";
+                            document.getElementById("dialogmsg").innerHTML = "Cancellation Successful";
+                            $("#dialog-message").dialog({
+                                modal: true,
+                                buttons: {
+                                    Ok: function () {
+                                        $(this).dialog("close");
+                                    }
+                                }
+                            });
+                        } else {
+//                            $("#submittxn").css("display", "none");
+//                            $("#recheck").css("display", "block");
+//                            $("#cancelsec3").css("display", "block");
+
+//                            document.getElementById("divmsg").innerHTML = "<div class='ui-widget actionError'>"
+//                                    + "<div class='ui-state-error ui-corner-all' style='padding: 0.3em 0.7em; margin-top: 20px;'>"
+//                                    + "<p><span class='ui-icon ui-icon-alert' style='float: left; margin-right: 0.3em;'></span><span>"
+//                                    + data.message
+//                                    + "</span></p></div></div>";
+                            document.getElementById("dialogmsg").innerHTML = data.message;
+                            $("#dialog-message").dialog({
+                                modal: true,
+                                buttons: {
+                                    Ok: function () {
+                                        $(this).dialog("close");
+                                    }
+                                }
+                            });
+                        }
+                    },
+                    error: function (data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            function recheck() {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/RecheckESwitchCall.action',
+//                    data: {code: keyval},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        if (data.message == "00") {
+//                            $("#submittxn").css("display", "block");
+                            $("#cancelsec3").css("display", "none");
+                            $("#section3").css("display", "none");
+                            $("#section4").css("display", "block");
+
+                            var container = $('<div />');
+                            $.each(data.nameList, function (key, value) {
+                                if (key == "status") {
+                                    container.append('<div class = "row row_1 text-center" style="margin-bottom:20px; margin-top: 0px;font-size: 19px; font-family: sans-serif;font-weight:bold; color:#ff0800 ">' + "<u>Transaction Receipt</u>" + '</div>');
+                                    key = "<span style='margin-bottom:10px; margin-top: 10px;font-size: 14px; font-family: sans-serif;font-weight:bold; color:#a7a7a7'>Status</span>";
+                                    value = "<span style='margin-bottom:10px; margin-top: 10px;font-size: 14px; font-family: sans-serif;font-weight: normal; color:#ff0800'>Pending Collection</span>";
+                                }
+                                if (key == "recepiant") {
+                                    container.append('<div class = "row row_1 text-center" style="margin-top: 10px;font-size: 19px; font-family: sans-serif;font-weight:bold; color:#ff0800 ">' + "<u>Recipent's Details</u>" + '</div>');
+                                    key = "";
+                                    value = "";
+                                }
+                                if (key == "sender") {
+                                    container.append('<div class = "row row_1 text-center" style="margin-top: 10px;font-size: 19px; font-family: sans-serif;font-weight:bold; color:#ff0800 ">' + "<u>Sender's Details</u>" + '</div>');
+                                    key = "";
+                                    value = "";
+                                }
+                                container.append('<div class = "row row_1" style="border-bottom: 1px solid gray;">' +
+                                        '<div class = "col-sm-6 text-right">' +
+                                        '<label class="text Recipient">' + key + '</label>' +
+                                        '</div>' +
+                                        '<div class = "col-sm-6 text-left" >' +
+                                        '<label class="text Recipientval">' + value + '</label>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</div>'
+                                        );
+                            });
+
+                            $('#dynamic').html(container);
+//
+                        } else {
+//                            $("#submittxn").css("display", "none");
+//                            $("#recheck").css("display", "block");
+//                            $("#cancelsec3").css("display", "block");
+
+//                            document.getElementById("divmsg").innerHTML = "<div class='ui-widget actionError'>"
+//                                    + "<div class='ui-state-error ui-corner-all' style='padding: 0.3em 0.7em; margin-top: 20px;'>"
+//                                    + "<p><span class='ui-icon ui-icon-alert' style='float: left; margin-right: 0.3em;'></span><span>"
+//                                    + data.message
+//                                    + "</span></p></div></div>";
+//                            document.getElementById("dialogmsg").innerHTML = data.message;
+//                            $("#dialog-message").dialog({
+//                                modal: true,
+//                                buttons: {
+//                                    Ok: function () {
+//                                        $(this).dialog("close");
+//                                    }
+//                                }
+//                            });
+                        }
+                    },
+                    error: function (data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+        </script>
+        <style>
+            .Recipientval{
+                font-family: sans-serif;
+                font-size: 13px;
+                font-weight: bolder;
+                color: gray;
+            }
+            .Recipient{
+                font-family: sans-serif;
+                font-size: 13px;
+                font-weight: bolder;
+                color: black;
+            }
+        </style>
+
+    </head>
+
+    <body style="">
+        <jsp:include page="/header.jsp"/>
+
+        <div class="main-container">
+
+
+            <jsp:include page="/leftmenu.jsp"/>
+
+            <div class="main-content">
+
+                <div class="container" style="min-height: 760px;">
+
+
+                    <!-- start: PAGE NAVIGATION BAR -->
+                    <jsp:include page="/navbar.jsp"/>
+                    <!-- end: NAVIGATION BAR -->
+
+                    <div class="row">
+
+
+                        <div id="content1">
+
+
+                            <s:div id="divmsg">
+
+                                <s:actionerror theme="jquery"/>
+                                <s:actionmessage theme="jquery"/>
+                            </s:div>
+
+                            <s:set id="vadd" var="vadd"><s:property value="vadd" default="true"/></s:set>
+                            <s:set var="vupdatebutt"><s:property value="vupdatebutt" default="true"/></s:set>
+                            <s:set var="vupdatelink"><s:property value="vupdatelink" default="true"/></s:set>
+                            <s:set var="vdelete"><s:property value="vdelete" default="true"/></s:set>
+
+                                <div id="formstyle">
+                                <s:form id="countrylistadd" method="post" theme="simple" >
+                                    <div id="section1">
+                                        <s:hidden id="oldvalue" name="oldvalue" ></s:hidden>
+                                        <s:hidden id="countryObjList" name="countryObjList" ></s:hidden>
+
+                                            <div class="row row_1">
+                                                <div class="col-sm-3">
+                                                    <div class="form-group">
+                                                        <span style="color: red">*</span><label>Country</label>
+                                                    <s:select   cssClass="form-control" id="country" list="%{countryList}"  name="country" headerKey="" headerValue="--Select Country--" listKey="key" listValue="value" onchange="getServiceA();hidebanksec()" />
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Service Type</label>
+                                                    <s:select   cssClass="form-control" id="service" list="%{serviceList}"  name="service" headerKey="" headerValue="--Select Service--" listKey="key" listValue="value" onchange="getServiceURI(); hidebanksec()" />
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Service URI</label>
+                                                    <s:select   cssClass="form-control" id="serviceuri" list="%{serviceuriList}"  name="serviceuri" headerKey="" headerValue="--Select Service URI--" listKey="key" listValue="value" onchange="getServiceName();hidebanksec()"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row row_1" id="act1" style="display: none">   
+                                            <div class="col-sm-3" id="act2" style="display: none;">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Bank Code</label>
+                                                    <%--<s:textfield cssClass="form-control" name="bankcode" id="bankcode" maxLength="50" />--%>
+                                                    <s:select cssClass="form-control" id="bankcode" list="%{bankList}"  name="bankcode" headerKey="" headerValue="--Select Bank--" listKey="key" listValue="value" onchange="getBranchList()" />
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3"  id="act3" style="display: none">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Branch Code</label>
+                                                    <%--<s:textfield cssClass="form-control" name="branchcode" id="branchcode" maxLength="50" />--%>
+                                                    <s:select   cssClass="form-control" id="branchcode" list="%{branchList}"  name="branchcode" headerKey="" headerValue="--Select Branch--" listKey="key" listValue="value" />
+                                                </div>
+                                            </div>
+                                        </div>         
+                                        <div class="row row_1">   
+                                            <div class="col-sm-3" >
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Source URI</label>
+                                                    <s:textfield cssClass="form-control" name="sourceuri" id="sourceuri" maxLength="50" />
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Destination URI</label>
+                                                    <s:textfield cssClass="form-control" name="destinationuri" id="destinationuri" maxLength="50" />
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Source Currency</label>
+                                                    <s:textfield cssClass="form-control" name="sourcecurrency" id="sourcecurrency" maxLength="50" />
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Amount</label>
+                                                    <s:textfield cssClass="form-control" name="amount" id="amount" maxLength="50" />
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+
+                                        <s:url var="addurl" action="AddESwitchCall"/>
+                                        <s:url var="updateurl" action="UpdateESwitchCall"/>
+                                        <div class="row row_popup form-inline">
+                                            <div class="col-sm-9">
+                                                <div class="form-group">
+                                                    <span class="mandatoryfield">Mandatory fields are marked with *</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row row_1 form-inline">
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <!sj:submit button="true" onclick="add()" value="Add"  id="addButton"  disabled="#vadd"
+                                                        cssClass="form-control btn_normal"
+                                                        cssStyle="border-radius: 12px;background-color:#969595;color:white;"
+                                                        />
+                                                    <input type="button" onclick="add()" value="Continue" class="form-control btn_normal" style="border-radius: 12px;background-color:#969595;color:white;"/>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <input type="button" onclick="cancelAllData()" value="Cancel" class="form-control btn_normal" style="border-radius: 12px;"/>
+                                                    
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div id="section2" style="display: none">
+                                        <div class="row row_1" style="display: none">
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Transaction Id</label>
+                                                    <s:textfield cssClass="form-control" name="txnid_p2" id="txnid_p2" maxLength="50" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row row_1">
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Homesend Charged Amount</label>
+                                                    <s:textfield cssClass="form-control" name="homesendChgAmount_p2" id="homesendChgAmount_p2" maxLength="50" readonly="true" />    
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-1">
+                                                <label style="margin-top: 33px;margin-left: -30px;font-size: 15px;" id="currencyCodeid1" class="currencyCode"></label>
+                                            </div>
+                                        </div>
+                                        <div class="row row_1">
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Bank Charged Amount</label>
+                                                    <s:textfield cssClass="form-control" name="BankChgAmount_p2" id="BankChgAmount_p2" maxLength="50" readonly="true"/>                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-1">
+                                                <label style="margin-top: 33px;margin-left: -30px;font-size: 15px;" id="currencyCodeid2" class="currencyCode"></label>
+                                            </div>
+                                        </div>
+                                        <div class="row row_1">
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Total Amount</label>
+                                                    <s:textfield cssClass="form-control" name="totalAmount_p2" id="totalAmount_p2" maxLength="50" readonly="true"/>                                                </div>
+                                            </div>
+                                            <div class="col-sm-1">
+                                                <label style="margin-top: 33px;margin-left: -30px;font-size: 15px;" id="currencyCodeid3" class="currencyCode"></label>
+                                            </div>
+                                        </div>
+                                        <div class="row row_1">
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Rate</label>
+                                                    <s:textfield cssClass="form-control" name="rate_p2" id="rate_p2" maxLength="50" readonly="true"/>                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row row_1">
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <input type="button" onclick="hideSections()" value="Continue" class="form-control btn_normal" style="border-radius: 12px;background-color:#969595;color:white;"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="section3" style="display: none">
+                                        <div class="row row_1">
+                                            <div class="col-sm-3" id="col1" style="display: none">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Source of Income</label>
+                                                    <s:select   cssClass="form-control" id="source_of_income_p3" list="%{sourceofincomeList}"  name="source_of_income_p3" headerKey="" headerValue="--Select Source of Income--" listKey="key" listValue="value"  />
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3" id="col2" style="display: none">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Purpose of Remit</label>
+                                                    <s:select   cssClass="form-control" id="purpose_of_remit_p3" list="%{perposeofremitList}"  name="purpose_of_remit_p3" headerKey="" headerValue="--Select Purpose of Remit--" listKey="key" listValue="value" />
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3" id="col3" style="display: none">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Sender Name</label>
+                                                    <s:textfield cssClass="form-control" name="sender_name_p3" id="sender_name_p3" maxLength="50" />                            
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3" id="col4" style="display: none">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Sender Address Street</label>
+                                                    <s:textfield cssClass="form-control" name="sender_addr_street_p3" id="sender_addr_street_p3" maxLength="50" />                            
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row row_1">
+                                            <div class="col-sm-3" id="col5" style="display: none">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Sender Address City</label>
+                                                    <s:textfield cssClass="form-control" name="sender_addr_city_p3" id="sender_addr_city_p3" maxLength="50" />                            
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3" id="col6" style="display: none">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Sender Address Zip</label>
+                                                    <s:textfield cssClass="form-control" name="sender_addr_zip_p3" id="sender_addr_zip_p3" maxLength="50" />                            
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3" id="col7" style="display: none">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Sender Nationality</label>
+                                                    <s:textfield cssClass="form-control" name="sender_nationality_p3" id="sender_nationality_p3" maxLength="50" />                            
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3" id="col8" style="display: none">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Sender Address Country</label>
+                                                    <s:textfield cssClass="form-control" name="sender_addr_country_p3" id="sender_addr_country_p3" maxLength="50" />                            
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="row row_1">
+                                            <div class="col-sm-3" id="col9" style="display: none">
+                                                <div class="form-group" >
+                                                    <span style="color: red">*</span><label>Sender ID Type</label>
+                                                    <s:select   cssClass="form-control" id="sender_id_type_p3" list="%{senderidtypeList}"  name="sender_id_type_p3" headerKey="" headerValue="--Select Sender ID Type--" listKey="key" listValue="value"  />
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3" id="col10" style="display: none">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Sender ID Nubmer</label>
+                                                    <s:textfield cssClass="form-control" name="sender_id_number_p3" id="sender_id_number_p3" maxLength="50" />                            
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3" id="col11" style="display: none">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Sender ID Issue Date</label>
+                                                    <s:textfield cssClass="form-control" name="sender_id_issue_date_p3" id="sender_id_issue_date_p3" maxLength="50" />                            
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3" id="col12" style="display: none">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Sender ID Exp Date</label>
+                                                    <s:textfield cssClass="form-control" name="sender_id_exp_date_p3" id="sender_id_exp_date_p3" maxLength="50" />                            
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row row_1">
+                                            <div class="col-sm-3" id="col13" style="display: none">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Sender DOB (YYYY-MM-DD)</label>
+                                                    <s:textfield cssClass="form-control" name="sender_dob_p3" id="sender_dob_p3" maxLength="50" />                            
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3" id="col14" style="display: none">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Benificiary Name</label>
+                                                    <s:textfield cssClass="form-control" name="benificiary_name_p3" id="benificiary_name_p3" maxLength="50" />                            
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3" id="col15" style="display: none">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Benificiary Bank Code</label>
+                                                    <s:textfield cssClass="form-control" name="benificiary_bank_code_p3" id="benificiary_bank_code_p3" maxLength="50" />                            
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3" id="col16" style="display: none">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Benificiary Bank Name</label>
+                                                    <s:textfield cssClass="form-control" name="benificiary_bank_name_p3" id="benificiary_bank_name_p3" maxLength="50" />                            
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row row_1">
+                                            <div class="col-sm-3" id="col17" style="display: none">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Benificiary Branch Name</label>
+                                                    <s:textfield cssClass="form-control" name="benificiary_branch_name_p3" id="benificiary_branch_name_p3" maxLength="50" />                            
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3" id="col18" style="display: none">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>Benificiary Nationality</label>
+                                                    <s:textfield cssClass="form-control" name="benificiary_nationality_p3" id="benificiary_nationality_p3" maxLength="50" />                            
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row row_1">
+                                            <div class="col-sm-3" id="submittxn" style="display: block">
+                                                <div class="form-group" >
+                                                    <input type="button" onclick="submittxnval()" value="Submit" class="form-control btn_normal" style="border-radius: 12px;background-color:#969595;color:white;"/>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3" id="recheck" style="display: none">
+                                                <div class="form-group">
+                                                    <input type="button" onclick="recheck()" value="Recheck" class="form-control btn_normal" style="border-radius: 12px;background-color:#969595;color:white;"/>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3" id="cancelsec3" style="display: none">
+                                                <div class="form-group" >
+                                                    <input type="button" onclick="cancelpage3()" value="Cancel" class="form-control btn_normal" style="border-radius: 12px;background-color:#969595;color:white;"/>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div id="section4" style="display: none" >
+                                        <div class="row row_1">
+                                            <div class="col-sm-12 text-center">
+                                                <h3>Remittance Completed!</h3>
+                                            </div>
+                                        </div>
+                                        <div class="row row_1">
+                                            <div class=" col-sm-6 col-sm-offset-3" id="dynamic" style="border: 4px solid gray; border-radius: 10px; padding: 25px">
+
+                                            </div>
+                                        </div>
+                                        <div class="row row_1">
+                                            <div class="col-sm-2 col-md-offset-5 text-center">
+                                                <div class="form-group" >
+                                                    <a class="form-control btn_normal" style="border-radius: 12px;background-color:#969595;color:white;" href="viewESwitchCall.action" >Back</a>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>   
+                            </s:form>
+                        </div>
+
+                        <!-- Start delete confirm dialog box -->
+                        <sj:dialog 
+                            id="deletedialog" 
+                            buttons="{ 
+                            'OK':function() { deleteESwitchCall($(this).data('keyval'));$( this ).dialog( 'close' ); },
+                            'Cancel':function() { $( this ).dialog( 'close' );} 
+                            }" 
+                            autoOpen="false" 
+                            modal="true" 
+                            title="Delete Country List"                            
+                            />
+                        <!-- Start delete process dialog box -->
+                        <sj:dialog 
+                            id="deletesuccdialog" 
+                            buttons="{
+                            'OK':function() { $( this ).dialog( 'close' );}
+                            }"  
+                            autoOpen="false" 
+                            modal="true" 
+                            title="Deleting Process." 
+                            />
+                        <!-- Start delete error dialog box -->
+                        <sj:dialog 
+                            id="deleteerrordialog" 
+                            buttons="{
+                            'OK':function() { $( this ).dialog( 'close' );}                                    
+                            }" 
+                            autoOpen="false" 
+                            modal="true" 
+                            title="Delete error."
+                            />
+                        <div id="dialog-message" title="Error Message" style="display: none">
+                            <p style="margin-top: 10px;">
+                                <span class="ui-icon ui-icon-circle-close" style="float:left; margin:0 7px 50px 0;"></span>
+                                <label id="dialogmsg" ></label>
+                            </p>
+                        </div>
+
+                        <div id="tablediv">
+                            <%--<s:url var="listurl" action="ListESwitchCall"/>--%>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+
+                <!-- end: PAGE CONTENT-->
+            </div>
+        </div>
+        <!-- end: PAGE -->
+        </div>
+        <!-- end: MAIN CONTAINER -->
+        <!-- start: FOOTER -->
+        <jsp:include page="/footer.jsp"/>
+        <!-- end: FOOTER -->
+
+
+
+        <!-- end: BODY -->
+    </body>
+</html>
+

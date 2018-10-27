@@ -1,0 +1,103 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.dao.controlpanel.systemconfiguration;
+
+import com.epic.bmlalipay.bean.controlpanel.systemconfiguration.EODConfigInputBean;
+import com.epic.bmlalipay.dao.common.CommonDAO;
+import com.epic.bmlalipay.util.common.HibernateInit;
+import com.epic.bmlalipay.util.mapping.Commonconfiguration;
+import com.epic.bmlalipay.util.mapping.Systemaudit;
+import com.epic.bmlalipay.util.varlist.CommonVarList;
+import com.epic.bmlalipay.util.varlist.MessageVarList;
+import java.math.BigDecimal;
+import java.util.Date;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
+/**
+ *
+ * @author sivaganesan_t
+ */
+public class EODConfigurationDAO {
+    
+    public Commonconfiguration getEODConfiguration() throws Exception{
+        Commonconfiguration eodConfig=null;
+        Session session = null;
+        try {
+
+            session = HibernateInit.sessionFactory.openSession();
+            String sql = "from Commonconfiguration as c where c.id=:id";
+
+            Query query = session.createQuery(sql).setInteger("id", CommonVarList.EOD_CONFIGURATION_ID);
+
+            eodConfig = (Commonconfiguration) query.list().get(0);
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return eodConfig;
+    }
+    
+    public String updateEODConfiguration(EODConfigInputBean inputBean, Systemaudit audit) throws Exception{
+        Session session = null;
+        Transaction txn = null;
+        String message = "";
+        
+         try {
+            session = HibernateInit.sessionFactory.openSession();
+            txn = session.beginTransaction();
+            Date sysDate = CommonDAO.getSystemDate(session);
+            
+            Commonconfiguration u = (Commonconfiguration) session.get(Commonconfiguration.class, CommonVarList.EOD_CONFIGURATION_ID);
+            if (u != null) {
+               u.setAlipaysettlementfile(inputBean.getAlipaysettlementfile());
+               u.setMerchantsettlementfile(inputBean.getMerchantsettlementfile());
+               u.setTxnamounttolerance(new BigDecimal(inputBean.getTxnamounttolerance()));
+               u.setTxnadaystolerance(Byte.valueOf(inputBean.getTxnadaystolerance()));
+               u.setBmlBankCode(inputBean.getBmlBankCode());
+               u.setEodlogpath(inputBean.getEodlogpath());
+               u.setBranchid(inputBean.getBranchid());
+               
+               String newV =CommonVarList.EOD_CONFIGURATION_ID+"|"+inputBean.getAlipaysettlementfile()+"|"+inputBean.getMerchantsettlementfile()+"|"+inputBean.getTxnamounttolerance()+"|"+inputBean.getTxnadaystolerance()+"|"+inputBean.getBmlBankCode()+"|"+inputBean.getEodlogpath()+"|"+inputBean.getBranchid();
+               
+               audit.setNewvalue(newV);
+               audit.setOldvalue(inputBean.getOldvalue());
+               audit.setCreatetime(sysDate);
+               audit.setLastupdatedtime(sysDate);
+               
+               session.save(audit);
+               session.update(u);
+               
+               txn.commit();
+            }else {
+                message = MessageVarList.COMMON_NOT_EXISTS;
+            }
+         }catch (Exception e) {
+            if (txn != null) {
+                txn.rollback();
+            }
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        
+        return message; 
+    }
+}
+

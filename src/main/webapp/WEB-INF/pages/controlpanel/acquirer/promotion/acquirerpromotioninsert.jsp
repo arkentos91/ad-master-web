@@ -1,0 +1,594 @@
+<%-- 
+    Document   : acquirerpromotioninsert
+    Created on : Sep 20, 2016, 12:24:30 PM
+    Author     : dilanka_w
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="/struts-tags" prefix="s" %>
+<%@taglib prefix="sj" uri="/struts-jquery-tags"%>
+<%@taglib prefix="sjg" uri="/struts-jquery-grid-tags"%>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Acquirer Promotion Insert</title>
+
+        <script>
+
+            //global variables for previous height
+            var height_a;
+            var height_u;
+            $("#min").hide();
+            // maximize popup dialog 
+            function maximize(width, height) {
+                $(window).scrollTop(0);
+                height_a = $("#remotedialog").height();
+                height_u = $("#updatedialog").height();
+                $("#remotedialog").height($(window).height() - 60);
+                $("#updatedialog").height($(window).height() - 60);
+                $(".ui-dialog").width($(window).width() - 40);
+                $(".ui-dialog").height($(window).height() - 20);
+                $("#gridtabletxn").jqGrid('setGridWidth', $(".horizontal_line_popup").width()); //set grid size
+                $(".ui-dialog").center();
+                $("#max").hide();
+                $("#min").show();
+            }
+            // reset to previous popup dialog
+            function resetwindow() {
+                $(window).scrollTop(0);
+                $("#remotedialog").height(height_a);
+                $("#updatedialog").height(height_u);
+                $(".ui-dialog").width("900");
+                $(".ui-dialog").height("590");
+                $("#gridtabletxn").jqGrid('setGridWidth', $(".horizontal_line_popup").width()); //reset grid size
+                $(".ui-dialog").center();
+                $("#max").show();
+                $("#min").hide();
+            }
+            //center popup dialog
+            jQuery.fn.center = function () {
+                this.css("position", "fixed");
+                this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) +
+                        $(window).scrollTop()) + "px");
+                this.css("left", Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) +
+                        $(window).scrollLeft()) + "px");
+                return this;
+            };
+
+
+            function removeformatter(cellvalue, options, rowObject) {
+                return "<a href='#' title='Delete' onClick='javascript:removeAcquirerPromotionInit(&#34;" + cellvalue + "&#34;)'><img class='ui-icon ui-icon-trash' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+
+            function editformatter(cellvalue, options, rowObject) {
+                return "<a href='#' title='Edit' onClick='javascript:editAcquirerPromotion(&#34;" + cellvalue + "&#34;)'><img class='ui-icon ui-icon-pencil' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+
+            function removeAcquirerPromotionInit(keyval) {
+
+                $("#gridtabletxn").jqGrid('setGridParam', {postData: {
+                        txntype: keyval,
+                        isAssign: 'remove'
+                    }});
+                $("#gridtabletxn").jqGrid('setGridParam', {page: 1});
+                jQuery("#gridtabletxn").trigger("reloadGrid");
+            }
+
+            $.subscribe('anyerrorsremove', function (event, data) {
+                window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+            });
+
+            function editAcquirerPromotion(keyval) {
+
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/findAssignAcquirerPromotion.action',
+                    data: {txnType: keyval},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        $('#amessage').empty();
+                        var msg = data.message;
+
+                        if (msg) {
+                            $('#txnType').attr('disabled', true);
+                            $('#txnType').val(data.txnType);
+                            $('#bankAmountType').val(data.bankAmountType);
+                            $('#bankAmount').val(data.bankAmount);
+                            $('#merchantAmountType').val(data.merchantAmountType);
+                            $('#merchantAmount').val(data.merchantAmount);
+
+                            $('#amessage').text("");
+                            $('#amessage').empty();
+                        }
+                        else {
+                            $('#txnType').attr('disabled', true);
+                            $('#txnType').val(data.txnType);
+                            $('#bankAmountType').val(data.bankAmountType);
+                            $('#bankAmount').val(data.bankAmount);
+                            $('#merchantAmountType').val(data.merchantAmountType);
+                            $('#merchantAmount').val(data.merchantAmount);
+
+                            $('#assignbtn').hide();
+                            $('#assignbtnhidden').show();
+                        }
+                    },
+                    error: function (data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            $.subscribe('resetAddButton', function (event, data) {
+                $('#amessage').empty();
+                $('#code').val("");
+                $('#promotioncurrency').val("");
+                $('#description').val("");
+                $('#status').val("");
+                $('#txnType').val("");
+                $('#bankAmountType').val("");
+                $('#bankAmount').val("");
+                $('#merchantAmountType').val("");
+                $('#merchantAmount').val("");
+                $('#txnType').attr('disabled', false);
+
+                $("#gridtabletxn").jqGrid('setGridParam', {
+                    postData: {
+                        code: '',
+                        promotioncurrency: '',
+                        description: '',
+                        status: '',
+                        txnType: '',
+                        bankAmountType: '',
+                        bankAmount: '',
+                        merchantAmountType: '',
+                        merchantAmount: '',
+                        isAssign: 'clear'
+                    }
+                });
+
+                $("#gridtabletxn").jqGrid('setGridParam', {page: 1});
+                jQuery("#gridtabletxn").trigger("reloadGrid");
+            });
+
+            function assignAcquirerPromotion() {
+
+                $('#amessage').empty();
+                var code = $('#code').val();
+                var promotioncurrency = $('#promotioncurrency').val();
+                var description = $('#description').val();
+                var status = $('#status').val();
+                var txnType = $('#txnType').val();
+                var bankAmountType = $('#bankAmountType').val();
+                var bankAmount = $('#bankAmount').val();
+                var merchantAmountType = $('#merchantAmountType').val();
+                var merchantAmount = $('#merchantAmount').val();
+
+                $("#gridtabletxn").jqGrid('setGridParam', {
+                    postData: {
+                        code: code,
+                        promotioncurrency: promotioncurrency,
+                        description: description,
+                        status: status,
+                        txnType: txnType,
+                        bankAmountType: bankAmountType,
+                        bankAmount: bankAmount,
+                        merchantAmountType: merchantAmountType,
+                        merchantAmount: merchantAmount,
+                        isAssign: 'assign'
+                    }
+                });
+                $("#gridtabletxn").jqGrid('setGridParam', {page: 1});
+                jQuery("#gridtabletxn").trigger("reloadGrid");
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/setMessageAcquirerPromotion.action',
+                    data: {},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        var msg = data.message;
+                        if (msg) {
+                            $('#amessage').html("<div class=\"ui-state-error ui-corner-all\" style=\"padding: 0.3em 0.7em; margin-top: 20px;\"> \n" +
+                                    "<p><span class=\"ui-icon ui-icon-alert\" style=\"float: left; margin-right: 0.3em;\"></span>\n" +
+                                    "<span>" + msg + "</span></p>\n" +
+                                    "</div>");
+                        } else {
+
+                            $('#txnType').val("");
+                            $('#bankAmountType').val("");
+                            $('#bankAmount').val("");
+                            $('#merchantAmountType').val("");
+                            $('#merchantAmount').val("");
+                        }
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            function assignAcquirerPromotionUpdate() {
+
+                $('#amessage').empty();
+
+                var code = $('#code').val();
+                var promotioncurrency = $('#promotioncurrency').val();
+                var description = $('#description').val();
+                var status = $('#status').val();
+                var txnType = $('#txnType').val();
+                var bankAmountType = $('#bankAmountType').val();
+                var bankAmount = $('#bankAmount').val();
+                var merchantAmountType = $('#merchantAmountType').val();
+                var merchantAmount = $('#merchantAmount').val();
+
+                $("#gridtabletxn").jqGrid('setGridParam', {
+                    postData: {
+                        code: code,
+                        promotioncurrency: promotioncurrency,
+                        description: description,
+                        status: status,
+                        txnType: txnType,
+                        bankAmountType: bankAmountType,
+                        bankAmount: bankAmount,
+                        merchantAmountType: merchantAmountType,
+                        merchantAmount: merchantAmount,
+                        isAssign: 'update'
+                    }
+                });
+                $("#gridtabletxn").jqGrid('setGridParam', {page: 1});
+                jQuery("#gridtabletxn").trigger("reloadGrid");
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/setMessageAcquirerPromotion.action',
+                    data: {},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        var msg = data.message;
+                        if (msg) {
+                            $('#amessage').html("<div class=\"ui-state-error ui-corner-all\" style=\"padding: 0.3em 0.7em; margin-top: 20px;\"> \n" +
+                                    "<p><span class=\"ui-icon ui-icon-alert\" style=\"float: left; margin-right: 0.3em;\"></span>\n" +
+                                    "<span>" + msg + "</span></p>\n" +
+                                    "</div>");
+                            $('#assignbtn').hide();
+                            $('#assignbtnhidden').show();
+                        } else {
+                            $('#txnType').prop('disabled', false);
+                            $('#txnType').val("");
+                            $('#bankAmountType').val("");
+                            $('#bankAmount').val("");
+                            $('#merchantAmountType').val("");
+                            $('#merchantAmount').val("");
+                            $('#amessage').empty();
+                            $('#assignbtn').show();
+                            $('#assignbtnhidden').hide();
+                        }
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            $.subscribe('anyerrors', function (event, data) {
+                window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+            });
+
+            function checkBankAmount(key) {
+
+                var bankAmountType = $('#bankAmountType').val();
+
+                if ((bankAmountType == "PER") && (key != null || key != "")) {
+                    var x = parseFloat(key);
+                    if (isNaN(x) || x < 0 || x > 100) {
+                        // value is out of range
+                        //alert("******* value is out of range " + key);
+                        $('#bankAmount').val("");
+                    } else {
+                        //alert("hip hip huree bank");
+                    }
+                }
+            }
+
+            function checkMerchantAmount(key) {
+
+                var merchantAmountType = $('#merchantAmountType').val();
+
+                if ((merchantAmountType == "PER") && (key != null || key != "")) {
+                    var x = parseFloat(key);
+                    if (isNaN(x) || x < 0 || x > 100) {
+                        // value is out of range
+                        //alert("******* value is out of range " + key);
+                        $('#merchantAmount').val("");
+                    } else {
+                        //alert("hip hip huree merchant");
+                    }
+                }
+
+            }
+
+            function checkBankAmountByType(key) {
+
+                var bankAmount = $('#bankAmount').val();
+
+                if ((key == "PER") && (bankAmount != null || bankAmount != "")) {
+                    var x = parseFloat(bankAmount);
+                    if (isNaN(x) || x < 0 || x > 100) {
+                        // value is out of range
+                        //alert("******* value is out of range " + key);
+                        $('#bankAmount').val("");
+                    } else {
+                        //alert("hip hip huree bank");
+                    }
+                }
+            }
+
+            function checkMerchantAmountByType(key) {
+
+                var merchantAmount = $('#merchantAmount').val();
+
+                if ((key == "PER") && (merchantAmount != null || merchantAmount != "")) {
+                    var x = parseFloat(merchantAmount);
+                    if (isNaN(x) || x < 0 || x > 100) {
+                        // value is out of range
+                        //alert("******* value is out of range " + key);
+                        $('#merchantAmount').val("");
+                    } else {
+                        //alert("hip hip huree merchant");
+                    }
+                }
+
+            }
+            function formatNumber(num) {
+                var renum = num.replace(/[^0-9]/g, '');
+                return renum.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+            }
+            function formatPercentage(num) {
+                var renum = num.replace(/[^0-9.]/g, '');
+                if (renum.length > 0) {
+                    return renum + "%";
+                }
+            }
+
+            function alpha(e) {
+                var k;
+                document.all ? k = e.keyCode : k = e.which;
+                return ((k >= 48 && k <= 57));
+            }
+            function alphaamount(e) {
+                var k;
+                document.all ? k = e.keyCode : k = e.which;
+
+                return ((k >= 48 && k <= 57) || k == 46);
+            }
+
+            function clearamount1() {
+                $('#bankAmount').prop('value', "");
+            }
+            function clearamount2() {
+                $('#merchantAmount').prop('value', "");
+            }
+
+            function flatORpercentage1(key) {
+                var r1 = $('#bankAmountType').val();
+                var sval;
+                if (r1 == "FLAT") {
+                    $('#bankAmount').prop('maxLength', "8");
+                    sval = formatNumber(key);
+                } else if (r1 == "PER") {
+                    $('#bankAmount').prop('maxLength', "7");
+                    sval = formatPercentage(key);
+
+                }
+                return sval;
+            }
+            function flatORpercentage2(key) {
+                var r1 = $('#merchantAmountType').val();
+                var sval;
+                if (r1 == "FLAT") {
+                    $('#merchantAmount').prop('maxLength', "8");
+                    sval = formatNumber(key);
+                } else if (r1 == "PER") {
+                    $('#merchantAmount').prop('maxLength', "7");
+                    sval = formatPercentage(key);
+
+                }
+                return sval;
+            }
+
+        </script>
+    </head>
+
+    <body>
+        <div class="ali-modal">
+            <!--maximize and minimize buttons-->
+            <div class="col-sm-12">
+                <div style="text-align: right">
+                    <sj:submit 
+                        id="max"
+                        button="true" 
+                        value="Maximize" 
+                        onClick="maximize()"
+                        onClickTopics="Maximize"
+                        cssStyle="height: 16px;padding: 1px;width: 55px;font-size: 11px;background: orange;color: white;border-color: gray;"
+                        /> 
+                    <sj:submit 
+                        id="min"
+                        button="true" 
+                        value="Minimize" 
+                        onClick="resetwindow()"
+                        onClickTopics="Minimize"
+                        cssStyle="height: 16px;padding: 1px;width: 55px;font-size: 11px;background: orange;color: white;border-color: gray;"
+                        />                     
+                </div>
+            </div>
+            <!---------->
+            <div class="ali-modal-body">
+                <div class="ali-form">
+                    <s:div id="amessage">
+                        <s:actionerror theme="jquery"/>
+                        <s:actionmessage theme="jquery"/>
+                    </s:div>
+                    <s:form id="acquirerpromotionadd" method="post" action="AcquirerPromotion" theme="simple" cssClass="form">
+                        <div class="row row_popup">  
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <span style="color: red">*</span><label >Acquirer Promotion Code</label>
+                                    <s:textfield cssClass="form-control" name="code" id="code" maxLength="20" onkeyup="$(this).val($(this).val().replace(/[^a-zA-Z0-9]/g, ''))" onmouseout="$(this).val($(this).val().replace(/[^a-zA-Z0-9]/g, ''))" />
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <span style="color: red">*</span><label >Description</label>
+                                    <s:textfield cssClass="form-control" name="description" id="description" maxLength="256" onkeyup="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g, ''))" onmouseout="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g, ''))"/>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <span style="color: red">*</span><label >Status</label>
+                                    <s:select cssClass="form-control" id="status" list="%{statusList}"  headerValue="--Select Status--" headerKey="" name="status" listKey="statuscode" listValue="description"/>
+                                </div> 
+                            </div>
+
+                        </div>
+                        <div class="row row_popup">
+                            <div class="horizontal_line_popup"></div>
+                        </div>
+                        <div class="row row_popup">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <span style="color: red">*</span><label>Transaction Type</label>
+                                    <s:select  id="txnType" name="txnType" list="%{txnTypeList}"  headerValue="-- Select Transaction Type --" headerKey="" listKey="typecode" listValue="description"  cssClass="form-control"/>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <span style="color: red">*</span><label>Bank Amount Type</label> 
+                                    <s:select  id="bankAmountType" name="bankAmountType" list="%{amountType}" headerValue="-- Select Bank Amount Type --" headerKey="" 
+                                               listKey="code" listValue="description"  cssClass="form-control" 
+                                               onchange="clearamount1()" />
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <span style="color: red">*</span><label >Bank Amount</label>
+                                    <s:textfield cssClass="form-control" name="bankAmount" id="bankAmount" maxLength="10" 
+                                                 onkeyup="$(this).val(flatORpercentage1($(this).val()))" 
+                                                 onmouseout="$(this).val(flatORpercentage1($(this).val()))" 
+                                                 onkeypress="return alphaamount(event)"/>
+                                </div> 
+                            </div>
+                        </div>
+                        <div class="row row_popup">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <span style="color: red">*</span><label>Merchant Amount Type</label>
+                                    <s:select  id="merchantAmountType" list="%{amountType}"  name="merchantAmountType" 
+                                               headerValue="--Select Merchant Amount Type--" headerKey="" listKey="code"
+                                               listValue="description"  cssClass="form-control" 
+                                               onchange="clearamount2()" />
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <span style="color: red">*</span><label >Merchant Amount</label>
+                                    <s:textfield id="merchantAmount" name="merchantAmount"  cssClass="form-control"  maxLength="10"  
+                                                 onkeyup="$(this).val(flatORpercentage2($(this).val()))" 
+                                                 onmouseout="$(this).val(flatORpercentage2($(this).val()))" 
+                                                 onkeypress="return alphaamount(event)"/>
+                                </div> 
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group ali-margin f-right">
+                                    <sj:submit
+                                        button="true"
+                                        value="Assign"
+                                        id="assignbtnhidden"
+                                        onClick="assignAcquirerPromotionUpdate()"
+                                        cssClass="btn btn-ali-submit btn-sm"
+                                        cssStyle="display:none"                            
+                                        />
+                                </div>
+                                <div class="form-group" style=" margin-left: 0px;margin-right: 10px;">
+                                    <sj:submit
+                                        button="true"
+                                        value="Assign"
+                                        id="assignbtn"
+                                        onClick="assignAcquirerPromotion()"
+                                        cssClass="btn btn-ali-submit btn-sm"         
+                                        />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row row_popup" style="padding-top: 10px;">   </div>
+                        <div id="tablediv">
+                            <s:url var="listurl" action="assignAcquirerPromotion"/>
+                            <s:set var="pcaption">${CURRENTPAGE}</s:set>
+
+                            <sjg:grid
+                                id="gridtabletxn"
+                                caption="%{pcaption}"
+                                dataType="json"
+                                href="%{listurl}"
+                                pager="true"
+                                gridModel="gridModelTxn"
+                                rowList="10,15,20"
+                                targets="divmsgadd"
+                                rowNum="10"
+                                autowidth="true"
+                                rownumbers="true"
+                                onCompleteTopics="completetopics"
+                                rowTotal="false"
+                                viewrecords="true"
+                                shrinkToFit="true"
+                                > 
+                                <sjg:gridColumn name="txnType" index="txnType" title="Transaction Type" sortable="false" hidden="true"/>
+                                <sjg:gridColumn name="txnTypeDes" index="txnTypeDes" title="Transaction Type" sortable="false"/>
+                                <sjg:gridColumn name="bankAmountType" index="bankAmountType" title="Bank Amount Type" sortable="false" hidden="true"/>
+                                <sjg:gridColumn name="bankAmountTypeDes" index="bankAmountTypeDes" title="Bank Amount Type" sortable="false"/>
+                                <sjg:gridColumn name="bankAmount" index="bankAmount" title="Bank Amount" align="right" sortable="false"/>
+                                <sjg:gridColumn name="merchantAmountType" index="merchantAmountType" title="Merchant Amount Type" sortable="false" hidden="true"/>
+                                <sjg:gridColumn name="merchantAmountTypeDes" index="merchantAmountTypeDes" title="Merchant Amount Type" sortable="false"/>
+                                <sjg:gridColumn name="merchantAmount" index="merchantAmount" title="Merchant Amount" align="right" sortable="false"/>
+                                <sjg:gridColumn name="txnType" index="txnType" title="Edit" width="60" align="center" formatter="editformatter" hidden="#vremovelink" sortable="false"/>
+                                <sjg:gridColumn name="txnType" index="txnType"  title="Delete" width="60" align="center" formatter="removeformatter" hidden="#vdelete" sortable="false"/> 
+                            </sjg:grid> 
+                        </div>
+                        <div class="row row_popup">
+                            <div class="horizontal_line_popup"></div>
+                        </div>
+                        <div class="row ">
+                            <div class="col-sm-6">
+                                <div class="ali-mandatory-field">Mandatory fields are marked with <span>*</span></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group ali-margin f-right">
+                                    <sj:submit 
+                                        button="true" 
+                                        value="Reset" 
+                                        name="reset" 
+                                        cssClass="btn btn-ali-reset btn-sm"
+                                        onClickTopics="resetAddButton"
+                                        />                          
+                                    <s:url action="addAcquirerPromotion" var="inserturl"/>
+                                    <sj:submit
+                                        button="true"
+                                        value="Add"                            
+                                        href="%{inserturl}"
+                                        onClickTopics=""                          
+                                        targets="amessage"
+                                        id="addbtn"
+                                        cssClass="btn btn-ali-submit btn-sm"    
+                                        /> 
+                                </div>
+                            </div>
+                        </div>
+                    </s:form>
+                </div>
+            </div>
+        </div> 
+    </body>
+</html>

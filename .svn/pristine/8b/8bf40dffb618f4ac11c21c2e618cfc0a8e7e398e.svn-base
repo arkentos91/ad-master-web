@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<servers>
+    <Server id="s1">
+        <Name>NAC Server</Name>
+        <IP>192.168.20.246</IP>
+        <PORT>5001</PORT>
+    </Server>
+    <Server id="s2">
+        <Name>OTP Server</Name>
+        <IP>192.168.1.73</IP>
+        <PORT>8006</PORT>
+    </Server>
+    <Server id="s3">
+        <Name>OTP Service</Name>
+        <IP>192.168.1.73</IP>
+        <PORT>7171</PORT>
+    </Server>    
+     <Server id="s4">
+        <Name>HS Conector</Name>
+        <IP>192.168.1.57</IP>
+        <PORT>4003</PORT>
+    </Server>
+    <Server id="s5">
+        <Name>MServer</Name>
+        <IP>192.168.1.73</IP>
+        <PORT>7171</PORT>
+    </Server>
+    <Server id="s6">
+        <Name>TSP Service</Name>
+        <IP>192.168.1.73</IP>
+        <PORT>7171</PORT>
+    </Server> 
+    <Server id="s7">
+        <Name>WAM</Name>
+        <IP>192.168.1.64</IP>
+        <PORT>4002</PORT>
+    </Server> 
+    <Server id="s8">
+        <Name>SMS Server</Name>
+        <IP>192.168.1.220</IP>
+        <PORT>8000</PORT>
+    </Server> 
+    <UrlLink id="u1">
+        <Name>OTP Service</Name>
+        <url>http://192.168.1.73:7171/mobilepay/webresources/generic/PosTransaction</url>
+    </UrlLink>
+    <UrlLink id="u2">
+        <Name>ACS Engine</Name>
+        <url>http://192.168.1.73:7171/TSP_V1.09/TSPService</url>
+    </UrlLink>
+    <UrlLink id="u3">
+        <Name>Portwise OTP Service</Name>
+        <url>https://192.125.125.44:4431/ws/services/Authentication</url>
+    </UrlLink>
+</servers>

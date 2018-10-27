@@ -1,0 +1,737 @@
+<%-- 
+    Document   : systemuser
+    Created on : 08/01/2014, 1:23:02 PM
+    Author     : asitha_l
+--%>
+
+<%@page import="com.epic.bmlalipay.util.varlist.CommonVarList"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="/struts-tags" prefix="s" %>
+<%@taglib  uri="/struts-jquery-tags" prefix="sj"%>
+<%@taglib prefix="sjg" uri="/struts-jquery-grid-tags"%>
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+
+        <%@include file="/stylelinks.jspf" %>
+
+        <script type="text/javascript">
+
+            function changepasswordformatter(cellvalue) {
+                return "<a href='#' title='changepassword' onClick='javascript:changepasswordInit(&#34;" + cellvalue + "&#34;)'><img class='ui-icon ui-icon-arrowreturnthick-1-s' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+
+            function changepasswordInit(keyval) {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/changePasswordSystemUser',
+                    data: {usernameUserrole: keyval},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        $('#divmsg').empty();
+                        var msg = data.message;
+                        if (msg) {
+                            alert(data.message)
+                        }
+                        else {
+                            resetAllChagePass();
+                            $("#systemuseradd").hide();
+                            $("#pwdResetform").show();
+
+                            $('#cusername').val(data.username);
+                            $('#cusername').attr('readOnly', true);
+                            $('#cuserrole').val(data.userrole);
+                            $('#cuserrole').attr('readOnly', true);
+                            $('#chusername').val(data.husername);
+
+
+
+                        }
+                    },
+                    error: function (data) {
+                        //                        $("#deleteerrordialog").html("Error occurred while processing.").dialog('open');
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            // start newly changed
+            function duplicatedadd(keyval) {
+                $('#divmsg').empty();
+
+                $("#adddialog").data('keyval', keyval).dialog('open');
+                $("#adddialog").html('User already exists. Do you want to Activate user : ' + keyval + ' ?');
+                return false;
+            }
+
+
+            function AddUser(keyval) {
+
+                var password = $('#password').val();
+                var confirmpassword = $('#confirmpassword').val();
+                //              var expirydate = $('#expirydate').val();
+                var userrole = $('#userrole').val();
+//                var dualauthuser = $('#dualauthuser').val();
+                var status = '<%=CommonVarList.STATUS_ACTIVE%>';
+                var fullname = $('#fullname').val();
+                var serviceid = $('#serviceid').val();
+                var address1 = $('#address1').val();
+                var address2 = $('#address2').val();
+                var city = $('#city').val();
+                var contactno = $('#contactno').val();
+                var email = $('#email').val();
+                var nic = $('#nic').val();
+                var dateofbirth = $('#dateofbirth').val();
+
+                // expirydate:expirydate, removed in data
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/activateSystemUser.action',
+                    data: {username: keyval, password: password, confirmpassword: confirmpassword,
+                        userrole: userrole, status: status, fullname: fullname, serviceid: serviceid,
+                        address1: address1, address2: address2, city: city, contactno: contactno, email: email, nic: nic,
+                        dateofbirth: dateofbirth},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        $("#addsuccdialog").dialog('open');
+                        $("#addsuccdialog").html(data.message);
+                        resetFieldData();
+                        //                        jQuery("#gridtable").trigger("reloadGrid");                      
+                    },
+                    error: function (data) {
+                        //                        $("#deleteerrordialog").dialog('open');
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            // end newly changed
+
+            function loadDualAuthUsers(keyval) {
+
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/findDualAuthUsersSystemUser',
+                    data: {userrole: keyval},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        $('#divmsg').empty();
+
+                        var msg = data.message;
+
+                        if (msg) {
+                            alert(data.message)
+                        }
+                        else {
+                            $('#dualauthuser').empty();
+                            $('#dualauthuser').append(
+                                    $('<option></option>').val("").html("--Select User--")
+                                    );
+                            $.each(data.dualAuthUserMap, function (key, value) {
+                                $('#dualauthuser').append(
+                                        $('<option></option>').val(key).html(value)
+                                        );
+                            });
+
+                        }
+                    },
+                    error: function (data) {
+                        //                        alert("Error occurd while loading.");
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            function updateDualAuthUsers(keyval, dualauthuser) {
+
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/findDualAuthUsersSystemUser',
+                    data: {userrole: keyval},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        $('#divmsg').empty();
+
+                        var msg = data.message;
+
+                        if (msg) {
+                            alert(data.message)
+                        }
+                        else {
+                            $('#dualauthuser').empty();
+                            $('#dualauthuser').append(
+                                    $('<option></option>').val("").html("--Select User--")
+                                    );
+                            $.each(data.dualAuthUserMap, function (key, value) {
+                                if (key == dualauthuser) {
+                                    $('#dualauthuser').append(
+                                            $('<option selected></option>').val(key).html(value)
+                                            );
+                                } else {
+                                    $('#dualauthuser').append(
+                                            $('<option></option>').val(key).html(value)
+                                            );
+                                }
+                            });
+
+                        }
+                    },
+                    error: function (data) {
+                        //                        alert("Error occurd while loading.");
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+
+            function editformatter(cellvalue) {
+                a = $("#addButton").is(':disabled');
+                u = $("#updateButton").is(':disabled');
+                return "<a href='#' title='Edit' onClick='javascript:editSystemUser(&#34;" + cellvalue + "&#34;)'><img class='ui-icon ui-icon-pencil' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+
+            function deleteformatter(cellvalue, options, rowObject) {
+                return "<a href='#/' title='Delete' onClick='javascript:deleteSystemUserInit(&#34;" + cellvalue + "&#34;)'><img class='ui-icon ui-icon-trash' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+
+
+            function editSystemUser(keyval) {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/findSystemUser',
+                    data: {username: keyval},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        $('#divmsg').empty();
+                        var msg = data.message;
+                        if (msg) {
+                            //                                                        alert(data.message)
+                            $('#username').attr('readOnly', false);
+                            $('#username').val("");
+                            $("#username").css("color", "black");
+                            $('#password').val("");
+                            $('#confirmpassword').val("");
+                            //                            $('#expirydate').val("");
+                            $('#expirydate').val(data.expirydate);
+                            $("#expirydate").css("color", "#858585");
+                            $('#userrole').val("");
+//                            $('#dualauthuser').val("");
+                            $('#status').val(data.status);
+//                            $('#status').attr('readOnly', true);
+                            $('#fullname').val("");
+                            $('#serviceid').val("");
+                            $('#address1').val("");
+                            $('#city').val("");
+                            $('#contactno').val("");
+                            $('#email').val("");
+                            $('#nic').val("");
+                            $('#dateofbirth').val("");
+//                            $(".hideme").show();
+                            $('#divmsg').text("");
+                            $('#updateButton').button("disable");
+
+                            var startStatus = <s:property value="vadd" />;
+                            if (startStatus) {
+                                $('#addButton').button("disable");
+                            } else {
+                                $('#addButton').button("enable");
+                            }
+
+                        }
+                        else {
+                            $('#oldvalue').val(data.oldvalue);
+                            $('#username').val(data.username);
+                            $('#username').attr('readOnly', true);
+                            $("#username").css("color", "#858585");
+//                            $(".hideme").hide();
+                            $('#expirydate').val(data.expirydate);
+                            $("#expirydate").css("color", "#858585");
+                            $('#userrole').val(data.userrole);
+//                            updateDualAuthUsers(data.userrole,data.dualauthuser);
+                            //$('#dualauthuser').val(data.dualauthuser);
+                            $('#status').val(data.status);
+                            $('#status').prop("disabled", false);
+                            $('#fullname').val(data.fullname);
+                            $('#serviceid').val(data.serviceid);
+                            $('#address1').val(data.address1);
+                            $('#city').val(data.city);
+                            $('#contactno').val(data.contactno);
+                            $('#email').val(data.email);
+                            $('#nic').val(data.nic);
+                            $('#dateofbirth').val(data.dateofbirth);
+                            $('#addButton').button("disable");
+                            $('#updateButton').button("enable");
+                        }
+                    },
+                    error: function (data) {
+                        //                        $("#deleteerrordialog").html("Error occurred while processing.").dialog('open');
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            function deleteSystemUserInit(keyval) {
+                $('#divmsg').empty();
+                $("#deletedialog").data('keyval', keyval).dialog('open');
+                $("#deletedialog").html('Are you sure you want to delete system user ' + keyval + ' ?');
+                return false;
+            }
+
+            function deleteSystemUser(keyval) {
+//                alert(keyval);
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/deleteSystemUser',
+                    data: {username: keyval},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        $("#deletesuccdialog").dialog('open');
+                        $("#deletesuccdialog").html(data.message);
+
+                        resetFieldData();
+                    },
+                    error: function (data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });
+            }
+
+            function resetAllData() {
+                a = $("#addButton").is(':disabled');
+                u = $("#updateButton").is(':disabled');
+
+                if (a == true && u == true) {
+                    editSystemUser(null);
+                    //                    $('#username').attr('readOnly',false);
+                    //                    $('#username').val("");
+                    //                    $('#password').val("");
+                    //                    $('#confirmpassword').val("");
+                    //                    $('#expirydate').val("");
+                    //                    $('#userrole').val("");
+                    //                    $('#dualauthuser').val("");
+                    //                    $('#status').val("");
+                    //                    $('#fullname').val("");
+                    //                    $('#serviceid').val("");                                    
+                    //                    $('#address1').val("");
+                    //                    $('#address2').val("");
+                    //                    $('#city').val("");
+                    //                    $('#contactno').val("");
+                    //                    $('#email').val("");
+                    //                    $('#nic').val("");
+                    //                    $('#dateofbirth').val("");   
+                    //                    $(".hideme").show();
+                    //                    $('#divmsg').text("");
+                    //                    $('#addButton').button("disable");
+                    //                    $('#updateButton').button("disable");
+                } else if (a == true && u == false) {
+                    var username = $('#username').val();
+                    $('#username').attr('readOnly', true);
+                    editSystemUser(username);
+                } else if (a == false && u == true) {
+                    editSystemUser(null);
+                    //                    $('#username').attr('readOnly',false);
+                    //                    $('#username').val("");
+                    //                    $('#password').val("");
+                    //                    $('#confirmpassword').val("");
+                    //                    $('#expirydate').val("");
+                    //                    $('#userrole').val("");
+//                                        $('#dualauthuser').val("");
+                    //                    $('#status').val("");
+                    //                    $('#fullname').val("");
+                    //                    $('#serviceid').val("");                                    
+                    //                    $('#address1').val("");
+                    //                    $('#address2').val("");
+                    //                    $('#city').val("");
+                    //                    $('#contactno').val("");
+                    //                    $('#email').val("");
+                    //                    $('#nic').val("");
+                    //                    $('#dateofbirth').val("");    
+                    //                    $(".hideme").show();
+                    //                    $('#divmsg').text("");
+                    //                    $('#addButton').button("enable");
+                    //                    $('#updateButton').button("disable");  
+                }
+            }
+
+            function resetFieldData() {
+                a = $("#addButton").is(':disabled');
+                u = $("#updateButton").is(':disabled');
+
+                $('#username').attr('readOnly', false);
+                $('#username').val("");
+                $("#username").css("color", "black");
+                $('#password').val("");
+                $('#confirmpassword').val("");
+                $('#expirydate').val('${PASSWORDEXPIRYPERIOD}');
+                $("#expirydate").css("color", "#858585");
+                $('#userrole').val("");
+//                $('#dualauthuser').val("");
+               $('#status').val("ACT");
+                $('#status').attr('disabled', true);
+                $('#fullname').val("");
+                $('#serviceid').val("");
+                $('#address1').val("");
+                $('#address2').val("");
+                $('#city').val("");
+                $('#contactno').val("");
+                $('#email').val("");
+                $('#nic').val("");
+                $('#dateofbirth').val("");
+
+                if (a == true && u == true) {
+                    $('#addButton').button("disable");
+                    $('#updateButton').button("disable");
+                } else if (a == true && u == false) {
+                    $('#addButton').button("enable");
+                    $('#updateButton').button("disable");
+                } else if (a == false && u == true) {
+                    $('#addButton').button("enable");
+                    $('#updateButton').button("disable");
+                }
+
+                jQuery("#gridtable").trigger("reloadGrid");
+//                $(".hideme").show();
+            }
+
+            function resetAllChagePass() {
+                $('#newpwd').val("");
+                $('#renewpwd').val("");
+                $('#changepassdivmsg').text("");
+                editSystemUser(null);
+            }
+
+            function backToMain() {
+                $('#pwdResetform').hide();
+                $('#systemuseradd').show();
+            }
+
+            function cancelAllData() {
+                editSystemUser(null);
+            }
+
+            window.onload = function () {
+                $("#username").css("color", "black");
+                $("#expirydate").css("color", "#858585");
+                $('#status').val("ACT");
+            };
+
+        </script>
+
+    </head>
+
+    <body style="">
+        <jsp:include page="/header.jsp"/>
+
+        <div class="main-container">
+
+            <jsp:include page="/leftmenu.jsp"/>
+
+            <div class="main-content">
+
+                <div class="container" style="min-height: 760px;">
+
+                    <!-- start: PAGE NAVIGATION BAR -->
+                    <jsp:include page="/navbar.jsp"/>
+                    <!-- end: NAVIGATION BAR -->
+
+                    <div class="row">
+
+                        <div id="content1">
+
+                            <s:div id="divmsg">
+
+                                <s:actionerror theme="jquery"/>
+                                <s:actionmessage theme="jquery"/>
+                            </s:div>
+
+                            <s:set id="vadd" var="vadd"><s:property value="vadd" default="true"/></s:set>
+                            <s:set var="vupdatebutt"><s:property value="vupdatebutt" default="true"/></s:set>
+                            <s:set var="vupdatelink"><s:property value="vupdatelink" default="true"/></s:set>
+                            <s:set var="vdelete"><s:property value="vdelete" default="true"/></s:set>
+
+                                <div id="formstyle">
+                                <s:form id="systemuseradd" method="post" action="SystemUser" theme="simple" >
+                                    <s:hidden id="oldvalue" name="oldvalue" ></s:hidden>
+                                        <div class="row row_1">
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <span style="color: red">*</span><label>User ID</label>
+                                                <s:textfield cssClass="form-control" name="username" id="username" maxLength="20" onkeyup="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red"></span><label>Service ID</label>
+                                                <s:textfield cssClass="form-control" name="serviceid" id="serviceid" maxLength="20" onkeyup="$(this).val($(this).val().replace(/[^a-zA-Z0-9]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^a-zA-Z0-9]/g,''))"/>                                        </div>
+
+                                        </div>
+                                        <div class="col-sm-3 hideme">
+                                            <div class="form-group">
+                                                <span style="color: red"></span><label>Password</label>
+                                                <s:password cssClass="form-control" name="password" id="password" maxLength="64"  />                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-3 hideme">
+                                            <div class="form-group">
+                                                <span style="color: red"></span><label>Confirm Password</label>
+                                                <s:password   cssClass="form-control" name="confirmpassword" id="confirmpassword" maxLength="64" />                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row row_1">
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red"></span><label>NIC No</label>
+                                                <s:textfield cssClass="form-control" name="nic" id="nic" maxLength="7" onkeyup="$(this).val($(this).val().replace(/[^a-zA-Z0-9]/g,''))"  onmouseout="$(this).val($(this).val().replace(/[^a-zA-Z0-9]/g,''))"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red"></span><label>Address</label>
+                                                <s:textfield cssClass="form-control" name="address1" id="address1" maxLength="256" />
+                                            </div>
+
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red">*</span><label>User Role</label>
+                                                <s:select cssClass="form-control" id="userrole" list="%{userroleList}"  name="userrole" headerKey="" headerValue="--Select User Role--" listKey="userrolecode" listValue="description"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red"></span><label>City</label>
+                                                <s:textfield cssClass="form-control" name="city" id="city" maxLength="64" onkeyup="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row row_1">
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red"></span><label>Date of Birth</label>
+                                                <sj:datepicker cssClass="form-control" id="dateofbirth" name="dateofbirth" readonly="true" changeYear="true" buttonImageOnly="true" displayFormat="dd/mm/yy" maxDate="d" cssStyle="cursor:auto" yearRange="-100:+1"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red"></span><label>Contact No</label>
+                                                <s:textfield cssClass="form-control" name="contactno" id="contactno" maxLength="20" onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))"  onmouseout="$(this).val($(this).val().replace(/[^0-9]/g,''))" />
+                                            </div>
+
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red">*</span><label>Status</label>
+                                                <s:select cssClass="form-control" id="status" list="%{statusList}"  name="status" headerKey="" disabled="true" headerValue="--Select Status--" listKey="statuscode" listValue="description" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red"></span><label>Email</label>
+                                                <s:textfield cssClass="form-control" name="email" id="email" maxLength="128" onkeyup="$(this).val($(this).val().replace(/[^a-zA-Z0-9@.]/g,''))"  onmouseout="$(this).val($(this).val().replace(/[^a-zA-Z0-9@.]/g,''))"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row row_1">
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red"></span><label>Full Name</label>
+                                                <s:textfield cssClass="form-control" name="fullname" id="fullname" maxLength="128" onkeyup="$(this).val($(this).val().replace(/[^a-zA-Z ]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^a-zA-Z ]/g,''))"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <span style="color: red"></span><label>Password Expiry Date</label>
+                                                <s:textfield cssClass="form-control" id="expirydate" name="expirydate" readonly="true" displayFormat="dd/mm/yy"/>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                    <div class="row row_1"></div>
+
+                                    <s:url var="addurl" action="addSystemUser"/>
+                                    <s:url var="updateurl" action="updateSystemUser"/>
+                                    <div class="row row_popup form-inline">
+                                        <div class="col-sm-9">
+                                            <div class="form-group">
+                                                <span class="mandatoryfield">Mandatory fields are marked with *</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row row_1 form-inline">
+
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <sj:submit button="true" href="%{addurl}" value="Add" targets="divmsg" id="addButton"  disabled="#vadd"
+                                                           cssClass="form-control btn_normal"
+                                                           cssStyle="border-radius: 12px;background-color:#969595;color:white;"/>
+                                            </div>
+                                            <div class="form-group">
+                                                <sj:submit button="true" href="%{updateurl}" value="Update" targets="divmsg"   disabled="#vupdatebutt" id="updateButton"
+                                                           cssClass="form-control btn_normal"
+                                                           cssStyle="border-radius: 12px;background-color:#969595;color:white;"/>
+                                            </div>
+                                            <div class="form-group">
+                                                <sj:submit button="true" value="Reset" name="reset" onClick="resetAllData()" 
+                                                           cssClass="form-control btn_normal"
+                                                           cssStyle="border-radius: 12px;"/>
+                                            </div>
+                                            <div class="form-group">
+                                                <sj:submit button="true" value="Cancel" name="cancel" onClick="cancelAllData()"
+                                                           cssClass="form-control btn_normal"
+                                                           cssStyle="border-radius: 12px;"/>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <!--start newly changed-->
+                                <sj:dialog 
+                                    id="adddialog" 
+                                    buttons="{ 
+                                    'OK':function() { AddUser($(this).data('keyval'));$( this ).dialog( 'close' ); },
+                                    'Cancel':function() { $( this ).dialog( 'close' );} 
+                                    }" 
+                                    autoOpen="false" 
+                                    modal="true" 
+                                    title="Add User"                            
+                                    />
+                                <!-- Start add process dialog box -->
+                                <sj:dialog 
+                                    id="addsuccdialog" 
+                                    buttons="{
+                                    'OK':function() { $( this ).dialog( 'close' );}
+                                    }"  
+                                    autoOpen="false" 
+                                    modal="true" 
+                                    title="Adding Process." 
+                                    />
+                                <!--end newly changed-->             
+
+                                <!-- Start delete confirm dialog box -->
+                                <sj:dialog 
+                                    id="deletedialog" 
+                                    buttons="{ 
+                                    'OK':function() { deleteSystemUser($(this).data('keyval'));$( this ).dialog( 'close' ); },
+                                    'Cancel':function() { $( this ).dialog( 'close' );} 
+                                    }" 
+                                    autoOpen="false" 
+                                    modal="true" 
+                                    title="Delete System User"                            
+                                    />
+                                <!-- Start delete process dialog box -->
+                                <sj:dialog 
+                                    id="deletesuccdialog" 
+                                    buttons="{
+                                    'OK':function() { $( this ).dialog( 'close' );}
+                                    }"  
+                                    autoOpen="false" 
+                                    modal="true" 
+                                    title="Deleting Process." 
+                                    />
+                                <!-- Start delete error dialog box -->
+                                <sj:dialog 
+                                    id="deleteerrordialog" 
+                                    buttons="{
+                                    'OK':function() { $( this ).dialog( 'close' );}                                    
+                                    }" 
+                                    autoOpen="false" 
+                                    modal="true" 
+                                    title="Delete error."
+                                    />
+
+                                <div id="tablediv">
+                                    <s:url var="listurl" action="listSystemUser"/>
+                                    <sjg:grid
+                                        id="gridtable"
+                                        caption="System User"
+                                        dataType="json"
+                                        href="%{listurl}"
+                                        pager="true"
+                                        gridModel="gridModel"
+                                        rowList="10,15,20"
+                                        rowNum="10"
+                                        autowidth="true"
+                                        rownumbers="true"
+                                        onCompleteTopics="completetopics"
+                                        rowTotal="false"
+                                        viewrecords="true"
+                                        >
+                                        <sjg:gridColumn name="username" index="username" title="Edit" width="25" align="center" formatter="editformatter" hidden="#vupdatelink"/>
+                                        <sjg:gridColumn name="username" index="username" title="Delete" width="25" align="center" formatter="deleteformatter"/>
+                                        <sjg:gridColumn name="username" index="username" title="User Name"  sortable="true"/>
+                                        <sjg:gridColumn name="userrole" index="userrole.description" title="User Role"  sortable="true"/>
+                                        <sjg:gridColumn name="status" index="status.description" title="Status"  sortable="true"/>
+                                        <%--<sjg:gridColumn name="usernameUserrole" index="username" title="Password Reset" width="60" align="center" formatter="changepasswordformatter"/>--%>
+                                    </sjg:grid> 
+                                </div> 
+
+                            </s:form> 
+
+                            <s:form action="PasswordReset" theme="simple" method="post" id="pwdResetform" cssStyle="display:none">
+                                <s:div id="changepassdivmsg">
+
+                                    <s:actionerror theme="jquery"/>
+                                    <s:actionmessage theme="jquery"/>
+
+                                </s:div>
+                                <table border="0" cellspacing="5">
+
+                                    <tr> <td></td><td></td> </tr> 
+                                    <tr> <td></td><td></td></tr>
+
+                                    <tr><td>User Name </td><td><s:textfield name="username" id="cusername" disabled="true"/></td>
+                                        <td><s:hidden name="husername" id="chusername" /></td></tr>
+                                    <tr><td>User Role </td><td><s:textfield  id="cuserrole"  name="userrole" disabled="true"/></td></tr>
+                                    <tr><td>New Password<span style="color: red">*</span></td><td><s:password  name="newpwd" id="newpwd" /></td></tr>
+                                    <tr><td>Retype New Password<span style="color: red">*</span></td><td><s:password  name="renewpwd" id="renewpwd"/></td></tr>
+                                    <tr><td><span class="mandatoryfield">Mandatory fields are marked with *</span></td><td></td></tr>
+                                    <tr>
+                                        <td></td>
+                                        <td>
+                                            <s:url var="pwreseturl" action="updateChangePasswordSystemUser"/>                                   
+                                            <sj:submit 
+                                                button="true"
+                                                href="%{pwreseturl}"
+                                                value="Accept"
+                                                targets="changepassdivmsg"
+                                                />      
+                                            <sj:submit button="true" value="Reset" onClick="resetAllChagePass()"/>     
+                                            <sj:a href="#" name="back" button="true" onclick="backToMain()">Back</sj:a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                            </s:form>     
+
+                        </div>                                                     
+
+                    </div>
+
+                </div>
+
+                <!-- end: PAGE CONTENT-->
+            </div>
+        </div>
+        <!-- end: PAGE -->
+        </div>
+        <!-- end: MAIN CONTAINER -->
+        <!-- start: FOOTER -->
+        <jsp:include page="/footer.jsp"/>
+        <!-- end: FOOTER -->
+
+
+
+        <!-- end: BODY -->
+    </body>
+</html>

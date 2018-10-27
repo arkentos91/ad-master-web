@@ -1,0 +1,249 @@
+<%-- 
+    Document   : commonfilepath
+    Created on : Feb 5, 2016, 4:59:51 PM
+    Author     : chathuri_t
+--%>
+
+<%@page import="com.epic.bmlalipay.util.varlist.CommonVarList"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="/struts-tags" prefix="s"%>
+<%@taglib uri="/struts-jquery-tags" prefix="sj"%>
+<%@taglib prefix="sjg" uri="/struts-jquery-grid-tags"%>
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+
+        <%@include file="/stylelinks.jspf" %>
+
+        <script type="text/javascript">
+
+            window.onload = function (){
+                $("#OStype").css("color", "black");
+            }
+            
+            function editformatter(cellvalue, options, rowObject) {
+                return "<a href='#' title='Edit' onClick='javascript:editComfilepath(&#34;"+cellvalue+"&#34;)'><img class='ui-icon ui-icon-pencil' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+
+            function editComfilepath(keyval) {
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/FindCommonFilePath.action',
+                    data: {OStype: keyval},
+                    dataType: "json",
+                    type: "POST",
+                    success: function(data) {
+                        $('#divmsg').empty();
+                        var msg = data.message;
+                        if (msg) {
+//                            alert(data.message)
+                            $('#OStype').val("");
+                            $('#OStype').attr('readOnly', false);
+                            $("#OStype").css("color", "black");
+                            $('#infolog').val("");
+                            $('#errorlog').val("");
+                            $('#transactionlog').val("");
+                            $('#divmsg').text("");
+                            $('#updateButton').button("disable");
+                        }
+                        else {
+                            $('#oldvalue').val(data.oldvalue);
+                            $('#OStype').val(data.OStype);
+                            $("#OStype").css("color", "#858585");
+                            $('#OStype').attr('readOnly', true);
+                            $('#infolog').val(data.infolog);
+                            $('#errorlog').val(data.errorlog);
+                            $('#transactionlog').val(data.transactionlog);
+                            $('#updateButton').button("enable");
+                        }
+                    },
+                    error: function(data) {
+                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.acs?";
+
+                    }
+                });
+            }
+
+            function resetAllData() {
+                var s = $("#updateButton").is(':disabled');
+                if (s == true) {
+                    editComfilepath(null);
+                } else {
+                    var OSType = $('#OStype').val();
+                    editComfilepath(OSType);
+                }
+            }
+
+            function resetFieldData() {
+
+                $('#OStype').val("");
+                $('#OStype').attr('readOnly', false);
+                $("#OStype").css("color", "black");
+                $('#infolog').val("");
+                $('#errorlog').val("");
+                $('#transactionlog').val("");
+                
+                $('#updateButton').button("disable");
+
+                jQuery("#gridtable").trigger("reloadGrid");
+            }
+
+            function cancelAllData(){ 
+                editComfilepath(null);        
+            }
+
+        </script>                     
+
+    </head>
+
+    <body style="">
+        <jsp:include page="/header.jsp"/>
+
+        <div class="main-container">
+
+
+            <jsp:include page="/leftmenu.jsp"/>
+
+            <div class="main-content">
+
+                <div class="container" style="min-height: 760px;">
+
+
+                    <!-- start: PAGE NAVIGATION BAR -->
+                    <jsp:include page="/navbar.jsp"/>
+                    <!-- end: NAVIGATION BAR -->
+
+                    <div class="row">
+
+
+                        <div id="content1">
+
+
+                            <s:div id="divmsg">
+
+                                <s:actionerror theme="jquery"/>
+                                <s:actionmessage theme="jquery"/>
+                            </s:div>
+
+                            <s:set var="vupdatebutt"><s:property value="vupdatebutt" default="true"/></s:set>
+                            <s:set var="vupdatelink"><s:property value="vupdatelink" default="true"/></s:set>                           
+
+                                <div id="formstyle">
+                                <s:form id="commonFilePathadd" method="post" action="CommonFilePath" theme="simple" >
+
+
+                                    <table border="0"  cellpadding="5">
+
+                                        <tbody>
+
+
+                                            <tr>
+                                                <td>OS Type <span style="color: red">*</span></td>
+                                                <td><s:textfield cssStyle="width: 183px" name="OStype" id="OStype" maxLength="10" onkeyup="$(this).val($(this).val().replace(/[^a-zA-Z0-9]/g,'')); "/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Info Log <span style="color: red">*</span></td>
+                                                <td><s:textfield  name="infolog" id="infolog" maxLength="128"  size="80" />
+                                                </td>                                         
+                                            </tr>
+                                            <tr>
+                                                <td>Error Log <span style="color: red">*</span></td>
+                                                <td><s:textfield  name="errorlog" id="errorlog" maxLength="128"  size="80" />
+                                                </td>                                         
+                                            </tr>
+                                            <tr>
+                                                <td>Transaction Log <span style="color: red">*</span></td>
+                                                <td><s:textfield  name="transactionlog" id="transactionlog" maxLength="128"  size="80" />
+                                                </td>                                         
+                                            </tr>
+                                            <tr>
+                                                <td><span class="mandatoryfield">Mandatory fields are marked with *</span></td>
+                                                <td><s:hidden id="oldvalue" name="oldvalue" ></s:hidden>
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td> 
+                                                    <s:url var="updateurl" action="UpdateCommonFilePath"/></td>
+                                                <td>
+
+                                                    <sj:submit button="true" href="%{updateurl}" value="Update" targets="divmsg"   disabled="#vupdatebutt" id="updateButton"/>
+
+                                                    <sj:submit button="true" value="Reset" name="reset" onClick="resetAllData()"  />
+
+                                                    <sj:submit button="true" value="Cancel" name="cancel" onClick="cancelAllData()"  />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </s:form>
+                            </div>
+
+                            <!-- Start edit process dialog box -->
+                            <sj:dialog 
+                                id="editerrordialog" 
+                                buttons="{
+                                'OK':function() { $( this ).dialog( 'close' );}                                    
+                                }" 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Edit error."
+                                />                      
+
+                            <div id="tablediv">
+                                <s:url var="listurl" action="ListCommonFilePath"/>
+                                <sjg:grid
+                                    id="gridtable"
+                                    caption="Common File Path Management"
+                                    dataType="json"
+                                    href="%{listurl}"
+                                    pager="true"
+                                    gridModel="gridModel"
+                                    rowList="10,15,20"
+                                    rowNum="10"
+                                    autowidth="true"
+                                    rownumbers="true"
+                                    onCompleteTopics="completetopics"
+                                    rowTotal="false"
+                                    viewrecords="true"
+                                    
+                                    >
+                                    <sjg:gridColumn name="ostype" index="u.ostype" title="OS Type"  sortable="true"/>
+                                    <sjg:gridColumn name="infolog" index="u.infolog" title="Info Log"  sortable="true"/>
+                                    <sjg:gridColumn name="errorlog" index="u.errorlog" title="Error Log"  sortable="true"/>                        
+                                    <sjg:gridColumn name="transactionlog" index="u.transactionlog" title="Transaction Log"  sortable="true"/>                        
+                                    <sjg:gridColumn name="ostype" index="u.ostype" title="Edit" width="25" align="center"  formatter="editformatter" hidden="#vupdatelink"/>                        
+
+                                </sjg:grid>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+
+                    <!-- end: PAGE CONTENT-->
+                </div>
+            </div>
+            <!-- end: PAGE -->
+        </div>
+        <!-- end: MAIN CONTAINER -->
+        <!-- start: FOOTER -->
+        <jsp:include page="/footer.jsp"/>
+        <!-- end: FOOTER -->
+
+
+
+        <!-- end: BODY -->
+    </body>
+</html>

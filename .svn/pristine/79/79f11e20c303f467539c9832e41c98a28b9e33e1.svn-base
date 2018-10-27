@@ -1,0 +1,732 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.dao.controlpanel.acquirer;
+
+import com.epic.bmlalipay.bean.controlpanel.acquirer.AcquirerPromotionAssignBean;
+import com.epic.bmlalipay.bean.controlpanel.acquirer.AcquirerPromotionBean;
+import com.epic.bmlalipay.bean.controlpanel.acquirer.AcquirerPromotionInputBean;
+import com.epic.bmlalipay.bean.controlpanel.acquirer.FlatPercentageTypeBean;
+import com.epic.bmlalipay.dao.common.CommonDAO;
+import com.epic.bmlalipay.util.common.Common;
+import com.epic.bmlalipay.util.common.HibernateInit;
+import com.epic.bmlalipay.util.mapping.AcquirerPromotion;
+import com.epic.bmlalipay.util.mapping.AcquirerPromotionCurrency;
+import com.epic.bmlalipay.util.mapping.AcquirerPromotionId;
+import com.epic.bmlalipay.util.mapping.AcquirerPromotionTxn;
+import com.epic.bmlalipay.util.mapping.AcquirerPromotionTxnId;
+import com.epic.bmlalipay.util.mapping.Currency;
+import com.epic.bmlalipay.util.mapping.Status;
+import com.epic.bmlalipay.util.mapping.Systemaudit;
+import com.epic.bmlalipay.util.varlist.MessageVarList;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
+/**
+ *
+ * @author asitha_l
+ */
+public class AcquirerPromotionDAO {
+
+ public List<AcquirerPromotionBean> getSearchList(AcquirerPromotionInputBean inputBean, int max, int first, String orderBy) throws Exception {
+        Session session = null;
+        List<AcquirerPromotionBean> dataList = new ArrayList<AcquirerPromotionBean>();
+        try {
+
+            if (orderBy.equals("") || orderBy == null) {
+                orderBy = "order by u.createtime desc";
+            }
+
+            long count = 0;
+
+            String where = this.makeWhereClause(inputBean);
+
+            session = HibernateInit.sessionFactory.openSession();
+
+            String sqlCount = "select count(code) from AcquirerPromotionCurrency as u where " + where;
+            Query queryCount = session.createQuery(sqlCount);
+
+            Iterator itCount = queryCount.iterate();
+            count = (Long) itCount.next();
+
+            if (count > 0) {
+
+                String sqlSearch = "from AcquirerPromotionCurrency u where " + where + orderBy;
+                Query querySearch = session.createQuery(sqlSearch);
+                querySearch.setMaxResults(max);
+                querySearch.setFirstResult(first);
+
+                Iterator it = querySearch.iterate();
+
+                while (it.hasNext()) {
+                    AcquirerPromotionBean databean = new AcquirerPromotionBean();
+                    AcquirerPromotionCurrency acquirerPromotion = (AcquirerPromotionCurrency) it.next();
+
+                    try {
+                        databean.setCode(acquirerPromotion.getId().getCode());
+                    } catch (NullPointerException npe) {
+                        databean.setCode("--");
+                    }
+                    try {
+                        String currencycode=acquirerPromotion.getId().getCurrencycode();
+                        Currency currency = (Currency) session.get(Currency.class, currencycode.trim());
+                        databean.setPromotioncurrency(currency.getDescription());
+                        databean.setCurrencycode(currencycode);
+                    } catch (NullPointerException npe) {
+                        databean.setPromotioncurrency("--");
+                        databean.setCurrencycode("--");
+                    }
+                    try {
+                        databean.setDescription(acquirerPromotion.getDescription());
+                    } catch (NullPointerException npe) {
+                        databean.setDescription("--");
+                    }
+                    try {
+                        databean.setStatus(acquirerPromotion.getStatus().getDescription());
+                    } catch (NullPointerException npe) {
+                        databean.setStatus("--");
+                    }
+                    try {
+                        if (acquirerPromotion.getCreatetime().toString() != null) {
+                            databean.setCreatedtime(acquirerPromotion.getCreatetime().toString().substring(0, 19));
+                        } else {
+                            databean.setCreatedtime("--");
+                        }
+                    } catch (NullPointerException npe) {
+                        databean.setCreatedtime("--");
+                    }
+
+                    databean.setFullCount(count);
+
+                    dataList.add(databean);
+                }
+            }
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return dataList;
+    }
+
+    private String makeWhereClause(AcquirerPromotionInputBean inputBean) {
+        String where = "1=1";
+
+        if (inputBean.getCodeSearch() != null && !inputBean.getCodeSearch().isEmpty()) {
+            where += " and lower(u.id.code) like lower('%" + inputBean.getCodeSearch() + "%')";
+        }
+        if (inputBean.getCurrencySearch()!= null && !inputBean.getCurrencySearch().isEmpty()) {
+            where += " and lower(u.id.currencycode) like lower('%" + inputBean.getCurrencySearch() + "%')";
+        }
+        if (inputBean.getDescriptionSearch() != null && !inputBean.getDescriptionSearch().isEmpty()) {
+            where += " and lower(u.description) like lower('%" + inputBean.getDescriptionSearch() + "%')";
+        }
+        if (inputBean.getStatusSearch() != null && !inputBean.getStatusSearch().isEmpty()) {
+            where += " and u.status.statuscode = '" + inputBean.getStatusSearch() + "'";
+        }
+
+        return where;
+    }
+
+    public String loadAcquirerPromotionCode(AcquirerPromotionInputBean inputBean) throws Exception {
+        String acquirerPromotion = null;
+        Session session = null;
+
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+
+            String sql = "from AcquirerPromotionCurrency as u order by u.lastupdatedtime desc";
+            Query query = session.createQuery(sql);
+
+            query.setMaxResults(1);
+            acquirerPromotion = ((AcquirerPromotionCurrency) query.list().get(0)).getId().getCode();
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return acquirerPromotion;
+
+    }
+
+    public String insertAcquirerPromotion(AcquirerPromotionInputBean inputBean, List<AcquirerPromotionAssignBean> acqPromTxnList, Systemaudit audit) throws Exception {
+        Session session = null;
+        Transaction txn = null;
+
+        String newValue = "";
+        String newValuetmp = "";
+
+        String message = "";
+        try {
+
+            CommonDAO commonDao = new CommonDAO();
+
+            session = HibernateInit.sessionFactory.openSession();
+            Date sysDate = commonDao.getSystemDate(session);
+
+            if (acqPromTxnList != null && !acqPromTxnList.isEmpty()) {
+                
+                String sql = "from AcquirerPromotion as u where u.id.code=:code";
+                Query query = session.createQuery(sql)
+                        .setString("code", inputBean.getCode());
+                if (query.list().isEmpty()) {
+                    List<Currency> list =this.getCurrencyList();
+                    txn = session.beginTransaction();
+                    
+                    AcquirerPromotion pro =new AcquirerPromotion();
+                    pro.setCode(inputBean.getCode());
+                    Status st = (Status) session.get(Status.class, inputBean.getStatus().trim());
+                    pro.setStatus(st);
+                    pro.setDescription(inputBean.getDescription());
+                    pro.setCreatetime(sysDate);
+                    pro.setLastupdatedtime(sysDate);
+                    pro.setLastupdateduser(audit.getLastupdateduser());
+                    
+                    for(int i=0; i  < list.size(); i++){
+                        AcquirerPromotionId id =new AcquirerPromotionId();
+                        id.setCode(inputBean.getCode());
+                        id.setCurrencycode(list.get(i).getCurrencycode());
+                        
+                        AcquirerPromotionCurrency profile = new AcquirerPromotionCurrency();
+                        profile.setId(id);
+                        profile.setDescription(inputBean.getDescription().trim());
+                        profile.setStatus(st);
+                        profile.setCreatetime(sysDate);
+                        profile.setLastupdatedtime(sysDate);
+                        profile.setLastupdateduser(audit.getLastupdateduser());
+                        session.save(profile);
+                        
+                        for (AcquirerPromotionAssignBean acqPromAssignBean : acqPromTxnList) {
+
+                            AcquirerPromotionTxn acqPromTxn = new AcquirerPromotionTxn();
+                            acqPromAssignBean.setBankAmount(acqPromAssignBean.getBankAmount().replace(",", ""));
+                            acqPromAssignBean.setMerchantAmount(acqPromAssignBean.getMerchantAmount().replace(",", ""));
+                            AcquirerPromotionTxnId acqPromTxnId = new AcquirerPromotionTxnId();
+                            acqPromTxnId.setCode(inputBean.getCode().trim());
+                            acqPromTxnId.setCurrencycode(list.get(i).getCurrencycode());
+                            acqPromTxnId.setTxnType(acqPromAssignBean.getTxnType());
+
+                            acqPromTxn.setId(acqPromTxnId);
+                            acqPromTxn.setBankFlatPercentage(acqPromAssignBean.getBankAmountType());
+                            acqPromTxn.setBankAmount(new BigDecimal(acqPromAssignBean.getBankAmount()));
+                            acqPromTxn.setMerchantFlatPercentage(acqPromAssignBean.getMerchantAmountType());
+                            acqPromTxn.setMerchantAmount(new BigDecimal(acqPromAssignBean.getMerchantAmount()));
+
+                            session.save(acqPromTxn);
+
+                            //AcquirerPromotion Txn
+
+                            /**
+                             * for audit
+                             */
+                            if(i==0){
+                                newValuetmp = "|" + inputBean.getCode() +
+                                    "|" + commonDao.getDescriptionByTxnCode(acqPromAssignBean.getTxnType()) + 
+                                    "|" + this.getAmountTypeDes(acqPromTxn.getBankFlatPercentage()) + 
+                                    "|" + Common.toCurrencyFormat(acqPromTxn.getBankAmount().toString()) + 
+                                    "|" + this.getAmountTypeDes(acqPromTxn.getMerchantFlatPercentage())+ 
+                                    "|" + Common.toCurrencyFormat(acqPromTxn.getMerchantAmount().toString());
+                            }
+                        }
+                    
+                    }
+                    /**
+                     * for audit
+                     */
+                    newValue = pro.getCode() + "|"
+                            + pro.getDescription() + "|"
+                            + pro.getStatus().getDescription();
+
+                    newValue = newValue + newValuetmp;
+                    
+                    audit.setNewvalue(newValue);
+                    audit.setCreatetime(sysDate);
+                    audit.setLastupdatedtime(sysDate);
+                    
+                    session.save(audit);
+                    session.save(pro);
+                    txn.commit();
+
+                } else {
+                    message = MessageVarList.COMMON_ALREADY_EXISTS;
+                }
+            } else {
+                message = MessageVarList.ACQUIRER_PROMOTION_TXN_EMPTY;
+            }
+
+        } catch (Exception e) {
+            if (txn != null) {
+                txn.rollback();
+            }
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return message;
+    }
+
+    public List<AcquirerPromotionAssignBean> getAssignSearchList(AcquirerPromotionInputBean inputBean, List<AcquirerPromotionAssignBean> dataList) throws Exception {
+
+        try {
+
+            CommonDAO dao = new CommonDAO();
+            AcquirerPromotionAssignBean acquirerPromotionAssignBean = new AcquirerPromotionAssignBean();
+
+            if (inputBean.getTxnType() != null && !inputBean.getTxnType().isEmpty()) {
+                acquirerPromotionAssignBean.setTxnType(inputBean.getTxnType());
+                acquirerPromotionAssignBean.setTxnTypeDes(dao.getDescriptionByTxnCode(inputBean.getTxnType()));
+            } else {
+                acquirerPromotionAssignBean.setTxnType("--");
+                acquirerPromotionAssignBean.setTxnTypeDes("--");
+            }
+
+            if (inputBean.getBankAmountType() != null && !inputBean.getBankAmountType().isEmpty()) {
+                acquirerPromotionAssignBean.setBankAmountType(inputBean.getBankAmountType());
+                acquirerPromotionAssignBean.setBankAmountTypeDes(this.getAmountTypeDes(inputBean.getBankAmountType()));
+            } else {
+                acquirerPromotionAssignBean.setBankAmountType("--");
+                acquirerPromotionAssignBean.setBankAmountTypeDes("--");
+            }
+
+            if (inputBean.getMerchantAmountType() != null && !inputBean.getMerchantAmountType().isEmpty()) {
+                acquirerPromotionAssignBean.setMerchantAmountType(inputBean.getMerchantAmountType());
+                acquirerPromotionAssignBean.setMerchantAmountTypeDes(this.getAmountTypeDes(inputBean.getMerchantAmountType()));
+            } else {
+                acquirerPromotionAssignBean.setMerchantAmountType("--");
+                acquirerPromotionAssignBean.setMerchantAmountTypeDes("--");
+            }
+
+            if (inputBean.getBankAmount() != null && !inputBean.getBankAmount().isEmpty()) {
+                acquirerPromotionAssignBean.setBankAmount(inputBean.getBankAmount());
+            } else {
+                acquirerPromotionAssignBean.setBankAmount("--");
+            }
+
+            if (inputBean.getMerchantAmount() != null && !inputBean.getMerchantAmount().isEmpty()) {
+                acquirerPromotionAssignBean.setMerchantAmount(inputBean.getMerchantAmount());
+            } else {
+                acquirerPromotionAssignBean.setMerchantAmount("--");
+            }
+
+            dataList.add(acquirerPromotionAssignBean);
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return dataList;
+    }
+
+    public AcquirerPromotionCurrency findAcquirerPromotionById(String code,String currency) throws Exception {
+        AcquirerPromotionCurrency acquirerPromotion = null;
+        Session session = null;
+
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+
+            String sql = "from AcquirerPromotionCurrency as u where u.id.code=:code and u.id.currencycode=:currencycode";
+            Query query = session.createQuery(sql)
+                    .setString("code", code)
+                    .setString("currencycode", currency);
+            acquirerPromotion = (AcquirerPromotionCurrency) query.list().get(0);
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return acquirerPromotion;
+
+    }
+
+    public List<AcquirerPromotionAssignBean> findAcquirerPromotionTxnListByCode(String code,String currency) throws Exception {
+        List<AcquirerPromotionAssignBean> list = new ArrayList<AcquirerPromotionAssignBean>();
+        Session session = null;
+
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            CommonDAO dao = new CommonDAO();
+
+            String sqlSearch = "select  "
+                    + "ART.TXN_TYPE, "
+                    + "ART.BANK_FLAT_PERCENTAGE, "
+                    + "ART.BANK_AMOUNT, "
+                    + "ART.MERCHANT_FLAT_PERCENTAGE, "
+                    + "ART.MERCHANT_AMOUNT from  ACQUIRER_PROMOTION_TXN ART where ART.CODE='" + code + "' and ART.CURRENCYCODE='" + currency +"'";
+
+            List<Object[]> chequeList = (List<Object[]>) session.createSQLQuery(sqlSearch).list();
+
+            for (Object[] arBean : chequeList) {
+
+                AcquirerPromotionAssignBean bean = new AcquirerPromotionAssignBean();
+
+                try {
+                    bean.setTxnType(arBean[0].toString());
+                    bean.setTxnTypeDes(dao.getDescriptionByTxnCode(arBean[0].toString()));
+                } catch (NullPointerException npe) {
+                    bean.setTxnType("--");
+                    bean.setTxnTypeDes("--");
+                }
+                try {
+                    bean.setBankAmountType(arBean[1].toString());
+                    bean.setBankAmountTypeDes(this.getAmountTypeDes(arBean[1].toString()));
+                } catch (NullPointerException npe) {
+                    bean.setBankAmountType("--");
+                    bean.setBankAmountTypeDes("--");
+                }
+                try {
+                    bean.setBankAmount(Common.toCurrencyFormat(arBean[2].toString()));
+                } catch (NullPointerException npe) {
+                    bean.setBankAmount("--");
+                }
+                try {
+                    bean.setMerchantAmountType(arBean[3].toString());
+                    bean.setMerchantAmountTypeDes(this.getAmountTypeDes(arBean[3].toString()));
+                } catch (NullPointerException npe) {
+                    bean.setMerchantAmountType("--");
+                    bean.setMerchantAmountTypeDes("--");
+                }
+                try {
+                    bean.setMerchantAmount(Common.toCurrencyFormat(arBean[4].toString()));
+                } catch (NullPointerException npe) {
+                    bean.setMerchantAmount("--");
+                }
+
+                list.add(bean);
+            }
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return list;
+
+    }
+
+    public String updateAcquirerPromotion(AcquirerPromotionInputBean inputBean, List<AcquirerPromotionAssignBean> assignBeanList, Systemaudit audit) throws Exception {
+
+        Session session = null;
+        Transaction txn = null;
+
+        String oldValue = "";
+        String oldValuetmp = "";
+        String oldValuetmptemp = "";
+        String newValue = "";
+        String newValuetmp = "";
+
+        String message = "";
+
+        try {
+
+            CommonDAO commonDao = new CommonDAO();
+
+            session = HibernateInit.sessionFactory.openSession();
+            txn = session.beginTransaction();
+            Date sysDate = commonDao.getSystemDate(session);
+            String sql1 = "from AcquirerPromotionCurrency as u where u.id.code=:code and u.id.currencycode=:currencycode";
+            Query query1 = session.createQuery(sql1)
+                .setString("code", inputBean.getCode())
+                .setString("currencycode", inputBean.getPromotioncurrency());
+            //aditonal---------------------
+            String sql2 = "from AcquirerPromotionCurrency as u where u.id.code=:code and u.id.currencycode!=:currencycode";
+            Query query2 = session.createQuery(sql2)
+                .setString("code", inputBean.getCode())
+                .setString("currencycode", inputBean.getPromotioncurrency());
+            List<AcquirerPromotionCurrency> uList=query2.list();
+            //---------------------------------------
+            AcquirerPromotionCurrency u=(AcquirerPromotionCurrency)query1.list().get(0);
+            AcquirerPromotion pro = (AcquirerPromotion) session.get(AcquirerPromotion.class, inputBean.getCode().trim());
+            
+            if (assignBeanList != null && !assignBeanList.isEmpty()) {
+
+                String sql = "from AcquirerPromotionTxn as u where u.id.code=:code and u.id.currencycode=:currencycode";
+                Query query = session.createQuery(sql).setString("code", inputBean.getCode().trim()).setString("currencycode", inputBean.getPromotioncurrency().trim());
+                List<AcquirerPromotionTxn> txns =  query.list();
+                  for (AcquirerPromotionTxn f : txns) {
+
+                    /**
+                     * for audit
+                     */
+                    oldValuetmptemp = "";
+                    oldValuetmptemp = "|" + inputBean.getCode()
+                            + "|" + inputBean.getPromotioncurrency()
+                            + "|" + f.getTransactiontype().getDescription()
+                            + "|" + this.getAmountTypeDes(f.getBankFlatPercentage())
+                            + "|" + Common.toCurrencyFormat(f.getBankAmount().toString())
+                            + "|" + this.getAmountTypeDes(f.getMerchantFlatPercentage())
+                            + "|" + Common.toCurrencyFormat(f.getMerchantAmount().toString());
+
+                    oldValuetmp = oldValuetmp + oldValuetmptemp;
+
+                    session.delete(f);
+                }
+                if(pro !=null){
+                    pro.setDescription(inputBean.getDescription());
+                    pro.setLastupdatedtime(sysDate);
+                    pro.setLastupdateduser(audit.getLastupdateduser());
+                }
+                for(AcquirerPromotionCurrency ul:uList){
+                   ul.setDescription(inputBean.getDescription());
+                    session.update(ul);
+                }
+                if (u != null) {
+
+                    /**
+                     * for audit
+                     */
+                    oldValue = u.getId().getCode() + "|"
+                            + u.getId().getCurrencycode() + "|"
+                            + u.getDescription() + "|"
+                            + u.getStatus().getDescription() + oldValuetmp;
+
+                    u.setDescription(inputBean.getDescription().trim());
+
+                    Status st = (Status) session.get(Status.class, inputBean.getStatus().trim());
+                    u.setStatus(st);
+                    u.setLastupdatedtime(sysDate);
+                    u.setLastupdateduser(audit.getLastupdateduser());
+
+                    /**
+                     * for audit
+                     */
+                    newValue = u.getId().getCode() + "|"
+                            + u.getId().getCurrencycode() + "|"
+                            + u.getDescription() + "|"
+                            + u.getStatus().getDescription();
+
+                    for (AcquirerPromotionAssignBean acqPromotionAssignBean : assignBeanList) {
+
+                        AcquirerPromotionTxn acqPromotionTxn = new AcquirerPromotionTxn();
+
+                        acqPromotionAssignBean.setBankAmount(acqPromotionAssignBean.getBankAmount().replace(",", ""));
+                        acqPromotionAssignBean.setMerchantAmount(acqPromotionAssignBean.getMerchantAmount().replace(",", ""));
+                        
+                        AcquirerPromotionTxnId acqPromotionTxnId = new AcquirerPromotionTxnId();
+                        acqPromotionTxnId.setCode(inputBean.getCode().trim());
+                        acqPromotionTxnId.setCurrencycode(inputBean.getPromotioncurrency().trim());
+                        acqPromotionTxnId.setTxnType(acqPromotionAssignBean.getTxnType());
+
+                        acqPromotionTxn.setId(acqPromotionTxnId);
+                        acqPromotionTxn.setBankFlatPercentage(acqPromotionAssignBean.getBankAmountType());
+                        acqPromotionTxn.setBankAmount(new BigDecimal(acqPromotionAssignBean.getBankAmount()));
+                        acqPromotionTxn.setMerchantFlatPercentage(acqPromotionAssignBean.getMerchantAmountType());
+                        acqPromotionTxn.setMerchantAmount(new BigDecimal(acqPromotionAssignBean.getMerchantAmount()));
+
+                        /**
+                         * for audit
+                         */
+                        newValuetmp = "";
+                        newValuetmp = "|" + inputBean.getCode() + 
+                                "|" + inputBean.getPromotioncurrency()
+                                +"|" + commonDao.getDescriptionByTxnCode(acqPromotionAssignBean.getTxnType()) 
+                                + "|" + this.getAmountTypeDes(acqPromotionTxn.getBankFlatPercentage())
+                                + "|" + Common.toCurrencyFormat(acqPromotionTxn.getBankAmount().toString()) + 
+                                "|" + this.getAmountTypeDes(acqPromotionTxn.getMerchantFlatPercentage())
+                                + "|" + Common.toCurrencyFormat(acqPromotionTxn.getMerchantAmount().toString());
+                        newValue = newValue + newValuetmp;
+
+                        session.save(acqPromotionTxn);
+                    }
+
+                    audit.setOldvalue(oldValue);
+                    audit.setNewvalue(newValue);
+                    audit.setCreatetime(sysDate);
+                    audit.setLastupdatedtime(sysDate);
+
+                    session.save(audit);
+                    session.update(u);
+                    session.update(pro);
+
+                    txn.commit();
+                } else {
+                    message = MessageVarList.COMMON_NOT_EXISTS;
+                }
+            } else {
+                message = MessageVarList.ACQUIRER_PROMOTION_TXN_EMPTY;
+            }
+        } catch (Exception e) {
+            if (txn != null) {
+                txn.rollback();
+            }
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return message;
+    }
+
+    public String deleteAcquirerPromotion(AcquirerPromotionInputBean inputBean, Systemaudit audit) throws Exception {
+
+        Session session = null;
+        Transaction txn = null;
+        AcquirerPromotionCurrency acquirerPromotion =null;
+        String message = "";
+        long flag = 0;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            txn = session.beginTransaction();
+            Date sysDate = CommonDAO.getSystemDate(session);
+
+            String sql1 = "from AcquirerPromotionCurrency as u where u.id.code=:code and u.id.currencycode=:currencycode";
+            Query query1 = session.createQuery(sql1)
+                .setString("code", inputBean.getCode())
+                .setString("currencycode", inputBean.getPromotioncurrency());
+            
+            if (!query1.list().isEmpty()) {
+                acquirerPromotion=(AcquirerPromotionCurrency)query1.list().get(0);
+                String sqllist = "from AcquirerPromotionTxn as u where u.id.code=:code and u.id.currencycode=:currencycode";
+                Query querylist = session.createQuery(sqllist)
+                        .setString("code", inputBean.getCode().trim())
+                        .setString("currencycode", inputBean.getPromotioncurrency().trim());
+                List<AcquirerPromotionTxn> txns =  querylist.list();
+                
+                for (AcquirerPromotionTxn f : txns) {
+                    session.delete(f);
+                }
+                String sql = "select count(art.id.code) from AcquirerPromotionTxn as art where art.id.code=:code and art.id.currencycode=:currencycode";
+                Query query = session.createQuery(sql)
+                        .setString("code", inputBean.getCode().trim())
+                        .setString("currencycode", inputBean.getPromotioncurrency().trim());
+
+                Iterator itCount1 = query.iterate();
+                flag = (Long) itCount1.next();
+
+                if (flag > 0) {
+                    message = MessageVarList.COMMON_ALREADY_IN_USE;
+                } else {
+                    audit.setCreatetime(sysDate);
+                    audit.setLastupdatedtime(sysDate);
+
+                    session.save(audit);
+                    session.delete(acquirerPromotion);
+                    String sqlCount = "select count(code) from AcquirerPromotionCurrency as u where u.id.code=:code";
+                    Query queryCount = session.createQuery(sqlCount).setString("code", inputBean.getCode().trim());
+                    Iterator itCount = queryCount.iterate();
+                    Long count = (Long) itCount.next();
+                    if(count==0){
+                        AcquirerPromotion pro = (AcquirerPromotion) session.get(AcquirerPromotion.class, inputBean.getCode().trim());
+                        session.delete(pro);
+                    }
+                    txn.commit();
+                }
+            }else{
+                message = MessageVarList.COMMON_NOT_EXISTS;
+            }
+
+        } catch (Exception e) {
+            if (txn != null) {
+                txn.rollback();
+            }
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return message;
+    }
+
+    /**
+     * get amount type list
+     *
+     * @return
+     */
+    public List<FlatPercentageTypeBean> getFlatPercentageTypeBeanList() {
+
+        List<FlatPercentageTypeBean> flatPercentageTypeList = new ArrayList<FlatPercentageTypeBean>();
+
+        FlatPercentageTypeBean beanone = new FlatPercentageTypeBean();
+        FlatPercentageTypeBean beantwo = new FlatPercentageTypeBean();
+
+        beanone.setCode("FLAT");
+        beanone.setDescription("Flat");
+
+        beantwo.setCode("PER");
+        beantwo.setDescription("Percentage");
+
+        flatPercentageTypeList.add(beanone);
+        flatPercentageTypeList.add(beantwo);
+
+        return flatPercentageTypeList;
+    }
+
+    public String getAmountTypeDes(String key) {
+
+        HashMap<String, String> amountType = new HashMap<String, String>();
+        amountType.put("FLAT", "Flat");
+        amountType.put("PER", "Percentage");
+
+        return amountType.get(key);
+    }
+    
+    public List<Currency> getCurrencyList() throws Exception {
+
+        List<Currency> currencyList=  new ArrayList<Currency>();
+        Session session = null;
+        try {
+            session = HibernateInit.sessionFactory.openSession();
+            String sql = "from Currency";
+            Query query = session.createQuery(sql);
+            currencyList = query.list();
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            try {
+                session.flush();
+                session.close();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        return currencyList;
+    }
+}

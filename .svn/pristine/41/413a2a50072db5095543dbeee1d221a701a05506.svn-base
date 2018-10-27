@@ -1,0 +1,152 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.bean.controlpanel.systemconfiguration;
+
+/**
+ *
+ * @author sivaganesan_t
+ */
+public class EODConfigInputBean {
+    
+    private String id;
+    private String alipaysettlementfile;
+    private String merchantsettlementfile;
+    private String txnamounttolerance;
+    private String txnadaystolerance;
+    private String bmlBankCode;
+    private String eodlogpath;
+    private String branchid;
+    
+    /*-------for access control-----------*/
+    private boolean vadd;
+    private boolean vupdatebutt;
+    private boolean vupdatelink;
+    private boolean vdelete;
+    private boolean vsearch;
+    /*-------for access control-----------*/
+    private String oldvalue;
+    private String message;
+    
+    public boolean isVadd() {
+        return vadd;
+    }
+    
+    public void setVadd(boolean vadd) {
+        this.vadd = vadd;
+    }
+
+    public boolean isVupdatebutt() {
+        return vupdatebutt;
+    }
+
+    public void setVupdatebutt(boolean vupdatebutt) {
+        this.vupdatebutt = vupdatebutt;
+    }
+
+    public boolean isVupdatelink() {
+        return vupdatelink;
+    }
+
+    public void setVupdatelink(boolean vupdatelink) {
+        this.vupdatelink = vupdatelink;
+    }
+
+    public boolean isVdelete() {
+        return vdelete;
+    }
+
+    public void setVdelete(boolean vdelete) {
+        this.vdelete = vdelete;
+    }
+
+    public boolean isVsearch() {
+        return vsearch;
+    }
+
+    public void setVsearch(boolean vsearch) {
+        this.vsearch = vsearch;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getAlipaysettlementfile() {
+        return alipaysettlementfile;
+    }
+
+    public void setAlipaysettlementfile(String alipaysettlementfile) {
+        this.alipaysettlementfile = alipaysettlementfile;
+    }
+
+    public String getMerchantsettlementfile() {
+        return merchantsettlementfile;
+    }
+
+    public void setMerchantsettlementfile(String merchantsettlementfile) {
+        this.merchantsettlementfile = merchantsettlementfile;
+    }
+
+    public String getTxnamounttolerance() {
+        return txnamounttolerance;
+    }
+
+    public void setTxnamounttolerance(String txnamounttolerance) {
+        this.txnamounttolerance = txnamounttolerance;
+    }
+
+    public String getTxnadaystolerance() {
+        return txnadaystolerance;
+    }
+
+    public void setTxnadaystolerance(String txnadaystolerance) {
+        this.txnadaystolerance = txnadaystolerance;
+    }
+
+    public String getBmlBankCode() {
+        return bmlBankCode;
+    }
+
+    public void setBmlBankCode(String bmlBankCode) {
+        this.bmlBankCode = bmlBankCode;
+    }
+
+    public String getEodlogpath() {
+        return eodlogpath;
+    }
+
+    public void setEodlogpath(String eodlogpath) {
+        this.eodlogpath = eodlogpath;
+    }
+
+    public String getBranchid() {
+        return branchid;
+    }
+
+    public void setBranchid(String branchid) {
+        this.branchid = branchid;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getOldvalue() {
+        return oldvalue;
+    }
+
+    public void setOldvalue(String oldvalue) {
+        this.oldvalue = oldvalue;
+    }
+}

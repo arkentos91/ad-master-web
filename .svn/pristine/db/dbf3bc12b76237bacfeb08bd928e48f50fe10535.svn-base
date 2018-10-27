@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-reverse-engineering PUBLIC "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-reverse-engineering-3.0.dtd">
+<hibernate-reverse-engineering>
+  <schema-selection match-catalog="ALIPAY"/>
+  <table-filter match-name="USERROLESECTION"/>
+  <table-filter match-name="TXNCURRENCY"/>
+  <table-filter match-name="MERCUSTOMERS_ORI_TRANSACTION"/>
+  <table-filter match-name="MERCHANT_TXN_TYPE"/>
+  <table-filter match-name="ACQUIRER_COMMISION"/>
+  <table-filter match-name="MERCUSTOMERS_ORI_CURRENCY"/>
+  <table-filter match-name="MERCHANT_ORI_COMMISION"/>
+  <table-filter match-name="ACQUIRER_RISKPROFILE_TYPE"/>
+  <table-filter match-name="PAGETASK"/>
+  <table-filter match-name="BML_TRANSACTION"/>
+  <table-filter match-name="STATUSCATEGORY"/>
+  <table-filter match-name="MERCUSTOMERS_ORI"/>
+  <table-filter match-name="ACQUIRER_PROMOTION_TXN"/>
+  <table-filter match-name="SYSTEMUSER"/>
+  <table-filter match-name="USERROLE"/>
+  <table-filter match-name="TERMINAL_BATCH_HISTORY"/>
+  <table-filter match-name="MERCHANT_ORI_CURRENCY"/>
+  <table-filter match-name="SECTION"/>
+  <table-filter match-name="TRANSACTIONTYPE"/>
+  <table-filter match-name="USERPASSWORD"/>
+  <table-filter match-name="STATUS"/>
+  <table-filter match-name="TERMINAL_ORI_TRANSACTION"/>
+  <table-filter match-name="RISKTRANSACTIONPROFILE"/>
+  <table-filter match-name="MERCHANT_ORI"/>
+  <table-filter match-name="MCC_ORI"/>
+  <table-filter match-name="ACQUIRER_PROMOTION"/>
+  <table-filter match-name="USERLEVEL"/>
+  <table-filter match-name="TASK"/>
+  <table-filter match-name="TERMINAL_ORI"/>
+  <table-filter match-name="ACQUIRER_RISKPROFILE_TXN"/>
+  <table-filter match-name="PASSWORDPOLICY"/>
+  <table-filter match-name="RISKCURRENCYPROFILE"/>
+  <table-filter match-name="PAGE"/>
+  <table-filter match-name="MERCHANT_ORI_TRANSACTION"/>
+  <table-filter match-name="CURRENCY"/>
+  <table-filter match-name="TRANSACTIONHISTORY"/>
+  <table-filter match-name="SECTIONPAGE"/>
+  <table-filter match-name="ACQUIRER_RISKPROFILE"/>
+</hibernate-reverse-engineering>

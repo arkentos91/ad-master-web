@@ -1,0 +1,422 @@
+<%-- 
+    Document   : cardbin
+    Created on : Apr 4, 2016, 3:56:07 PM
+    Author     : Thushanth
+--%>
+
+<%@page import="com.epic.bmlalipay.util.varlist.CommonVarList"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="/struts-tags" prefix="s" %>
+<%@taglib  uri="/struts-jquery-tags" prefix="sj"%>
+<%@taglib prefix="sjg" uri="/struts-jquery-grid-tags"%>
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+
+        <%@include file="/stylelinks.jspf" %>
+
+        <script type="text/javascript">
+            
+            function editformatter(cellvalue, options, rowObject) {
+                a =  $("#addButton").is(':disabled');
+                u =  $("#updateButton").is(':disabled');
+                return "<a href='#' title='Edit' onClick='javascript:editTask(&#34;"+cellvalue+"&#34;)'><img class='ui-icon ui-icon-pencil' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+            
+            function deleteformatter(cellvalue, options, rowObject) {
+                return "<a href='#/' title='Delete' onClick='javascript:deleteTaskInit(&#34;"+cellvalue+"&#34;)'><img class='ui-icon ui-icon-trash' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+            
+            
+            function editTask(keyval){
+                $.ajax({
+                    url:'${pageContext.request.contextPath}/FindCardBin.action',
+                    data:{cardProduct:keyval},
+                    dataType:"json",
+                    type:"POST",
+                    success: function(data) {
+                        $('#divmsg').empty();
+                        var msg=data.message;
+                        if(msg) {
+                            //                            alert(data.message)
+                            $('#cardProduct').val("");
+                            $("#cardProduct").css("color", "black");
+                            $('#cardProduct').attr('readOnly',false);
+                            $('#description').val("");
+                            $('#cardBin').val("");
+                            $('#cardcurrency').val("");
+                                            
+                            $('#divmsg').text("");
+                            $('#updateButton').button("disable");
+                    
+                            var startStatus = <s:property value="vadd" />;
+                            if(startStatus){
+                                $('#addButton').button("disable");
+                            }else{
+                                $('#addButton').button("enable");
+                            }
+                        }
+                        else{
+                            $('#oldvalue').val(data.oldvalue);
+                            $('#cardProduct').val(data.cardProduct);
+                            $('#cardProduct').attr('readOnly',true);
+                            $("#cardProduct").css("color", "#858585");
+                            $('#description').val(data.description);
+                            $('#cardBin').val(data.cardBin);
+                            $('#cardcurrency').val(data.cardcurrency);
+                                                       
+                            $('#addButton').button("disable");
+                            $('#updateButton').button("enable");                            
+                        }
+                    },
+                    error:function(data){                        
+                        //                        $("#deleteerrordialog").html("Error occurred while processing.").dialog('open');
+                        window.location="${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });    
+            }
+            
+//            // start newly changed
+//            function duplicatedadd(keyval){
+//                $('#divmsg').empty();
+//
+//                $("#adddialog").data('keyval', keyval).dialog('open');
+//                $("#adddialog").html('Section already exists. Do you want to Activate section : ' + keyval + ' ?');
+//                return false;
+//            }
+            
+            
+//          function AddSection(keyval) {             
+//              
+//              var description = $('#description').val();
+//              var sortKey = $('#sortKey').val();
+//              var status = '<%=CommonVarList.STATUS_ACTIVE %>';
+//              
+//                $.ajax({
+//                    url: '${pageContext.request.contextPath}/activateSection.action',
+//                    data: {sectionCode: keyval,description:description,sortKey:sortKey,status:status},
+//                    dataType: "json",
+//                    type: "POST",
+//                    
+//                    success: function(data) {
+//                        $("#addsuccdialog").dialog('open');
+//                        $("#addsuccdialog").html(data.message);
+//                        resetFieldData();
+//                        //                        jQuery("#gridtable").trigger("reloadGrid");                      
+//                    },
+//                    error: function(data) {
+////                        $("#deleteerrordialog").dialog('open');
+//                        window.location = "${pageContext.request.contextPath}/LogoutUserLogin.action?";
+//                    }
+//                });
+//            }
+            
+            // end newly changed
+            
+            function deleteTaskInit(keyval){
+                $('#divmsg').empty();
+                
+                $("#deletedialog").data('keyval',keyval).dialog('open');
+                $("#deletedialog").html('Are you sure you want to delete card product '+keyval+' ?');
+                return false;
+            }
+            
+            function deleteTask(keyval){
+                $.ajax({
+                    url:'${pageContext.request.contextPath}/DeleteCardBin.action',
+                    data:{cardProduct:keyval},
+                    dataType:"json",
+                    type:"POST",
+                    success: function(data) {
+                        $("#deletesuccdialog").dialog('open');
+                        $("#deletesuccdialog").html(data.message);
+                        resetFieldData();
+                        //                        jQuery("#gridtable").trigger("reloadGrid");                      
+                    },
+                    error:function(data){
+//                        $("#deleteerrordialog").dialog('open');
+                        window.location="${pageContext.request.contextPath}/LogoutUserLogin.action?";
+                    }
+                });    
+            }
+            //            var a =  $("#addButton").is(':disabled');
+            //            var u =  $("#updateButton").is(':disabled');  
+            function resetAllData(){
+                a =  $("#addButton").is(':disabled');
+                u =  $("#updateButton").is(':disabled');
+                //                alert("add status " + a  +" and updated stauts " + u);
+               
+                if(a == true && u == true){
+                    editTask(null);
+                    //                    $('#sectionCode').val("");
+                    //                    $('#sectionCode').attr('readOnly',false);
+                    //                    $('#description').val("");
+                    //                    $('#sortKey').val("");
+                    //                    $('#status').val("ACT");
+                    //                    $('#status').prop('disabled', true);                    
+                    //                    $('#divmsg').text("");
+                    //                    $('#addButton').button("disable");
+                    //                    $('#updateButton').button("disable");
+                }else if(a == true && u == false){
+                    var cardProduct =  $('#cardProduct').val();
+                    $('#cardProduct').attr('cardProduct',true);
+                    editTask(cardProduct);
+                }else if(a == false && u == true){  
+                    editTask(null);
+                    //                    $('#sectionCode').val("");
+                    //                    $('#sectionCode').attr('readOnly',false);
+                    //                    $('#description').val("");
+                    //                    $('#sortKey').val("");
+                    //                    $('#status').val("ACT");
+                    //                    $('#status').prop('disabled', true);
+                    //                    $('#divmsg').text("");
+                    //                    $('#addButton').button("enable");
+                    //                    $('#updateButton').button("disable");  
+                }
+            }
+            
+            function resetFieldData(){
+                a =  $("#addButton").is(':disabled');
+                u =  $("#updateButton").is(':disabled');
+        
+                var startStatus = '<s:property value="vadd" />'
+                $('#cardProduct').val("");
+                $('#cardProduct').attr('readOnly',false);
+                $("#cardProduct").css("color", "black");
+                $('#description').val("");
+                $('#cardcurrency').val("");
+                $('#cardBin').val("");
+                
+                //               alert(" 2nd alert add status " + a  +" and updated stauts " + u);
+                if(a == true && u == true){
+                    //                   alert("call 1st");
+                    $('#addButton').button("disable");
+                    $('#updateButton').button("disable");
+                } else if(a == true && u == false && startStatus == 'false'){
+                    $('#addButton').button("enable");
+                    $('#updateButton').button("disable");         
+                }else if(a == true && u == false && startStatus == 'true'){
+                    $('#addButton').button("disable");
+                    $('#updateButton').button("disable");     
+                }else if(a == false && u == true ){
+                    $('#addButton').button("enable");
+                    $('#updateButton').button("disable");         
+                }
+                jQuery("#gridtable").trigger("reloadGrid");
+            }
+            
+            function cancelAllData(){ 
+                editTask(null);     
+            }
+            
+            window.onload = function (){
+                $("#cardProduct").css("color", "black");
+            };
+        </script>
+
+    </head>
+
+    <body style="">
+        <jsp:include page="/header.jsp"/>
+
+        <div class="main-container">
+
+
+            <jsp:include page="/leftmenu.jsp"/>
+
+            <div class="main-content">
+
+                <div class="container" style="min-height: 760px;">
+
+
+                    <!-- start: PAGE NAVIGATION BAR -->
+                    <jsp:include page="/navbar.jsp"/>
+                    <!-- end: NAVIGATION BAR -->
+
+                    <div class="row">
+
+
+                        <div id="content1">
+
+
+                            <s:div id="divmsg">
+
+                                <s:actionerror theme="jquery"/>
+                                <s:actionmessage theme="jquery"/>
+                            </s:div>
+
+                            <s:set id="vadd" var="vadd"><s:property value="vadd" default="true"/></s:set>
+                            <s:set var="vupdatebutt"><s:property value="vupdatebutt" default="true"/></s:set>
+                            <s:set var="vupdatelink"><s:property value="vupdatelink" default="true"/></s:set>
+                            <s:set var="vdelete"><s:property value="vdelete" default="true"/></s:set>
+
+                                <div id="formstyle">
+                                <s:form id="taskadd" method="post" action="Section" theme="simple" >
+
+
+                                    <table border="0"  cellpadding="5">
+
+                                        <tbody>
+
+
+                                            <tr>
+                                                <td>Card Product <span style="color: red">*</span></td>
+                                                <td><s:textfield name="cardProduct" id="cardProduct" maxLength="20" onkeyup="$(this).val($(this).val().replace(/[^a-zA-Z0-9]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^a-zA-Z0-9]/g,''))"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Description <span style="color: red">*</span></td>
+                                                <td><s:textfield  name="description" id="description" maxLength="64" onkeyup="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))"/>
+                                                </td>                                      
+                                            </tr>
+                                            <tr>
+                                                <td>Card Bin <span style="color: red">*</span></td>
+                                                <td><s:textfield  name="cardBin" id="cardBin" maxLength="6" onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^0-9]/g,''))"/>
+                                                </td>                                   
+                                            </tr>
+                                            <tr>
+                                                <td>Card Currency<span style="color: red">*</span></td>
+                                                <td><s:select  id="cardcurrency" list="%{currencyList}"  headerValue="--Select Card Type--" headerKey="" name="cardcurrency" listKey="currencycode" listValue="description"  cssStyle="width: 153px"/>
+                                                </td>                                  
+                                            </tr>    
+                                          
+
+                                            <tr>
+                                                <td><span class="mandatoryfield">Mandatory fields are marked with *</span></td>
+                                                <td><s:hidden id="oldvalue" name="oldvalue" ></s:hidden>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td>
+                                                    <s:url var="addurl" action="AddCardBin"/>
+                                                    <s:url var="updateurl" action="UpdateCardBin"/>
+                                                </td>
+                                                <td>
+
+                                                    <sj:submit button="true" href="%{addurl}" value="Add" targets="divmsg" id="addButton"  disabled="#vadd"/>
+
+                                                    <sj:submit button="true" href="%{updateurl}" value="Update" targets="divmsg"   disabled="#vupdatebutt" id="updateButton"/>
+
+                                                    <sj:submit button="true" value="Reset" name="reset" onClick="resetAllData()"  />
+
+                                                    <sj:submit button="true" value="Cancel" name="cancel" onClick="cancelAllData()"  />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </s:form>
+                            </div>
+                            
+                            <!--start newly changed-->
+                            <sj:dialog 
+                                id="adddialog" 
+                                buttons="{ 
+                                'OK':function() { AddCardbin($(this).data('keyval'));$( this ).dialog( 'close' ); },
+                                'Cancel':function() { $( this ).dialog( 'close' );} 
+                                }" 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Add Card Bin"                            
+                                />
+                               <!-- Start add process dialog box -->
+                            <sj:dialog 
+                                id="addsuccdialog" 
+                                buttons="{
+                                'OK':function() { $( this ).dialog( 'close' );}
+                                }"  
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Adding Process." 
+                                />
+                            <!--end newly changed-->
+
+                            <!-- Start delete confirm dialog box -->
+                            <sj:dialog 
+                                id="deletedialog" 
+                                buttons="{ 
+                                'OK':function() { deleteTask($(this).data('keyval'));$( this ).dialog( 'close' ); },
+                                'Cancel':function() { $( this ).dialog( 'close' );} 
+                                }" 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Delete Card Bin"                            
+                                />
+                            <!-- Start delete process dialog box -->
+                            <sj:dialog 
+                                id="deletesuccdialog" 
+                                buttons="{
+                                'OK':function() { $( this ).dialog( 'close' );}
+                                }"  
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Deleting Process." 
+                                />
+                            <!-- Start delete error dialog box -->
+                            <sj:dialog 
+                                id="deleteerrordialog" 
+                                buttons="{
+                                'OK':function() { $( this ).dialog( 'close' );}                                    
+                                }" 
+                                autoOpen="false" 
+                                modal="true" 
+                                title="Delete error."
+                                />
+
+                            <div id="tablediv">
+                                <s:url var="listurl" action="ListCardBin"/>
+                                <sjg:grid
+                                    id="gridtable"
+                                    caption="Card Bin Management"
+                                    dataType="json"
+                                    href="%{listurl}"
+                                    pager="true"
+                                    gridModel="gridModel"
+                                    rowList="10,15,20"
+                                    rowNum="10"
+                                    autowidth="true"
+                                    rownumbers="true"
+                                    onCompleteTopics="completetopics"
+                                    rowTotal="false"
+                                    viewrecords="true"
+                                    >
+                                    <sjg:gridColumn name="cardproduct" index="u.cardproduct" title="Card Product"  sortable="true"/>
+                                    <sjg:gridColumn name="description" index="u.description" title="Description"  sortable="true"/>
+                                    <sjg:gridColumn name="cardbin" index="u.status.cardbin" title="Card Bin"  sortable="true"/>                                  
+                                    <sjg:gridColumn name="cardcurrency" index="u.cardcurrency.currencycode" title="Card Currency"  sortable="true"/>                                  
+                                    <sjg:gridColumn name="cardproduct" index="u.cardproduct" title="Edit" width="25" align="center" formatter="editformatter" hidden="#vupdatelink"/>
+                                    <sjg:gridColumn name="cardproduct" index="u.cardproduct" title="Delete" width="40" align="center" formatter="deleteformatter" hidden="#vdelete"/>  
+                                </sjg:grid> 
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+
+                    <!-- end: PAGE CONTENT-->
+                </div>
+            </div>
+            <!-- end: PAGE -->
+        </div>
+        <!-- end: MAIN CONTAINER -->
+        <!-- start: FOOTER -->
+        <jsp:include page="/footer.jsp"/>
+        <!-- end: FOOTER -->
+
+
+
+        <!-- end: BODY -->
+    </body>
+</html>

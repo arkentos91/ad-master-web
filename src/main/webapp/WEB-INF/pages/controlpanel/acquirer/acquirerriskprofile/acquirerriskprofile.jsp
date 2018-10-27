@@ -1,0 +1,348 @@
+<%-- 
+    Document   : acquirerriskprofile
+    Created on : Mar 30, 2018, 10:07:16 AM
+    Author     : sivaganesan_t
+--%>
+
+<%@page import="org.apache.struts2.ServletActionContext"%>
+<%@page import="com.arkentos.util.varlist.CommonVarList"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="/struts-tags" prefix="s" %>
+<%@taglib  uri="/struts-jquery-tags" prefix="sj"%>
+<%@taglib prefix="sjg" uri="/struts-jquery-grid-tags"%>
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+
+        <%@include file="/stylelinks.jspf" %>
+
+        <script type="text/javascript">
+
+
+
+            window.onload = function () {
+                $("#profileCode").css("color", "black");
+            };
+
+            function editformatter(cellvalue, options, rowObject) {
+                return "<a href='#' title='Edit' onClick='javascript:editAcquirerRiskProfile(&#34;" + cellvalue + "&#34;,&#34;" + rowObject.currencycode + "&#34;)'><img class='ui-icon ui-icon-pencil' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+
+            function deleteformatter(cellvalue, options, rowObject) {
+                return "<a href='#/' title='Delete' onClick='javascript:deleteAcquirerRiskProfileInit(&#34;" + cellvalue + "&#34;,&#34;" + rowObject.currencycode + "&#34;)'><img class='ui-icon ui-icon-trash' style='display: block;margin-left: auto;margin-right: auto;'/></a>";
+            }
+
+            function editAcquirerRiskProfile(keyval, curr) {
+                $("#updatedialog").data('val', {profileCode: keyval, riskprofilecurrency: curr}).dialog('open');
+            }
+
+            $.subscribe('openviewtasktopage', function (event, data) {
+                var $led = $("#updatedialog");
+                $led.html("Loading..");
+                $led.load("detailAcquirerRiskProfile.action?profileCode=" + $led.data('val').profileCode + "&riskprofilecurrency=" + $led.data('val').riskprofilecurrency);
+            });
+
+            function removeDecimals(input) {
+                var output = input | 0;
+                return output;
+            }
+
+            function deleteAcquirerRiskProfileInit(keyval, curr) {
+                $('#divmsg').empty();
+                $("#deletedialog").data('keyval', keyval + "|" + curr).dialog('open');
+                $("#deletedialog").html('Are you sure you want to delete acquirer risk profile ' + keyval + ' ?');
+                return false;
+            }
+            function deleteAcquirerRiskProfile(keyval) {
+                var ar = new String(keyval);
+                var arr = ar.split("\|");
+                var profcode = arr[0];
+                var curr = arr[1];
+                $.ajax({
+                    url: '${pageContext.request.contextPath}/deleteAcquirerRiskProfile.action',
+                    data: {profileCode: profcode, riskprofilecurrency: curr},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (data) {
+                        $("#deletesuccdialog").dialog('open');
+                        $("#deletesuccdialog").html(data.message);
+                        $("#gridtable").trigger("reloadGrid");
+                        resetFieldData();
+
+                    },
+                    error: function (data) {
+                        alert("unsuccess");
+                    }
+                });
+            }
+
+            function searchAcqRiskProfile() {
+                var profilecode = $('#profilecodesearch').val();
+                var description = $('#descriptionsearch').val();
+                var status = $('#statussearch').val();
+                var riskprofiletype = $('#riskprofiletypesearch').val();
+                var profilecurrency = $('#profilecurrencysearch').val();
+
+                $("#gridtable").jqGrid('setGridParam', {postData: {
+                        s_profileCode: profilecode,
+                        s_currency: profilecurrency,
+                        s_description: description,
+                        s_status: status,
+                        s_riskprofileType: riskprofiletype,
+                        search: true
+                    }});
+                $("#gridtable").jqGrid('setGridParam', {page: 1});
+                jQuery("#gridtable").trigger("reloadGrid");
+            }
+
+            function resetSearchData() {
+                $('#profilecodesearch').val("");
+                $('#descriptionsearch').val("");
+                $('#statussearch').val("");
+                $('#riskprofiletypesearch').val("");
+                $('#profilecurrencysearch').val("");
+
+                $("#gridtable").jqGrid('setGridParam', {postData: {
+                        s_profileCode: '',
+                        s_currency: '',
+                        s_description: '',
+                        s_status: '',
+                        s_riskprofileType: '',
+                        search: false
+                    }});
+                $("#gridtable").jqGrid('setGridParam', {page: 1});
+                jQuery("#gridtable").trigger("reloadGrid");
+            }
+
+            function resetFieldData() {
+                $('#profileCode').val("");
+                $('#profileCode').attr('readOnly', false);
+                $('#description').val("");
+                $('#riskprofileType').val("");
+                $('#transactiontype').val("");
+                $('#daillyCount').val("");
+                $('#daillyAmount').val("");
+                $('#maxAmount').val("");
+                $('#minAmount').val("");
+                $('#status').val("");
+                $('#riskprofilecurrency').val("");
+
+                $("#gridtabletxn").jqGrid('setGridParam', {postData: {
+                        isAssign: 'clear'
+                    }});
+
+                $("#gridtabletxn").jqGrid('setGridParam', {page: 1});
+                jQuery("#gridtabletxn").trigger("reloadGrid");
+
+                resetSearchData();
+            }
+        </script>
+
+        <style type="text/css">
+
+            .hideme1{
+                display:none;
+
+            }
+        </style>
+        <title>acquirerriskprofile</title>
+    </head>
+
+    <body >
+        <jsp:include page="/header.jsp"/>
+        <jsp:include page="/leftmenu.jsp"/>
+        <div class="ali-body f-right ali-header-text">
+            
+            <s:div id="divmsg">                                
+                <s:actionerror theme="jquery"/>                              
+                <s:actionmessage theme="jquery"/>
+            </s:div>
+            <s:actionerror theme="jquery"/>                              
+            <s:actionmessage theme="jquery"/>
+
+            <s:set id="vadd" var="vadd"><s:property value="vadd" default="true"/></s:set>
+            <s:set var="vupdatebutt"><s:property value="vupdatebutt" default="true"/></s:set>                            
+            <s:set var="vupdatelink"><s:property value="vupdatelink" default="true"/></s:set>
+            <s:set var="vremovelink"><s:property value="vremovelink" default="true"/></s:set>
+            <s:set var="vdelete"><s:property value="vdelete" default="true"/></s:set>
+            <s:set var="vsearch"><s:property value="vsearch" default="true"/></s:set>
+
+            <div  class="ali-form">
+                <s:form id="taskadd" method="post" action="AcquirerRiskProfile" theme="simple" > 
+
+                    <div class="row ">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Risk Profile Code </label>
+                                <s:textfield name="profilecodesearch" id="profilecodesearch" maxLength="4" cssClass="form-control" onkeyup="$(this).val($(this).val().replace(/[^0-9]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^a-zA-Z0-9]/g,''))"/>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Risk Profile Currency</label>
+                                <s:select id="profilecurrencysearch" list="%{currencyList}"  headerValue="--Select Currency--" headerKey="" name="profilecurrencysearch" listKey="currencycode" listValue="description" cssClass="form-control"/>                  
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Description </label>
+                                <s:textfield  name="descriptionsearch" id="descriptionsearch" maxLength="50" cssClass="form-control" onkeyup="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))" onmouseout="$(this).val($(this).val().replace(/[^a-zA-Z0-9 ]/g,''))"/>
+                            </div>                                      
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Status</label>
+                                <s:select  id="statussearch" list="%{statusList}"  headerValue="--Select Status--" headerKey="" name="statussearch" listKey="statuscode" listValue="description"  cssClass="form-control"/>                                            
+                            </div>
+                        </div> 
+                    </div>
+                    <div class="row ">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Risk Profile Type</label>
+                                <s:select  id="riskprofiletypesearch" list="%{acquirerRiskprofileTypeList}"  name="riskprofiletypesearch"  headerValue="--Select Risk Profile Type--" headerKey="" listKey="profileType" listValue="description" cssClass="form-control"/>
+                            </div>
+                        </div>                                       
+                    </div>                                   
+                    <div class="row ">
+                        <div class="col-sm-12">
+                            <div class="form-group ali-margin"> 
+                                <sj:submit 
+                                    button="true"
+                                    value="Search" 
+                                    href="#"
+                                    disabled="#vsearch"
+                                    onClick="searchAcqRiskProfile()"  
+                                    targets="message"
+                                    id="searchbut"
+                                    cssClass="btn btn-ali-submit btn-sm"
+                                    />                               
+                                <sj:submit 
+                                    button="true" 
+                                    id="cancelsearch"
+                                    value="Reset" 
+                                    onClick="resetSearchData()"
+                                    cssClass="btn btn-ali-reset btn-sm"
+                                    /> 
+                                <s:url var="addurl" action="viewPopupAcquirerRiskProfile"/>   
+                                <sj:submit                                                      
+                                    openDialog="remotedialog"
+                                    button="true"
+                                    href="%{addurl}"
+                                    disabled="#vadd"
+                                    value="Add New Acquirer Risk"
+                                    id="addButton"
+                                    targets="remotedialog"   
+                                    cssClass="btn f-right btn-ali-other btn-sm"
+                                    />
+                            </div>  
+                        </div>
+                    </div>
+
+                </s:form>
+                <sj:dialog                                     
+                    id="remotedialog"                                 
+                    autoOpen="false" 
+                    modal="true" 
+                    title="Add Acquirer Risk"                            
+                    loadingText="Loading .."                            
+                    position="center"                            
+                    width="900"
+                    height="590"
+                    dialogClass= "dialogclass"
+                    />    
+            </div>
+
+            <sj:dialog                                     
+                id="updatedialog"                                 
+                autoOpen="false" 
+                modal="true" 
+                position="center"
+                title="Update Acquirer Risk Profile"
+                onOpenTopics="openviewtasktopage" 
+                loadingText="Loading .."
+                width="900"
+                height="590"
+                dialogClass= "dialogclass"
+                />
+
+            <sj:dialog 
+                id="deletedialog" 
+                buttons="{ 
+                'OK':function() { deleteAcquirerRiskProfile($(this).data('keyval'));$( this ).dialog( 'close' ); },
+                'Cancel':function() { $( this ).dialog( 'close' );} 
+                }" 
+                autoOpen="false" 
+                modal="true" 
+                title="Delete Acquirer Risk Profile"                            
+                />
+
+            <sj:dialog 
+                id="deletedialog2" 
+                buttons="{ 
+                'OK':function() { clickaddbutton();$( this ).dialog( 'close' ); },
+                'Cancel':function() { $( this ).dialog( 'close' );} 
+                }" 
+                autoOpen="false" 
+                modal="true" 
+                title="Confirmation"                            
+                />
+
+            <sj:dialog 
+                id="deletedialog1" 
+                buttons="{ 
+                'OK':function() { clickupdatebutton();$( this ).dialog( 'close' ); },
+                'Cancel':function() { $( this ).dialog( 'close' );} 
+                }" 
+                autoOpen="false" 
+                modal="true" 
+                title="Confirmation"                            
+                />
+            <%--
+             Start delete process dialog box 
+            --%>
+            <sj:dialog 
+                id="deletesuccdialog" 
+                buttons="{
+                'OK':function() { $( this ).dialog( 'close' );}
+                }"  
+                autoOpen="false" 
+                modal="true" 
+                title="Deleting Process." 
+                />
+
+            <div id="tablediv" class="ali-table">
+                <s:url var="listurl" action="listAcquirerRiskProfile"/>                            
+                <sjg:grid
+                    id="gridtable"
+                    caption="Acquirer Risk Profile"
+                    dataType="json"
+                    href="%{listurl}"
+                    pager="true"
+                    gridModel="gridModel"
+                    rowList="10,15,20"
+                    rowNum="10"
+                    autowidth="true"                                                           
+                    rownumbers="true"
+                    onCompleteTopics="completetopics"
+                    rowTotal="false"
+                    viewrecords="true"
+                    onErrorTopics="anyerrors"
+                    >
+                    <sjg:gridColumn name="profilecode" index="profilecode" title="Edit" width="60" align="center" formatter="editformatter" sortable="false"/>
+                    <sjg:gridColumn name="profilecode" index="profilecode"  title="Delete" width="60" align="center" formatter="deleteformatter" sortable="false"/> 
+                    <sjg:gridColumn name="profilecode" index="profilecode"  title="Risk Profile Code" sortable="false"/>
+                    <sjg:gridColumn name="riskprofilecurrency" index="id.currencycode"  title="Risk Profile Currency" sortable="false"/>
+                    <sjg:gridColumn name="description" index="description" title="Description" sortable="false"/>   
+                    <sjg:gridColumn name="status" index="status.description" title="Status" sortable="false"/>   
+                    <sjg:gridColumn name="acquirerRiskprofileType" index="acquirerRiskprofileType.description" title="Risk Profile Type" sortable="false"/>   
+
+                </sjg:grid> 
+            </div>
+        </div>
+
+        <jsp:include page="/footer.jsp"/>
+    </body>
+</html>

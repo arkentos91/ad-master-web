@@ -1,0 +1,341 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.epic.bmlalipay.bean.controlpanel.acquirer;
+
+//import com.epic.bmlalipay.util.mapping.Transaction;
+import com.epic.bmlalipay.util.mapping.Transactiontype;
+import java.util.List;
+
+/**
+ *
+ * @author jayana_i
+ */
+public class TerminalORITransactionInputBean {
+    private String id;
+    private String terminalOri;
+    private String transactiontype;
+    private String lastupdateduser;
+    private String lastupdatedtime;
+    private String createdtime;
+    private long fullCount;
+    
+    private List<Transactiontype> currencyList;
+    
+    private String s_id;
+    private String s_terminalOri;
+    private String s_transactiontype;
+    private String s_lastupdateduser;
+    private String s_lastupdatedtime;
+    private String s_createdtime;
+    
+    private String oldvalue;
+    private String width;
+    private String height;
+    private String newvalue;
+    private String message;
+
+    /*-------for access control-----------*/
+    private boolean vadd;
+    private boolean vupdatebutt;
+    private boolean vupdatelink;
+    private boolean listnerconfigid;
+
+    private boolean vdelete;
+    /*------------------------list data table  ------------------------------*/
+//    private List<CardProductBean> gridModel;
+    private Integer rows = 0;
+    private Integer page = 0;
+    private Integer total = 0;
+    private Long records = 0L;
+    private String sord;
+    private String sidx;
+    private String searchField;
+    private String searchString;
+    private String searchOper;
+    private boolean loadonce = false;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getTerminalOri() {
+        return terminalOri;
+    }
+
+    public void setTerminalOri(String terminalOri) {
+        this.terminalOri = terminalOri;
+    }
+
+    public String getTransactiontype() {
+        return transactiontype;
+    }
+
+    public void setTransactiontype(String transactiontype) {
+        this.transactiontype = transactiontype;
+    }
+
+    public String getLastupdateduser() {
+        return lastupdateduser;
+    }
+
+    public void setLastupdateduser(String lastupdateduser) {
+        this.lastupdateduser = lastupdateduser;
+    }
+
+    public String getLastupdatedtime() {
+        return lastupdatedtime;
+    }
+
+    public void setLastupdatedtime(String lastupdatedtime) {
+        this.lastupdatedtime = lastupdatedtime;
+    }
+
+    public String getCreatedtime() {
+        return createdtime;
+    }
+
+    public void setCreatedtime(String createdtime) {
+        this.createdtime = createdtime;
+    }
+
+    public long getFullCount() {
+        return fullCount;
+    }
+
+    public void setFullCount(long fullCount) {
+        this.fullCount = fullCount;
+    }
+
+    public List<Transactiontype> getCurrencyList() {
+        return currencyList;
+    }
+
+    public void setCurrencyList(List<Transactiontype> currencyList) {
+        this.currencyList = currencyList;
+    }
+
+    public String getS_id() {
+        return s_id;
+    }
+
+    public void setS_id(String s_id) {
+        this.s_id = s_id;
+    }
+
+    public String getS_terminalOri() {
+        return s_terminalOri;
+    }
+
+    public void setS_terminalOri(String s_terminalOri) {
+        this.s_terminalOri = s_terminalOri;
+    }
+
+    public String getS_transactiontype() {
+        return s_transactiontype;
+    }
+
+    public void setS_transactiontype(String s_transactiontype) {
+        this.s_transactiontype = s_transactiontype;
+    }
+
+    public String getS_lastupdateduser() {
+        return s_lastupdateduser;
+    }
+
+    public void setS_lastupdateduser(String s_lastupdateduser) {
+        this.s_lastupdateduser = s_lastupdateduser;
+    }
+
+    public String getS_lastupdatedtime() {
+        return s_lastupdatedtime;
+    }
+
+    public void setS_lastupdatedtime(String s_lastupdatedtime) {
+        this.s_lastupdatedtime = s_lastupdatedtime;
+    }
+
+    public String getS_createdtime() {
+        return s_createdtime;
+    }
+
+    public void setS_createdtime(String s_createdtime) {
+        this.s_createdtime = s_createdtime;
+    }
+
+    public String getOldvalue() {
+        return oldvalue;
+    }
+
+    public void setOldvalue(String oldvalue) {
+        this.oldvalue = oldvalue;
+    }
+
+    public String getWidth() {
+        return width;
+    }
+
+    public void setWidth(String width) {
+        this.width = width;
+    }
+
+    public String getHeight() {
+        return height;
+    }
+
+    public void setHeight(String height) {
+        this.height = height;
+    }
+
+    public String getNewvalue() {
+        return newvalue;
+    }
+
+    public void setNewvalue(String newvalue) {
+        this.newvalue = newvalue;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public boolean isVadd() {
+        return vadd;
+    }
+
+    public void setVadd(boolean vadd) {
+        this.vadd = vadd;
+    }
+
+    public boolean isVupdatebutt() {
+        return vupdatebutt;
+    }
+
+    public void setVupdatebutt(boolean vupdatebutt) {
+        this.vupdatebutt = vupdatebutt;
+    }
+
+    public boolean isVupdatelink() {
+        return vupdatelink;
+    }
+
+    public void setVupdatelink(boolean vupdatelink) {
+        this.vupdatelink = vupdatelink;
+    }
+
+    public boolean isListnerconfigid() {
+        return listnerconfigid;
+    }
+
+    public void setListnerconfigid(boolean listnerconfigid) {
+        this.listnerconfigid = listnerconfigid;
+    }
+
+    public boolean isVdelete() {
+        return vdelete;
+    }
+
+    public void setVdelete(boolean vdelete) {
+        this.vdelete = vdelete;
+    }
+
+//    public List<CardProductBean> getGridModel() {
+//        return gridModel;
+//    }
+//
+//    public void setGridModel(List<CardProductBean> gridModel) {
+//        this.gridModel = gridModel;
+//    }
+
+    public Integer getRows() {
+        return rows;
+    }
+
+    public void setRows(Integer rows) {
+        this.rows = rows;
+    }
+
+    public Integer getPage() {
+        return page;
+    }
+
+    public void setPage(Integer page) {
+        this.page = page;
+    }
+
+    public Integer getTotal() {
+        return total;
+    }
+
+    public void setTotal(Integer total) {
+        this.total = total;
+    }
+
+    public Long getRecords() {
+        return records;
+    }
+
+    public void setRecords(Long records) {
+        this.records = records;
+    }
+
+    public String getSord() {
+        return sord;
+    }
+
+    public void setSord(String sord) {
+        this.sord = sord;
+    }
+
+    public String getSidx() {
+        return sidx;
+    }
+
+    public void setSidx(String sidx) {
+        this.sidx = sidx;
+    }
+
+    public String getSearchField() {
+        return searchField;
+    }
+
+    public void setSearchField(String searchField) {
+        this.searchField = searchField;
+    }
+
+    public String getSearchString() {
+        return searchString;
+    }
+
+    public void setSearchString(String searchString) {
+        this.searchString = searchString;
+    }
+
+    public String getSearchOper() {
+        return searchOper;
+    }
+
+    public void setSearchOper(String searchOper) {
+        this.searchOper = searchOper;
+    }
+
+    public boolean isLoadonce() {
+        return loadonce;
+    }
+
+    public void setLoadonce(boolean loadonce) {
+        this.loadonce = loadonce;
+    }
+    
+    
+}
